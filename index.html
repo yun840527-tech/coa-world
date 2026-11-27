@@ -1695,7 +1695,7 @@ function renderGrowth() {
       ? "시트에 아직 쌓인 지표가 없어요. 스레드 계정 지표가 올라오면 여기에 자동으로 채워집니다."
       : "시트 연동 시 실제 스레드 조회수·팔로워 증감이 자동 표시됩니다.";
     sumEl.hidden = true;
-    listEl.innerHTML = snap.map(s => growthCardHtml(s, true)).join("") + growthSampleHtml();
+    listEl.innerHTML = snap.map(s => growthCardHtml(s, true)).join("") + (on ? "" : growthSampleHtml());
     return;
   }
 
