@@ -327,10 +327,10 @@
       border: 1px solid var(--border);
       background: #f7f9fb;
       color: #4b5563;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: -0.2px;
-      padding: 7px 12px;
+      letter-spacing: -0.3px;
+      padding: 7px 10px;
       border-radius: 999px;
       cursor: pointer;
       white-space: nowrap;
@@ -702,17 +702,19 @@
        live   : 핀을 눌렀을 때 뜨는 한 줄 상태
        order  : 칩 바 순서 */
     const SPOTS = {
-      command:   { short: "코아",      hit: [49.5, 15.5, 16, 18], dot: [56.5, 33.5], anchor: [64.5, 25],  side: "right",
+      // 캐릭터 실제 위치(그림 기준 %): 개(49.5~60, 19.5~31), 토끼(36~43.5, 44~62),
+      // 곰(56~63, 44~54), 고양이(71~76, 41.5~49), 회의실 탁자(12~30, 33~52), 소파(66~92, 55~72)
+      command:   { short: "코아",      hit: [48.5, 17.5, 13, 16], dot: [55, 38],    anchor: [61, 25],   side: "right",
                    live: "지휘 중 · 17:15 알림",   tone: "on" },
-      mongsil:   { short: "몽실",      hit: [24.5, 42.5, 13, 21], dot: [30, 61],     anchor: [30, 43.5], side: "above",
+      mongsil:   { short: "몽실",      hit: [34.5, 42.5, 10, 20], dot: [40, 64],    anchor: [40, 43],   side: "above",
                    live: "20:18 저녁 글 준비",     tone: "on" },
-      bohumpass: { short: "보험패스",   hit: [51, 38.5, 16, 18],   dot: [58.5, 54],   anchor: [58.5, 39], side: "above",
+      bohumpass: { short: "보험패스",   hit: [54.5, 42.5, 10, 16], dot: [60, 57.5],  anchor: [60, 58],   side: "below",
                    live: "사례형 타래 작성 중",   tone: "on" },
-      insight:   { short: "인사이트윤", hit: [67, 34.5, 16, 18],   dot: [74.5, 49.5], anchor: [72, 34],   side: "above", cx: 79,
+      insight:   { short: "인사이트윤", hit: [69.5, 39.5, 9.5, 13], dot: [73.5, 52],  anchor: [73.5, 40.5], side: "above", cx: 79,
                    live: "AI 실무 팁 준비 중",    tone: "on" },
-      meeting:   { short: "회의실",     hit: [7.5, 28, 15.5, 24], dot: [20, 43],     anchor: [20, 29],   side: "above",
+      meeting:   { short: "회의실",     hit: [11, 30.5, 20, 22],   dot: [20, 44],    anchor: [20, 32],   side: "above",
                    live: "수익화 동선 점검 중",   tone: "on" },
-      lounge:    { short: "라운지",     hit: [63, 55, 25, 19],     dot: [74, 62],     anchor: [74, 63],   side: "below",
+      lounge:    { short: "라운지",     hit: [65, 55, 27, 18],     dot: [79, 63],    anchor: [79, 66],   side: "below",
                    live: "대기 · 간격 조절 중",   tone: "idle" }
     };
     const CHIP_ORDER = ["command", "mongsil", "bohumpass", "insight", "meeting", "lounge"];
