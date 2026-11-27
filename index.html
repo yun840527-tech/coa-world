@@ -126,6 +126,9 @@
   .field input:focus { border-color: var(--mint); background: #fff; box-shadow: 0 0 0 3px rgba(79, 191, 159, 0.12); }
   .pin-row { display: flex; gap: 6px; }
   .pin-row input { flex: 1; min-width: 0; }
+  /* PIN 칸은 비밀번호처럼 가려 보이지만 type=text 라서 크롬이 로그인/저장된 비밀번호로 인식하지 않습니다 */
+  #linkPin { -webkit-text-security: disc; text-security: disc; }
+  #linkPin.pin-shown { -webkit-text-security: none; text-security: none; }
   .link-msg { min-height: 15px; font-size: 11px; line-height: 1.5; color: var(--muted); margin: 2px 0 12px;
     word-break: keep-all; overflow-wrap: break-word; }
   .link-msg.ok { color: var(--mint-deep); font-weight: 700; }
@@ -589,9 +592,72 @@
   .memo-item { display: flex; align-items: flex-start; gap: 9px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 12.5px; line-height: 1.5; }
   .memo-item:last-child { border-bottom: 0; }
   .memo-item .m-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); margin-top: 6px; flex: 0 0 auto; }
-  .memo-item .m-text { flex: 1; }
-  .memo-item .m-time { font-size: 10px; color: #aab2c0; }
+  .memo-item .m-text { flex: 1; overflow-wrap: anywhere; }
+  .memo-item .m-time { font-size: 10px; color: #aab2c0; white-space: nowrap; }
+  .memo-item .m-who {
+    font-size: 10px; font-weight: 800; color: var(--mint-deep); background: var(--mint-soft);
+    border-radius: 999px; padding: 1px 6px; white-space: nowrap;
+  }
   .memo-del { border: 0; background: transparent; color: #b9c0cc; font-size: 15px; padding: 0 2px; line-height: 1; }
+  .memo-note { margin-top: 8px; font-size: 11px; color: #a6aebc; line-height: 1.5; }
+  .memo-note.on { color: var(--mint-deep); }
+  .chk-add { display: flex; gap: 6px; margin-top: 7px; }
+  .chk-add input {
+    flex: 1; min-width: 0; border: 1px dashed #dde4ee; background: #fbfcfe; border-radius: 9px;
+    padding: 7px 9px; font-size: 11.5px; color: var(--ink); outline: none;
+  }
+  .chk-add input:focus { border-color: var(--mint); border-style: solid; background: #fff; }
+  .chk-add button {
+    border: 1px dashed #dde4ee; background: #fff; color: #7b8494; border-radius: 9px;
+    font-size: 12px; font-weight: 800; padding: 0 10px;
+  }
+  .chk-add button:active { transform: scale(0.96); }
+  .chk-src { font-size: 10px; font-weight: 700; color: #b3bac7; }
+
+  /* 발행 달력 */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0 6px; }
+  .cal-head b { font-size: 13px; letter-spacing: -0.2px; }
+  .cal-nav {
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: #fff;
+    color: #5a6273; font-size: 11px; line-height: 1;
+  }
+  .cal-nav:active { transform: scale(0.94); }
+  .cal-sum { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .cal-sum b { color: var(--ink); font-weight: 800; }
+  .cal-sum .cal-k { display: inline-flex; align-items: center; gap: 4px; }
+  .cal-sum .cal-k::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c, #b9c0cd); }
+  .cal-dow, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-dow span { text-align: center; font-size: 10px; color: #a7afbd; font-weight: 700; padding: 2px 0; }
+  .cal-dow span:first-child { color: #d98a8a; }
+  .cal-dow span:last-child { color: #7fabd8; }
+  .cal-cell {
+    position: relative; min-height: 42px; border: 1px solid transparent; background: #fbfcfe;
+    border-radius: 9px; padding: 4px 3px 14px; display: flex; flex-direction: column; align-items: center;
+    font-size: 11px; color: #4d5666; font-weight: 700;
+  }
+  .cal-cell.blank { background: transparent; }
+  .cal-cell.sun .cc-d { color: #d07070; }
+  .cal-cell.sat .cc-d { color: #6b93c0; }
+  .cal-cell.today { border-color: var(--mint); background: #f4fcf9; }
+  .cal-cell.sel { border-color: var(--navy); background: #fff; box-shadow: 0 3px 10px rgba(27, 36, 52, 0.12); }
+  .cal-cell .cc-n {
+    margin-top: 2px; font-size: 9.5px; font-weight: 800; color: #fff; background: var(--mint);
+    border-radius: 999px; padding: 0 5px; line-height: 14px;
+  }
+  .cal-cell .cc-dots { position: absolute; bottom: 4px; display: flex; gap: 2px; }
+  .cal-cell .cc-dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+  .cal-day { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 9px; }
+  .cd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12px; }
+  .cd-head b { font-weight: 800; }
+  .cd-head span { font-size: 11px; color: var(--muted); }
+  .cd-row { margin-top: 7px; }
+  .cd-acc { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; color: #4b5464; }
+  .cd-acc i { width: 6px; height: 6px; border-radius: 50%; }
+  .cd-acc b { font-weight: 800; }
+  .cd-links { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; padding-left: 10px; }
+  .cd-links a, .cd-links span { font-size: 11.5px; color: #5b6a80; text-decoration: none; line-height: 1.45; }
+  .cd-links a:hover { text-decoration: underline; }
+  .cal-empty { font-size: 11.5px; color: #a6aebc; margin-top: 6px; line-height: 1.5; }
   .empty { font-size: 12px; color: #a6aebc; padding: 10px 0; }
 
   .legend { display: flex; gap: 12px; align-items: center; font-size: 10.5px; color: var(--muted); padding: 2px 4px 0; }
@@ -732,6 +798,23 @@
       <div class="grow-sum" id="growSum" hidden></div>
       <div class="grow-list" id="growCards"></div>
     </div>
+    <div class="card" id="calCard">
+      <div class="grow-head">
+        <span class="ws-pill" style="margin-bottom:0;">발행 달력</span>
+        <span class="grow-when" id="calWhen">로컬 모드</span>
+      </div>
+      <h2 class="status-title" style="margin-top:8px;">콘텐츠 발행 현황</h2>
+      <p class="status-desc" id="calNote">시트 연동 시 날짜별 발행 건수가 여기에 쌓입니다.</p>
+      <div class="cal-head">
+        <button class="cal-nav" id="calPrev" type="button" aria-label="이전 달">◀</button>
+        <b id="calMonth">-</b>
+        <button class="cal-nav" id="calNext" type="button" aria-label="다음 달">▶</button>
+      </div>
+      <div class="cal-sum" id="calSum"></div>
+      <div class="cal-dow"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-day" id="calDay"></div>
+    </div>
     <div class="card" id="coupangCard">
       <div class="grow-head">
         <span class="ws-pill" style="margin-bottom:0;">쿠팡 파트너스</span>
@@ -796,11 +879,11 @@
       <span class="ws-pill">메모장</span>
       <h2 class="status-title">코아에게 남기는 메모</h2>
       <div class="add-row" style="margin-top:10px;">
-        <input id="memoInput" type="text" maxlength="120" placeholder="예: 내일 아침 후킹 카피 점검하기" />
+        <input id="memoInput" type="text" maxlength="500" autocomplete="off" autocorrect="off" autocapitalize="off" data-form-type="other" placeholder="예: 내일 아침 후킹 카피 점검하기" />
         <button class="btn-primary" id="memoAdd">저장</button>
       </div>
       <ul class="tasks" id="memoList" style="margin-top:6px;"></ul>
-      <p class="status-desc" style="margin-top:6px;font-size:11px;">이 브라우저에만 저장됩니다(localStorage).</p>
+      <p class="memo-note" id="memoNote">이 브라우저에만 저장됩니다(localStorage). 연동하면 시트로 공유돼요.</p>
     </div>
   </div>
 
@@ -819,13 +902,13 @@
     </div>
     <div class="field">
       <label for="linkUrl">웹 앱 URL (.../exec)</label>
-      <input id="linkUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false"
+      <input id="linkUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" data-form-type="other"
              placeholder="https://script.google.com/macros/s/AKfy…/exec" />
     </div>
     <div class="field">
       <label for="linkPin">PIN</label>
       <div class="pin-row">
-        <input id="linkPin" type="password" inputmode="numeric" autocomplete="off" maxlength="24" placeholder="Code.gs의 PIN" />
+        <input id="linkPin" type="text" inputmode="numeric" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" maxlength="24" placeholder="Code.gs의 PIN" />
         <button id="pinShow" class="sync-btn" type="button" aria-label="PIN 보기">보기</button>
       </div>
     </div>
@@ -998,10 +1081,7 @@ const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function loadState() {
   const base = {
-    parts: {}, memos: [
-      { text: "이번 주는 란이의 첫 줄 카피를 먼저 테스트하기", at: "" },
-      { text: "파트 발행 간격은 최소 20분 이상 두기", at: "" }
-    ],
+    parts: {}, memos: [], postLogs: [],
     selected: "coa", motion: !reduced,
     remote: [], remoteAt: "",
     metrics: [], metricsAt: "",
@@ -1021,6 +1101,7 @@ function loadState() {
       });
     }
     if (Array.isArray(saved.memos)) base.memos = saved.memos;
+    if (Array.isArray(saved.postLogs)) base.postLogs = saved.postLogs;
     if (Array.isArray(saved.remote)) base.remote = saved.remote;
     if (typeof saved.remoteAt === "string") base.remoteAt = saved.remoteAt;
     if (Array.isArray(saved.metrics)) base.metrics = saved.metrics;
@@ -1389,9 +1470,13 @@ function renderDetail(key) {
   });
   if (!tasks.length) html += '<li class="empty">아직 등록된 업무가 없어요.</li>';
   const toSheet = syncAddsToSheet(key, isRoom);
-  html += '</ul>' + remoteBlock(key, isRoom) +
+  html += '</ul>' +
+    (isRoom ? '' :
+      '<div class="chk-add"><input type="text" maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" data-form-type="other" placeholder="체크리스트에 할 일 추가" data-chkadd="' + key + '" />' +
+      '<button type="button" data-chkbtn="' + key + '" aria-label="체크리스트에 추가">＋</button></div>') +
+    remoteBlock(key, isRoom) +
     '<div class="add-row">' +
-      '<input type="text" maxlength="80" placeholder="' + escapeHtml(addPlaceholder(key, p.name, isRoom)) + '" data-add="' + key + '" />' +
+      '<input type="text" maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" data-form-type="other" placeholder="' + escapeHtml(addPlaceholder(key, p.name, isRoom)) + '" data-add="' + key + '" />' +
       '<button class="btn-primary" data-addbtn="' + key + '">' + (toSheet ? "지시" : "추가") + '</button>' +
     '</div>' +
     (toSheet ? '<p class="rt-hint">보내면 구글 시트에 기록되고 알림 메일이 가요. 상태·메모는 ⟳ 로 받아옵니다.</p>' : '');
@@ -1433,9 +1518,15 @@ detailEl.addEventListener("click", e => {
   if (row) {
     const part = row.dataset.part, idx = Number(row.dataset.idx);
     const t = state.parts[part] && state.parts[part][idx];
-    if (t) { t.done = !t.done; saveState(); renderDetail(part); renderWorkshop(); }
+    if (t) {
+      t.done = !t.done;
+      saveState(); renderDetail(part); renderWorkshop(); updateStats();
+      syncPartTask(part, idx, t.done);
+    }
     return;
   }
+  const chkBtn = e.target.closest("[data-chkbtn]");
+  if (chkBtn) { submitChecklistInput(chkBtn.dataset.chkbtn); return; }
   const addBtn = e.target.closest("[data-addbtn]");
   if (addBtn) { submitTaskInput(addBtn.dataset.addbtn, addBtn); return; }
   const call = e.target.closest("[data-call]");
@@ -1448,6 +1539,11 @@ detailEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.matches("[data-add]")) {
     e.preventDefault();
     submitTaskInput(e.target.dataset.add, null);
+    return;
+  }
+  if (e.key === "Enter" && e.target.matches("[data-chkadd]")) {
+    e.preventDefault();
+    submitChecklistInput(e.target.dataset.chkadd);
   }
 });
 
@@ -1979,36 +2075,116 @@ document.getElementById("meetingAgenda").addEventListener("click", e => {
   if (!row) return;
   const part = row.dataset.part, idx = Number(row.dataset.idx);
   const t = state.parts[part] && state.parts[part][idx];
-  if (t) { t.done = !t.done; saveState(); renderMeetingAgenda(); renderDetail(part); }
+  if (t) {
+    t.done = !t.done;
+    saveState(); renderMeetingAgenda(); renderDetail(part); updateStats();
+    syncPartTask(part, idx, t.done);
+  }
 });
 
-/* ---------------- 메모 ---------------- */
+/* ---------------- 메모 (코아에게 남기는 메모) ---------------- */
 const memoInput = document.getElementById("memoInput");
+let memoBusy = false;
+
+function normMemo(m) {
+  if (!m || !String(m.text || "").trim()) return null;
+  return {
+    id: String(m.id || ""),
+    date: String(m.date || "").slice(0, 10),
+    author: String(m.author || "나"),
+    text: String(m.text).slice(0, 500),
+    createdAt: String(m.createdAt || ""),
+    at: String(m.at || ""),          // 옛 로컬 메모 표시용
+    local: !!m.local
+  };
+}
+function setMemos(list) {
+  state.memos = (Array.isArray(list) ? list : []).map(normMemo).filter(Boolean);
+  saveState();
+  renderMemos();
+}
+
 function renderMemos() {
   const ul = document.getElementById("memoList");
-  if (!state.memos.length) { ul.innerHTML = '<li class="empty">아직 메모가 없어요.</li>'; return; }
-  ul.innerHTML = state.memos.map((m, i) =>
-    '<li class="memo-item"><span class="m-dot"></span><span class="m-text">' + escapeHtml(m.text) +
-    (m.at ? ' <span class="m-time">' + escapeHtml(m.at) + '</span>' : '') + '</span>' +
-    '<button class="memo-del" data-del="' + i + '" aria-label="메모 삭제">×</button></li>'
-  ).join("");
+  const note = document.getElementById("memoNote");
+  const on = hasSync();
+  if (note) {
+    note.textContent = on
+      ? "구글 시트에 저장돼요 — 폰·PC·코아가 같은 목록을 봅니다."
+      : "이 브라우저에만 저장됩니다(localStorage). 연동하면 시트로 공유돼요.";
+    note.className = "memo-note" + (on ? " on" : "");
+  }
+  if (!state.memos.length) {
+    ul.innerHTML = '<li class="empty">' + (on ? "아직 남긴 메모가 없어요. 첫 메모를 남겨 보세요." : "아직 메모가 없어요.") + '</li>';
+    return;
+  }
+  ul.innerHTML = state.memos.map((m, i) => {
+    const when = m.createdAt ? shortTime(m.createdAt) : (m.at || m.date || "");
+    return '<li class="memo-item"><span class="m-dot"></span><span class="m-text">' + escapeHtml(m.text) +
+      (m.author && m.author !== "나" ? ' <span class="m-who">' + escapeHtml(m.author) + '</span>' : '') +
+      (when ? ' <span class="m-time">' + escapeHtml(when) + '</span>' : '') + '</span>' +
+      '<button class="memo-del" data-del="' + i + '" aria-label="메모 삭제">×</button></li>';
+  }).join("");
 }
-function addMemo() {
-  const v = memoInput.value.trim();
-  if (!v) return;
+
+function clockLabel() {
   const d = new Date();
-  const at = (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
-  state.memos.unshift({ text: v, at });
+  return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+
+async function addMemo() {
+  const v = memoInput.value.trim();
+  if (!v || memoBusy) return;
+  if (!hasSync()) {
+    state.memos.unshift({ id: "", date: "", author: "나", text: v, createdAt: "", at: clockLabel(), local: true });
+    memoInput.value = "";
+    saveState(); renderMemos();
+    return;
+  }
+  memoBusy = true;
   memoInput.value = "";
+  try {
+    const data = await postRemote({ action: "addMemo", text: v, author: "나" });
+    if (Array.isArray(data.memos)) setMemos(data.memos);
+    else if (data.memo) setMemos([normMemo(data.memo)].concat(state.memos));
+    renderMemos();
+    setConn("ok");
+    toast("시트에 메모를 남겼어요 · 코아도 볼 수 있어요");
+  } catch (err) {
+    memoInput.value = v;
+    setConn("err", errorText(err));
+    toast("메모 저장 실패 · " + errorText(err));
+  } finally {
+    memoBusy = false;
+  }
+}
+
+async function deleteMemoAt(i) {
+  const m = state.memos[i];
+  if (!m) return;
+  if (hasSync() && m.id) {
+    try {
+      const data = await postRemote({ action: "deleteMemo", id: m.id });
+      if (Array.isArray(data.memos)) setMemos(data.memos);
+      else { state.memos.splice(i, 1); saveState(); renderMemos(); }
+      setConn("ok");
+      toast("시트에서 메모를 지웠어요");
+    } catch (err) {
+      setConn("err", errorText(err));
+      toast("메모 삭제 실패 · " + errorText(err));
+    }
+    return;
+  }
+  state.memos.splice(i, 1);
   saveState(); renderMemos();
 }
+
 document.getElementById("memoAdd").addEventListener("click", addMemo);
 memoInput.addEventListener("keydown", e => { if (e.key === "Enter") addMemo(); });
 document.getElementById("memoList").addEventListener("click", e => {
   const btn = e.target.closest("[data-del]");
   if (!btn) return;
-  state.memos.splice(Number(btn.dataset.del), 1);
-  saveState(); renderMemos();
+  deleteMemoAt(Number(btn.dataset.del));
 });
 
 /* =======================================================================
@@ -2251,8 +2427,15 @@ async function pullRemote(opts) {
     if (Array.isArray(data.metrics)) setMetrics(data.metrics);
     if (Array.isArray(data.benchmarks)) setBenchmarks(data.benchmarks);
     if (Array.isArray(data.coupang)) setCoupang(data.coupang);
+    if (Array.isArray(data.memos)) setMemos(data.memos);
+    if (Array.isArray(data.postLogs)) {
+      state.postLogs = data.postLogs.map(normPost).filter(Boolean);
+      saveState();
+    }
+    if (data.partTasks && typeof data.partTasks === "object") applyPartTasks(data.partTasks, data.partTasksSeeded);
     setConn("ok");
     renderAllRemote();
+    renderCalendar();
     if (opts.toast) toast("시트에서 " + state.remote.length + "건을 불러왔어요");
     return true;
   } catch (err) {
@@ -2265,6 +2448,222 @@ async function pullRemote(opts) {
   }
 }
 
+/* ---------- 체크리스트 · 메모 · 발행 기록 공유 ---------- */
+let partSeedTried = false;
+
+function normPost(p) {
+  const date = String((p && p.date) || "").slice(0, 10);
+  if (!date) return null;
+  return {
+    id: String(p.id || ""),
+    date: date,
+    account: String(p.account || "기타"),
+    title: String(p.title || "").slice(0, 200),
+    url: /^https?:\/\//i.test(p.url || "") ? String(p.url) : "",
+    createdAt: String(p.createdAt || "")
+  };
+}
+
+/** 시트의 파트 체크리스트를 화면 상태에 반영 — 비어 있으면 처음 한 번만 이 기기 목록을 올림 */
+function applyPartTasks(map, seeded) {
+  let any = false;
+  Object.keys(map || {}).forEach(k => {
+    if (ORDER.indexOf(k) < 0) return;
+    const list = Array.isArray(map[k]) ? map[k] : [];
+    if (!list.length) return;
+    any = true;
+    state.parts[k] = list.filter(x => x && typeof x.t === "string").map(x => ({ t: String(x.t), done: !!x.done }));
+  });
+  if (any) {
+    saveState();
+    renderDetail(selectedKey);
+    renderWorkshop();
+    renderMeetingAgenda();
+    updateStats();
+  }
+  if (!any && !seeded && !partSeedTried && hasSync()) {
+    partSeedTried = true;
+    pushAllPartTasks();
+  }
+}
+
+async function pushAllPartTasks() {
+  try {
+    const data = await postRemote({ action: "savePartTasks", partTasks: state.parts });
+    if (data.partTasks) applyPartTasks(data.partTasks, true);
+    setConn("ok");
+  } catch (err) {
+    setConn("err", errorText(err));
+  }
+}
+
+function submitChecklistInput(key) {
+  const inp = detailEl.querySelector('[data-chkadd="' + key + '"]');
+  const v = inp ? inp.value.trim() : "";
+  if (!v) return;
+  (state.parts[key] = state.parts[key] || []).push({ t: v, done: false });
+  if (inp) inp.value = "";
+  saveState(); renderDetail(key); renderWorkshop(); updateStats(); renderMeetingAgenda();
+  syncPartList(key);
+}
+
+/** 체크리스트에 항목을 더했을 때 — 그 파트 목록 전체를 시트에 기록 */
+async function syncPartList(part) {
+  if (!hasSync() || ORDER.indexOf(part) < 0) return;
+  try {
+    const data = await postRemote({ action: "savePartTasks", part: part, items: state.parts[part] || [] });
+    const got = data.partTasks && data.partTasks[part];
+    if (Array.isArray(got)) {
+      state.parts[part] = got;
+      saveState();
+      renderDetail(selectedKey);
+      renderWorkshop();
+      renderMeetingAgenda();
+      updateStats();
+    }
+    setConn("ok");
+  } catch (err) {
+    setConn("err", errorText(err));
+    toast("체크리스트 공유 실패 · " + errorText(err));
+  }
+}
+
+/** 체크만 토글했을 때 — 그 항목의 done 만 시트에서 바꿈 */
+async function syncPartTask(part, idx, done) {
+  if (!hasSync() || ORDER.indexOf(part) < 0) return;
+  try {
+    const data = await postRemote({ action: "togglePartTask", part: part, idx: idx, done: !!done });
+    const got = data.partTasks && data.partTasks[part];
+    if (Array.isArray(got) && got.length) {
+      state.parts[part] = got;
+      saveState();
+      renderDetail(selectedKey);
+      renderWorkshop();
+      renderMeetingAgenda();
+      updateStats();
+    }
+    setConn("ok");
+  } catch (err) {
+    setConn("err", errorText(err));
+    toast("체크 공유 실패 · " + errorText(err));
+  }
+}
+
+/* ---------- 발행 달력 ---------- */
+const POST_ACC = {
+  mongsil: { name: "몽실", color: "#f0a5bd" },
+  bohumpass: { name: "보험패스", color: "#c08a5e" },
+  insight: { name: "인사이트윤", color: "#8b93ab" }
+};
+let calYear = 0, calMonth = 0, calSel = "";
+
+function accName(k) { return POST_ACC[k] ? POST_ACC[k].name : (k || "기타"); }
+function accColor(k) { return POST_ACC[k] ? POST_ACC[k].color : "#b9c0cd"; }
+function pad2(n) { return String(n).padStart(2, "0"); }
+function dayKey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
+function postsOn(key) { return (state.postLogs || []).filter(p => p.date === key); }
+
+function renderCalendar() {
+  const grid = document.getElementById("calGrid");
+  if (!grid) return;
+  const now = new Date();
+  if (!calYear) {
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    calSel = dayKey(calYear, calMonth, now.getDate());
+  }
+  const todayKey = dayKey(now.getFullYear(), now.getMonth(), now.getDate());
+  const on = hasSync();
+  const whenEl = document.getElementById("calWhen");
+  whenEl.textContent = on ? "구글 시트 · 발행 기록" : "로컬 모드";
+  whenEl.className = "grow-when" + (on ? " on" : "");
+  document.getElementById("calMonth").textContent = calYear + "년 " + (calMonth + 1) + "월";
+  document.getElementById("calNote").textContent = on
+    ? "날짜별로 몇 건 발행했는지 시트 기록을 그대로 보여줍니다. 날짜를 누르면 그날 글이 보여요."
+    : "시트 연동 시 날짜별 발행 건수가 여기에 쌓입니다. 지금은 이 기기에 저장된 기록만 보입니다.";
+
+  const monthKey = calYear + "-" + pad2(calMonth + 1);
+  const monthLogs = (state.postLogs || []).filter(p => String(p.date).slice(0, 7) === monthKey);
+  const byAcc = {};
+  monthLogs.forEach(p => { byAcc[p.account] = (byAcc[p.account] || 0) + 1; });
+  document.getElementById("calSum").innerHTML = monthLogs.length
+    ? '<span>이번 달 <b>' + monthLogs.length + '건</b></span>' +
+      Object.keys(byAcc).map(k => '<span class="cal-k" style="--c:' + accColor(k) + '">' + escapeHtml(accName(k)) + ' <b>' + byAcc[k] + '</b></span>').join("")
+    : '<span>이 달에 기록된 발행이 없어요.</span>';
+
+  const startDow = new Date(calYear, calMonth, 1).getDay();
+  const days = new Date(calYear, calMonth + 1, 0).getDate();
+  let h = "";
+  for (let i = 0; i < startDow; i++) h += '<span class="cal-cell blank"></span>';
+  for (let day = 1; day <= days; day++) {
+    const key = dayKey(calYear, calMonth, day);
+    const list = postsOn(key);
+    const dow = (startDow + day - 1) % 7;
+    const accs = [];
+    list.forEach(p => { if (accs.indexOf(p.account) < 0) accs.push(p.account); });
+    h += '<button type="button" class="cal-cell' +
+      (dow === 0 ? " sun" : dow === 6 ? " sat" : "") +
+      (key === todayKey ? " today" : "") +
+      (key === calSel ? " sel" : "") +
+      '" data-cal="' + key + '">' +
+      '<span class="cc-d">' + day + '</span>' +
+      (list.length ? '<span class="cc-n">' + list.length + '</span>' : '') +
+      (accs.length ? '<span class="cc-dots">' + accs.map(a => '<i style="background:' + accColor(a) + '"></i>').join("") + '</span>' : '') +
+      '</button>';
+  }
+  grid.innerHTML = h;
+  renderCalDay();
+}
+
+function renderCalDay() {
+  const el = document.getElementById("calDay");
+  if (!el) return;
+  if (!calSel) {
+    el.innerHTML = '<div class="cal-empty">날짜를 누르면 그날 발행한 글이 보여요.</div>';
+    return;
+  }
+  const list = postsOn(calSel);
+  const head = '<div class="cd-head"><b>' + calSel.replace(/-/g, ".") + '</b><span>' +
+    (list.length ? "총 " + list.length + "건" : "기록 없음") + '</span></div>';
+  if (!list.length) {
+    el.innerHTML = head + '<div class="cal-empty">' +
+      (hasSync() ? "이 날은 아직 발행 기록이 없어요." : "시트를 연동하면 발행 기록이 여기에 쌓여요.") + '</div>';
+    return;
+  }
+  const groups = [];
+  list.forEach(p => {
+    let g = groups.find(x => x.account === p.account);
+    if (!g) { g = { account: p.account, items: [] }; groups.push(g); }
+    g.items.push(p);
+  });
+  el.innerHTML = head + groups.map(g =>
+    '<div class="cd-row"><span class="cd-acc"><i style="background:' + accColor(g.account) + '"></i>' +
+      escapeHtml(accName(g.account)) + ' <b>' + g.items.length + '건</b></span>' +
+      '<span class="cd-links">' + g.items.map(p => p.url
+        ? '<a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(p.title || "글 보기") + '</a>'
+        : '<span>' + escapeHtml(p.title || "글") + '</span>').join("") + '</span></div>'
+  ).join("");
+}
+
+document.getElementById("calPrev").addEventListener("click", () => {
+  calMonth -= 1;
+  if (calMonth < 0) { calMonth = 11; calYear -= 1; }
+  calSel = "";
+  renderCalendar();
+});
+document.getElementById("calNext").addEventListener("click", () => {
+  calMonth += 1;
+  if (calMonth > 11) { calMonth = 0; calYear += 1; }
+  calSel = "";
+  renderCalendar();
+});
+document.getElementById("calGrid").addEventListener("click", e => {
+  const cell = e.target.closest("[data-cal]");
+  if (!cell) return;
+  calSel = cell.dataset.cal;
+  renderCalendar();
+});
+
 /* ---------- 업무 지시 · 상태 · 삭제 ---------- */
 function submitTaskInput(key, btn) {
   const inp = detailEl.querySelector('[data-add="' + key + '"]');
@@ -2276,7 +2675,8 @@ function submitTaskInput(key, btn) {
   }
   (state.parts[key] = state.parts[key] || []).push({ t: v, done: false });
   if (inp) inp.value = "";
-  saveState(); renderDetail(key); renderWorkshop();
+  saveState(); renderDetail(key); renderWorkshop(); updateStats(); renderMeetingAgenda();
+  syncPartList(key);
 }
 
 async function createRemoteTask(key, title, btn) {
@@ -2418,8 +2818,8 @@ document.getElementById("linkTest").addEventListener("click", testLinkFromForm);
 document.getElementById("linkSave").addEventListener("click", saveLinkFromForm);
 linkPin.addEventListener("keydown", e => { if (e.key === "Enter") saveLinkFromForm(); });
 document.getElementById("pinShow").addEventListener("click", e => {
-  const show = linkPin.type === "password";
-  linkPin.type = show ? "text" : "password";
+  const show = !linkPin.classList.contains("pin-shown");
+  linkPin.classList.toggle("pin-shown", show);
   e.currentTarget.textContent = show ? "가리기" : "보기";
 });
 document.getElementById("linkOff").addEventListener("click", () => {
@@ -2457,6 +2857,8 @@ window.addEventListener("focus", maybeAutoPull);
 state.remote = (state.remote || []).map(normTask).filter(Boolean);
 state.benchmarks = (state.benchmarks || []).map(normBench).filter(Boolean);
 state.coupang = (state.coupang || []).map(normCoupang).filter(Boolean);
+state.memos = (state.memos || []).map(normMemo).filter(Boolean);
+state.postLogs = (state.postLogs || []).map(normPost).filter(Boolean);
 buildChars();
 buildChips();
 chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
@@ -2469,6 +2871,7 @@ updateStats();
 renderMemos();
 renderRemoteSummary();
 renderGrowth();
+renderCalendar();
 renderCoupang();
 renderBenchmarks();
 renderSyncBar();
