@@ -134,6 +134,14 @@
   .btn-ghost.danger { color: #c0554f; border-color: #f3d9d6; }
   .modal-actions .btn-primary { flex: 1; padding: 11px 12px; }
   .modal-note { font-size: 10.5px; color: #a7afbd; line-height: 1.55; margin: 11px 0 0; }
+  .modal-help { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .modal-help summary { font-size: 11px; font-weight: 800; color: #48505f; cursor: pointer; list-style: none; }
+  .modal-help summary::-webkit-details-marker { display: none; }
+  .modal-help summary::before { content: "＋ "; color: var(--mint-deep); }
+  .modal-help[open] summary::before { content: "－ "; }
+  .modal-help ol { margin: 8px 0 0; padding-left: 17px; font-size: 10.5px; color: #6d7583; line-height: 1.7; }
+  .modal-help li { margin-bottom: 2px; }
+  .modal-help code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10px; background: #f4f7fa; border-radius: 4px; padding: 1px 4px; }
 
   /* 시트 업무 행 */
   .rt-head {
@@ -657,6 +665,15 @@
       <button id="linkOff" class="btn-ghost danger" type="button">연동 해제</button>
     </div>
     <p class="modal-note">URL·PIN은 이 브라우저(localStorage)에만 저장되고 공개 페이지에는 들어가지 않아요. 구글 계정 권한은 건드리지 않습니다.</p>
+    <details class="modal-help">
+      <summary>처음이면 · 1분 설정 순서</summary>
+      <ol>
+        <li>구글 시트를 열고 <b>확장 프로그램 → Apps Script</b>.</li>
+        <li><code>Code.gs</code> 전체를 붙여넣고, 맨 위 <code>PIN</code> 을 내 번호로 바꾼 뒤 저장.</li>
+        <li><b>배포 → 새 배포 → 웹 앱</b> · 실행: <b>나</b> · 액세스: <b>모든 사용자</b> → 나온 <code>…/exec</code> 주소 복사.</li>
+        <li>위 칸에 주소와 PIN 을 넣고 <b>연결 테스트</b> → <b>저장하고 연결</b>.</li>
+      </ol>
+    </details>
   </div>
 </div>
 
