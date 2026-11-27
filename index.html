@@ -6,6 +6,10 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="theme-color" content="#eef3f8" />
 <title>코아월드 v2 — 움직이는 오피스</title>
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="./icon-512.png" />
+<meta name="apple-mobile-web-app-title" content="코아월드" />
 <link rel="preload" as="image" href="./office-bg.webp" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/coa.webp?v=1" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/mongsil.webp?v=1" type="image/webp" />
@@ -52,10 +56,12 @@
     width: 42px; height: 42px; border-radius: 14px; background: var(--navy); color: #fff;
     display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px;
     letter-spacing: -0.5px; box-shadow: 0 6px 16px rgba(27, 36, 52, 0.2); position: relative;
+    overflow: hidden; flex: 0 0 auto;
   }
+  .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .logo::after {
-    content: ""; position: absolute; right: 7px; bottom: 7px; width: 7px; height: 7px;
-    border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 2px var(--navy);
+    content: ""; position: absolute; right: 4px; bottom: 4px; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92);
   }
   .brand-title { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.15; }
   .brand-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-weight: 500; }
@@ -108,7 +114,8 @@
   }
   .modal-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
   .modal-title { font-size: 16px; font-weight: 800; letter-spacing: -0.4px; }
-  .modal-sub { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+  .modal-sub { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 4px;
+    word-break: keep-all; overflow-wrap: break-word; }
   .modal-x {
     margin-left: auto; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 9px; border: 1px solid var(--line);
     background: #fff; color: #98a1b0; font-size: 16px; line-height: 1;
@@ -122,18 +129,33 @@
   .field input:focus { border-color: var(--mint); background: #fff; box-shadow: 0 0 0 3px rgba(79, 191, 159, 0.12); }
   .pin-row { display: flex; gap: 6px; }
   .pin-row input { flex: 1; min-width: 0; }
-  .link-msg { min-height: 15px; font-size: 11px; line-height: 1.5; color: var(--muted); margin: 2px 0 12px; }
+  .link-msg { min-height: 15px; font-size: 11px; line-height: 1.5; color: var(--muted); margin: 2px 0 12px;
+    word-break: keep-all; overflow-wrap: break-word; }
   .link-msg.ok { color: var(--mint-deep); font-weight: 700; }
   .link-msg.err { color: #c0554f; font-weight: 700; }
   .modal-actions { display: flex; gap: 7px; }
+  .modal-actions > button { min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; }
   .btn-ghost {
     border: 1px solid var(--line); background: #fff; color: #48505f; font-weight: 800; font-size: 12px;
     padding: 11px 12px; border-radius: 11px; white-space: nowrap;
   }
   .btn-ghost:active { transform: scale(0.97); }
-  .btn-ghost.danger { color: #c0554f; border-color: #f3d9d6; }
-  .modal-actions .btn-primary { flex: 1; padding: 11px 12px; }
-  .modal-note { font-size: 10.5px; color: #a7afbd; line-height: 1.55; margin: 11px 0 0; }
+  /* 연결 테스트(1) : 저장하고 연결(1.4) — 한 줄에서 균형 있게 */
+  .modal-actions .btn-ghost { flex: 1 1 0; padding: 11px 8px; }
+  .modal-actions .btn-primary { flex: 1.4 1 0; padding: 11px 10px; }
+  /* 연동 중일 때만 나오는 해제 버튼 — 아래쪽 한 줄 텍스트 버튼 */
+  .link-off-row {
+    margin-top: 10px; padding-top: 5px; border-top: 1px dashed var(--line);
+    display: flex; justify-content: center;
+  }
+  .link-off-row[hidden] { display: none; }
+  .link-off {
+    border: 0; background: transparent; color: #c0554f; font-size: 11.5px; font-weight: 800;
+    letter-spacing: -0.2px; padding: 7px 14px; border-radius: 9px;
+  }
+  .link-off:active { background: #fdecea; }
+  .modal-note { font-size: 10.5px; color: #a7afbd; line-height: 1.55; margin: 11px 0 0;
+    word-break: keep-all; overflow-wrap: break-word; }
   .modal-help { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
   .modal-help summary { font-size: 11px; font-weight: 800; color: #48505f; cursor: pointer; list-style: none; }
   .modal-help summary::-webkit-details-marker { display: none; }
@@ -379,11 +401,21 @@
   .bubble.side-above .b-arrow { bottom: -7px; }
   .bubble.side-below .b-arrow { top: -7px; bottom: auto; transform: translateX(-50%) rotate(225deg); }
 
-  /* chips */
+  /* chips — 7개를 한 줄 가로 스크롤로 (모바일에서 1~2개만 다음 줄로 떨어지지 않게) */
   .chips {
-    display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 10px; margin: 0 0 6px;
+    --fade-l: 20px; --fade-r: 22px;
+    display: flex; flex-wrap: nowrap; align-items: center; gap: 6px;
+    margin: 0 -14px 6px; padding: 2px 14px 10px;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l),
+      #000 calc(100% - var(--fade-r)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-l),
+      #000 calc(100% - var(--fade-r)), transparent 100%);
   }
-  .chips::-webkit-scrollbar { display: none; }
+  .chips.is-start { --fade-l: 0px; }
+  .chips.is-end { --fade-r: 0px; }
+  .chips::-webkit-scrollbar { display: none; width: 0; height: 0; }
   .chip {
     flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line);
     background: #fff; color: #4a5262; font-size: 12px; font-weight: 700; padding: 7px 11px;
@@ -470,6 +502,21 @@
   .legend b { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
   .legend i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
   .foot { text-align: center; font-size: 10.5px; color: #a7afbd; margin-top: 16px; letter-spacing: -0.1px; }
+
+  /* ---------- 좁은 모바일(360~400px) 미세 조정 ---------- */
+  @media (max-width: 400px) {
+    .app { padding: 14px 12px 40px; }
+    .sync-bar { gap: 5px; padding: 6px 8px; }
+    .conn-badge { font-size: 10px; padding: 4px 8px; }
+    .sync-info { font-size: 10px; }
+    .sync-btn { font-size: 10.5px; padding: 6px 8px; }
+    .chips { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+    .chip { font-size: 11.5px; padding: 7px 10px; }
+    .brand-title { font-size: 18px; }
+    .brand-sub { font-size: 11px; }
+    .tab-btn { font-size: 12px; }
+    .modal-card { padding: 16px 14px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -477,7 +524,7 @@
 
   <div class="header">
     <div class="brand">
-      <div class="logo">C.</div>
+      <div class="logo"><img src="./icon-192.png" alt="" width="42" height="42" decoding="async" /></div>
       <div>
         <div class="brand-title">코아월드 v2</div>
         <div class="brand-sub">움직이는 오피스 · 5개 파트 가동 중</div>
@@ -661,8 +708,8 @@
       <button id="linkTest" class="btn-ghost" type="button">연결 테스트</button>
       <button id="linkSave" class="btn-primary" type="button">저장하고 연결</button>
     </div>
-    <div class="modal-actions" style="margin-top:7px;">
-      <button id="linkOff" class="btn-ghost danger" type="button">연동 해제</button>
+    <div id="linkOffRow" class="link-off-row" hidden>
+      <button id="linkOff" class="link-off" type="button">연동 해제</button>
     </div>
     <p class="modal-note">URL·PIN은 이 브라우저(localStorage)에만 저장되고 공개 페이지에는 들어가지 않아요. 구글 계정 권한은 건드리지 않습니다.</p>
     <details class="modal-help">
@@ -1143,6 +1190,7 @@ function select(key, doJump) {
 
   document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.key === key));
   document.querySelectorAll(".ch").forEach(el => el.classList.toggle("selected", el.dataset.key === key));
+  ensureChipVisible(chipsEl.querySelector('.chip[data-key="' + key + '"]'));
 
   renderDetail(key);
   showBubble(key);
@@ -1315,6 +1363,25 @@ function endRally() {
 }
 
 /* ---------------- 칩 ---------------- */
+/* 한 줄 가로 스크롤 칩 바 — 고른 칩(또는 회의실·라운지)이 화면 밖이면 부드럽게 끌어옵니다. */
+function updateChipFade() {
+  if (!chipsEl) return;
+  const max = chipsEl.scrollWidth - chipsEl.clientWidth;
+  chipsEl.classList.toggle("is-start", chipsEl.scrollLeft <= 2);
+  chipsEl.classList.toggle("is-end", chipsEl.scrollLeft >= max - 2);
+}
+function ensureChipVisible(chip) {
+  if (!chip || !chipsEl) return;
+  const pad = 12;
+  const cRect = chipsEl.getBoundingClientRect();
+  const eRect = chip.getBoundingClientRect();
+  if (eRect.left < cRect.left + pad) {
+    chipsEl.scrollTo({ left: chipsEl.scrollLeft + (eRect.left - cRect.left) - pad, behavior: "smooth" });
+  } else if (eRect.right > cRect.right - pad) {
+    chipsEl.scrollTo({ left: chipsEl.scrollLeft + (eRect.right - cRect.right) + pad, behavior: "smooth" });
+  }
+  updateChipFade();
+}
 function buildChips() {
   ORDER.forEach(key => {
     const p = PARTS[key];
@@ -1484,6 +1551,7 @@ const linkModal = document.getElementById("linkModal");
 const linkUrl = document.getElementById("linkUrl");
 const linkPin = document.getElementById("linkPin");
 const linkMsg = document.getElementById("linkMsg");
+const linkOffRow = document.getElementById("linkOffRow");
 const toastEl = document.getElementById("toast");
 
 function loadSyncConfig() {
@@ -1795,6 +1863,7 @@ function setLinkMsg(text, kind) {
 function openLinkModal() {
   linkUrl.value = sync.url;
   linkPin.value = sync.pin;
+  linkOffRow.hidden = !hasSync();   // 연동 전에는 '연동 해제' 자체를 감춥니다
   setLinkMsg(hasSync() ? "저장된 설정이 있어요. 값을 바꾸면 새 값으로 연결합니다." : "아직 연동 전이에요. Apps Script 배포 주소와 PIN을 넣어 주세요.", "");
   linkModal.hidden = false;
   document.body.classList.add("modal-open");
@@ -1831,6 +1900,7 @@ async function saveLinkFromForm() {
     }
   }
   saveSyncConfig({ url: url, pin: pin });
+  linkOffRow.hidden = false;
   setConn("idle");
   setLinkMsg("저장했어요. 시트에서 목록을 불러오는 중…", "");
   const ok = await pullRemote({ silent: true });
@@ -1863,6 +1933,7 @@ document.getElementById("linkOff").addEventListener("click", () => {
   if (!hasSync()) { setLinkMsg("지금은 로컬 모드예요.", ""); return; }
   if (!window.confirm("연동을 해제할까요? 이미 받아온 업무는 화면에 남아 있어요.")) return;
   saveSyncConfig({ url: "", pin: "" });
+  linkOffRow.hidden = true;
   setConn("local");
   linkUrl.value = "";
   linkPin.value = "";
@@ -1893,6 +1964,9 @@ window.addEventListener("focus", maybeAutoPull);
 state.remote = (state.remote || []).map(normTask).filter(Boolean);
 buildChars();
 buildChips();
+chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
+updateChipFade();
+requestAnimationFrame(() => ensureChipVisible(chipsEl.querySelector(".chip.active")));
 renderMotion();
 renderDetail(selectedKey);
 renderWorkshop();
@@ -1902,6 +1976,7 @@ renderRemoteSummary();
 renderSyncBar();
 measure();
 window.addEventListener("resize", measure);
+window.addEventListener("resize", updateChipFade);
 if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
 requestAnimationFrame(t => { last = t; tick(t); });
 
