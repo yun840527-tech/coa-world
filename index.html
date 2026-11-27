@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>코아월드 — 영록 본부 AI 오피스</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --dark: #161d29;
+      --green: #10b981;
+      --green-bg: #ecfdf5;
+      --pill-bg: #eef1f5;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .app {
+      width: 100%;
+      max-width: 460px;
+      padding: 16px 14px 40px;
+    }
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: var(--dark);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 4px 12px rgba(22, 29, 41, 0.16);
+    }
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-bg);
+      color: #059669;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid #d1fae5;
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.82); }
+    }
+
+    /* Tabs */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: #e9edf3;
+      border-radius: 16px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 9px 4px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--text);
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Status Card */
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      margin-bottom: 12px;
+    }
+    .ws-pill {
+      display: inline-block;
+      background: var(--pill-bg);
+      color: #374151;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .status-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0 0 5px;
+      letter-spacing: -0.3px;
+    }
+    .status-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    /* Control Pills */
+    .pills-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .pill-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 7px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pill-btn.dark {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+    }
+
+    /* Office Diorama */
+    .office-wrap {
+      background: var(--card);
+      border-radius: 22px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      margin-bottom: 14px;
+    }
+    .office-stage {
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fafafa;
+    }
+    .office-stage img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(22, 29, 41, 0.86);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+      transition: transform 0.15s ease, background 0.15s ease;
+      z-index: 2;
+    }
+    .hotspot:hover, .hotspot.selected {
+      background: #0f172a;
+      transform: translate(-50%, -50%) scale(1.07);
+      border-color: #34d399;
+    }
+    .hotspot .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      flex-shrink: 0;
+    }
+    .hotspot .dot.idle { background: #fbbf24; }
+    .motion-on .hotspot {
+      animation: floatPin 3s ease-in-out infinite;
+    }
+    .motion-on .hotspot:nth-child(2n) { animation-delay: 0.6s; }
+    .motion-on .hotspot:nth-child(3n) { animation-delay: 1.2s; }
+    @keyframes floatPin {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, calc(-50% - 3px)); }
+    }
+
+    /* Drawer / Detail */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .detail-title {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .role-tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--pill-bg);
+      color: #374151;
+      padding: 4px 9px;
+      border-radius: 999px;
+    }
+    .task-list {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      background: #f9fafb;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+    .task-item.done {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+    .task-check {
+      width: 17px;
+      height: 17px;
+      border-radius: 5px;
+      border: 1.8px solid #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 11px;
+      color: #fff;
+    }
+    .task-item.done .task-check {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    /* Forms & Lists in other tabs */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .input-row input, .input-row textarea {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    .btn-primary {
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .section-view { display: none; }
+    .section-view.active { display: block; }
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 13px;
+    }
+    .kv-row:last-child { border-bottom: none; }
+    .kv-k { color: var(--muted); font-weight: 600; }
+    .kv-v { font-weight: 700; text-align: right; max-width: 65%; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">C.</div>
+        <div>
+          <div class="brand-title">코아월드</div>
+          <div class="brand-sub">영록 본부 · 4개 파트 가동 중</div>
+        </div>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="office">오피스</button>
+      <button class="tab-btn" data-tab="meeting">회의실</button>
+      <button class="tab-btn" data-tab="workshop">작업실</button>
+      <button class="tab-btn" data-tab="status">현황</button>
+      <button class="tab-btn" data-tab="memo">메모</button>
+    </div>
+
+    <!-- 1. 오피스 탭 -->
+    <div id="tab-office" class="section-view active">
+      <div class="card">
+        <span class="ws-pill">Workspace</span>
+        <h2 class="status-title">대표님, 4개 파트가 대기 중이에요</h2>
+        <p class="status-desc">공간이나 담당자를 탭하면 역할과 진행 현황을 바로 보고 업무를 추가할 수 있어요.</p>
+      </div>
+
+      <div class="pills-row">
+        <button id="motionToggle" class="pill-btn dark">모션 ON</button>
+        <button class="pill-btn" onclick="switchTab('workshop')">가동 4파트</button>
+        <button class="pill-btn" onclick="selectRoom('command')">Lv.3 코아</button>
+      </div>
+
+      <div id="officeWrap" class="office-wrap motion-on">
+        <div class="office-stage">
+          <img src="./office.png" alt="코아월드 아이소메트릭 오피스" />
+          <button class="hotspot selected" style="left: 55%; top: 38%;" onclick="selectRoom('command')">
+            <span class="dot"></span> 지휘실 · 코아
+          </button>
+          <button class="hotspot" style="left: 20%; top: 47%;" onclick="selectRoom('meeting')">
+            <span class="dot"></span> 대회의실
+          </button>
+          <button class="hotspot" style="left: 41%; top: 61%;" onclick="selectRoom('mongsil')">
+            <span class="dot"></span> 몽실
+          </button>
+          <button class="hotspot" style="left: 58%; top: 55%;" onclick="selectRoom('bohumpass')">
+            <span class="dot"></span> 보험패스
+          </button>
+          <button class="hotspot" style="left: 74%; top: 49%;" onclick="selectRoom('insight')">
+            <span class="dot"></span> 인사이트윤
+          </button>
+          <button class="hotspot" style="left: 76%; top: 73%;" onclick="selectRoom('lounge')">
+            <span class="dot idle"></span> 라운지
+          </button>
+        </div>
+      </div>
+
+      <div id="roomDetail" class="card"></div>
+    </div>
+
+    <!-- 2. 회의실 탭 -->
+    <div id="tab-meeting" class="section-view">
+      <div class="card">
+        <span class="ws-pill">전략 회의실</span>
+        <h2 class="status-title">3계정 + 디지털 상품 시너지 회의</h2>
+        <p class="status-desc">각 파트가 서로 겹치지 않게 수익화 동선을 나누어 움직입니다.</p>
+        <div style="margin-top:12px;">
+          <div class="kv-row"><span class="kv-k">몽실 (@mongsil.good)</span><span class="kv-v">일상 반말 공감 → 쿠팡·토스 파트너스</span></div>
+          <div class="kv-row"><span class="kv-k">보험패스 (@bohumpass)</span><span class="kv-v">병원 자문·사례 → 1:1 보장분석 문의</span></div>
+          <div class="kv-row"><span class="kv-k">인사이트윤 (@insight.yoon)</span><span class="kv-v">AI 실무 팁 → 모두의비서 · 패스톡 · 보험</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 작업실 탭 -->
+    <div id="tab-workshop" class="section-view">
+      <div class="card">
+        <span class="ws-pill">파트별 역할 & 스케줄</span>
+        <h2 class="status-title">가동 중인 4개 파트</h2>
+        <div id="workshopList" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- 4. 현황 탭 -->
+    <div id="tab-status" class="section-view">
+      <div class="card">
+        <span class="ws-pill">오늘의 가동 현황</span>
+        <h2 class="status-title">최근 실행 및 예정 타임라인</h2>
+        <div style="margin-top:10px;">
+          <div class="kv-row"><span class="kv-k">14:02 몽실 스레드</span><span class="kv-v">1번 글 게시 + 소통 3건 완료</span></div>
+          <div class="kv-row"><span class="kv-k">15:06 귀가 연락</span><span class="kv-v">통화 전달 완료</span></div>
+          <div class="kv-row"><span class="kv-k">17:15 예정</span><span class="kv-v">쿠팡 파트너스 로그인 재시도 알림</span></div>
+          <div class="kv-row"><span class="kv-k">20:18 예정</span><span class="kv-v">몽실 스레드 저녁 루틴 (서울 날씨/이슈)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 메모 탭 -->
+    <div id="tab-memo" class="section-view">
+      <div class="card">
+        <span class="ws-pill">대표님 메모장</span>
+        <h2 class="status-title">코아에게 남기는 메모</h2>
+        <div class="input-row">
+          <input id="memoInput" type="text" placeholder="예: 패스톡 홍보 링크 추가하기" />
+          <button class="btn-primary" onclick="addMemo()">저장</button>
+        </div>
+        <ul id="memoList" class="task-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultRooms = {
+      command: {
+        name: "🐶 지휘실 · 코아",
+        role: "총괄 비서 (Lv.3)",
+        summary: "영록 대표님의 일정, 메일, 스레드 3개 파트 및 전화 연락을 총괄 지휘합니다.",
+        tasks: [
+          { text: "17:15 쿠팡 파트너스 로그인 재시도 알림", done: false },
+          { text: "ChatGPT Plus 만료(11/28) 등 메일 긴급 건 챙기기", done: false },
+          { text: "몽실·보험패스·인사이트윤 스케줄 충돌 방지", done: true }
+        ]
+      },
+      meeting: {
+        name: "🤝 대회의실",
+        role: "전략 · 수익화 기획",
+        summary: "세 스레드 계정과 모두의비서(19,900원)·패스톡(월 구독) 연결 전략을 점검합니다.",
+        tasks: [
+          { text: "패스톡 구독 안내 페이지 링크 확보하기", done: false },
+          { text: "모두의비서 제작기 콘텐츠 주 1회 편성", done: true }
+        ]
+      },
+      mongsil: {
+        name: "🐰 몽실 파트",
+        role: "@mongsil.good · 일상/제휴",
+        summary: "일상·공감 콘텐츠를 친근한 반말 톤으로 발행해 팔로워를 모읍니다.",
+        tasks: [
+          { text: "오후 2시 직장인 공감글 & 스하리 3건 완료", done: true },
+          { text: "20:18 서울 날씨/실시간 이슈 반영 저녁 글 게시", done: false }
+        ]
+      },
+      bohumpass: {
+        name: "🐻 보험패스 파트",
+        role: "@bohumpass · 보험/자문",
+        summary: "10년 차 보험전문가 & 필한방·자생한방병원 자문위원. 1:1 보장분석 문의를 유도합니다.",
+        tasks: [
+          { text: "월·수·금 08:37 / 일 17:19 사례형 타래 발행", done: false },
+          { text: "한방 비급여·감액기간 복귀 타래 게시", done: false }
+        ]
+      },
+      insight: {
+        name: "🐱 인사이트윤 파트",
+        role: "@insight.yoon · AI/상품",
+        summary: "AI·업무 자동화 꿀팁 + 모두의비서·패스톡 소개 + 오픈카톡 보험 브릿지 운영.",
+        tasks: [
+          { text: "화·목 09:24 / 주말 오전 AI 실무 팁 발행", done: false },
+          { text: "모두의비서 스마트스토어(19,900원) 제작기 준비", done: false }
+        ]
+      },
+      lounge: {
+        name: "☕ 라운지",
+        role: "대기 · 리서치",
+        summary: "계정 무결성 보호를 위해 파트별 실행 간격(3~20분 랜덤 지연)을 조절하며 휴식합니다.",
+        tasks: [
+          { text: "메타 계정 안전 수칙 준수 (과도한 연속 작업 금지)", done: true }
+        ]
+      }
+    };
+
+    let state = JSON.parse(localStorage.getItem("coa_world_state") || "null") || {
+      rooms: defaultRooms,
+      memos: [
+        { text: "스레드는 반말 기본(몽실), 전문가 톤(보험패스·인사이트윤) 유지!", done: false },
+        { text: "모두의비서: 스마트스토어 단건 19,900원 / 패스톡: 월 구독(7일 체험)", done: false }
+      ],
+      selectedRoom: "command",
+      motion: true
+    };
+
+    function saveState() {
+      localStorage.setItem("coa_world_state", JSON.stringify(state));
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".section-view").forEach(v => {
+        v.classList.toggle("active", v.id === "tab-" + tabId);
+      });
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    const motionBtn = document.getElementById("motionToggle");
+    const officeWrap = document.getElementById("officeWrap");
+    function renderMotion() {
+      motionBtn.textContent = state.motion ? "모션 ON" : "모션 OFF";
+      motionBtn.classList.toggle("dark", state.motion);
+      officeWrap.classList.toggle("motion-on", state.motion);
+    }
+    motionBtn.addEventListener("click", () => {
+      state.motion = !state.motion;
+      saveState();
+      renderMotion();
+    });
+
+    function selectRoom(key) {
+      state.selectedRoom = key;
+      saveState();
+      document.querySelectorAll(".hotspot").forEach(h => h.classList.remove("selected"));
+      const keys = ["command", "meeting", "mongsil", "bohumpass", "insight", "lounge"];
+      const idx = keys.indexOf(key);
+      if (idx >= 0) document.querySelectorAll(".hotspot")[idx].classList.add("selected");
+      renderRoomDetail();
+    }
+
+    function toggleTask(roomKey, idx) {
+      state.rooms[roomKey].tasks[idx].done = !state.rooms[roomKey].tasks[idx].done;
+      saveState();
+      renderRoomDetail();
+    }
+
+    function addRoomTask(roomKey) {
+      const input = document.getElementById("newTaskInput");
+      const val = input.value.trim();
+      if (!val) return;
+      state.rooms[roomKey].tasks.unshift({ text: val, done: false });
+      input.value = "";
+      saveState();
+      renderRoomDetail();
+    }
+
+    function renderRoomDetail() {
+      const key = state.selectedRoom;
+      const room = state.rooms[key];
+      const el = document.getElementById("roomDetail");
+      el.innerHTML = `
+        <div class="detail-header">
+          <div class="detail-title">${room.name}</div>
+          <span class="role-tag">${room.role}</span>
+        </div>
+        <p class="status-desc">${room.summary}</p>
+        <ul class="task-list">
+          ${room.tasks.map((t, i) => `
+            <li class="task-item ${t.done ? "done" : ""}" onclick="toggleTask('${key}', ${i})">
+              <span class="task-check">${t.done ? "✓" : ""}</span>
+              <span>${t.text}</span>
+            </li>
+          `).join("")}
+        </ul>
+        <div class="input-row">
+          <input id="newTaskInput" type="text" placeholder="이 파트에 새 업무 추가..." onkeydown="if(event.key==='Enter') addRoomTask('${key}')" />
+          <button class="btn-primary" onclick="addRoomTask('${key}')">추가</button>
+        </div>
+      `;
+    }
+
+    function renderWorkshop() {
+      const el = document.getElementById("workshopList");
+      const keys = ["command", "mongsil", "bohumpass", "insight"];
+      el.innerHTML = keys.map(k => {
+        const r = state.rooms[k];
+        return `
+          <div class="kv-row" style="cursor:pointer" onclick="switchTab('office'); selectRoom('${k}');">
+            <span class="kv-k">${r.name}</span>
+            <span class="kv-v">${r.role}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMemos() {
+      const el = document.getElementById("memoList");
+      el.innerHTML = state.memos.map((m, i) => `
+        <li class="task-item ${m.done ? "done" : ""}" onclick="toggleMemo(${i})">
+          <span class="task-check">${m.done ? "✓" : ""}</span>
+          <span>${m.text}</span>
+        </li>
+      `).join("");
+    }
+
+    function addMemo() {
+      const input = document.getElementById("memoInput");
+      const val = input.value.trim();
+      if (!val) return;
+      state.memos.unshift({ text: val, done: false });
+      input.value = "";
+      saveState();
+      renderMemos();
+    }
+
+    function toggleMemo(i) {
+      state.memos[i].done = !state.memos[i].done;
+      saveState();
+      renderMemos();
+    }
+
+    renderMotion();
+    selectRoom(state.selectedRoom);
+    renderWorkshop();
+    renderMemos();
+  </script>
+</body>
+</html>
