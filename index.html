@@ -67,6 +67,120 @@
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); animation: pulse 1.8s infinite; }
   @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.45; } }
 
+  /* ---------- 구글 시트 연동 ---------- */
+  .sync-bar {
+    display: flex; align-items: center; gap: 6px; margin: -2px 0 12px; padding: 7px 9px;
+    background: #fff; border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow);
+  }
+  .conn-badge {
+    display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto;
+    font-size: 10.5px; font-weight: 800; letter-spacing: -0.1px;
+    padding: 4px 9px; border-radius: 999px; background: #f1f4f8; color: #7c8496;
+  }
+  .conn-badge i { width: 6px; height: 6px; border-radius: 50%; background: #b9c0cd; }
+  .conn-badge.on { background: var(--mint-soft); color: var(--mint-deep); }
+  .conn-badge.on i { background: var(--mint); animation: pulse 1.8s infinite; }
+  .conn-badge.err { background: #fdecea; color: #c0554f; }
+  .conn-badge.err i { background: #e06c66; }
+  .conn-badge.busy { background: #eaf2fb; color: #3f74c4; }
+  .conn-badge.busy i { background: #6aa8ef; animation: pulse 1.1s infinite; }
+  .sync-info { flex: 1; min-width: 0; font-size: 10.5px; color: #98a1b0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sync-btn {
+    flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: #4a5262;
+    font-size: 11px; font-weight: 800; padding: 6px 9px; border-radius: 9px; white-space: nowrap;
+    transition: transform 0.12s, background 0.16s, color 0.16s;
+  }
+  .sync-btn:active { transform: scale(0.95); }
+  .sync-btn.spin { color: var(--mint-deep); border-color: #bfe8db; background: var(--mint-soft); }
+
+  /* 연동 모달 */
+  .modal {
+    position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+    padding: 16px; background: rgba(20, 28, 40, 0.44);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  }
+  .modal[hidden] { display: none; }
+  body.modal-open { overflow: hidden; }
+  .modal-card {
+    width: 100%; max-width: 404px; max-height: 88vh; overflow: auto; background: #fff;
+    border-radius: 20px; padding: 18px 17px 16px; box-shadow: 0 26px 60px rgba(18, 26, 38, 0.34);
+    animation: pop 0.22s cubic-bezier(0.2, 1.3, 0.5, 1) both;
+  }
+  .modal-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .modal-title { font-size: 16px; font-weight: 800; letter-spacing: -0.4px; }
+  .modal-sub { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+  .modal-x {
+    margin-left: auto; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 9px; border: 1px solid var(--line);
+    background: #fff; color: #98a1b0; font-size: 16px; line-height: 1;
+  }
+  .field { margin-bottom: 11px; }
+  .field label { display: block; font-size: 11.5px; font-weight: 800; margin-bottom: 5px; color: #465061; }
+  .field input {
+    width: 100%; border: 1px solid var(--line); background: #fafbfd; border-radius: 11px;
+    padding: 10px 11px; font-size: 12.5px; color: var(--ink); outline: none;
+  }
+  .field input:focus { border-color: var(--mint); background: #fff; box-shadow: 0 0 0 3px rgba(79, 191, 159, 0.12); }
+  .pin-row { display: flex; gap: 6px; }
+  .pin-row input { flex: 1; min-width: 0; }
+  .link-msg { min-height: 15px; font-size: 11px; line-height: 1.5; color: var(--muted); margin: 2px 0 12px; }
+  .link-msg.ok { color: var(--mint-deep); font-weight: 700; }
+  .link-msg.err { color: #c0554f; font-weight: 700; }
+  .modal-actions { display: flex; gap: 7px; }
+  .btn-ghost {
+    border: 1px solid var(--line); background: #fff; color: #48505f; font-weight: 800; font-size: 12px;
+    padding: 11px 12px; border-radius: 11px; white-space: nowrap;
+  }
+  .btn-ghost:active { transform: scale(0.97); }
+  .btn-ghost.danger { color: #c0554f; border-color: #f3d9d6; }
+  .modal-actions .btn-primary { flex: 1; padding: 11px 12px; }
+  .modal-note { font-size: 10.5px; color: #a7afbd; line-height: 1.55; margin: 11px 0 0; }
+
+  /* 시트 업무 행 */
+  .rt-head {
+    display: flex; align-items: baseline; gap: 6px; margin: 14px 0 2px;
+    font-size: 11px; font-weight: 800; color: #465061;
+  }
+  .rt-head .rt-src { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--mint-deep); background: var(--mint-soft); padding: 2px 7px; border-radius: 999px; }
+  .rt-head .rt-src.off { color: #8d95a4; background: #f1f4f8; }
+  .rt-empty { font-size: 11.5px; color: #a6aebc; padding: 7px 0 2px; line-height: 1.5; }
+  .rt-list { margin-top: 2px; }
+  .rt { display: flex; align-items: flex-start; gap: 8px; padding: 9px 0; border-bottom: 1px dashed #edf1f6; }
+  .rt:last-child { border-bottom: 0; }
+  .rt-main { flex: 1; min-width: 0; }
+  .rt-line { display: flex; align-items: flex-start; gap: 7px; }
+  .rt-title { flex: 1; font-size: 12.5px; line-height: 1.45; word-break: break-word; }
+  .rt.done .rt-title { color: #a2aab8; text-decoration: line-through; }
+  .st-badge {
+    flex: 0 0 auto; border: 0; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+    letter-spacing: -0.1px; margin-top: 1px;
+  }
+  .st-badge:active { transform: scale(0.95); }
+  .st-wait { background: #fdf1e2; color: #ab6f24; }
+  .st-doing { background: #e7f0fd; color: #3a6fc0; }
+  .st-done { background: var(--mint-soft); color: var(--mint-deep); }
+  .rt-note {
+    margin-top: 5px; font-size: 11.5px; line-height: 1.5; color: #4d5668;
+    background: #f8fafc; border: 1px solid #eef2f7; border-radius: 9px; padding: 6px 8px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .rt-note b { display: block; font-size: 9.5px; font-weight: 800; color: var(--mint-deep); letter-spacing: 0.2px; margin-bottom: 2px; }
+  .rt-time { margin-top: 4px; font-size: 9.5px; color: #b3bac6; }
+  .rt-del { flex: 0 0 auto; border: 0; background: transparent; color: #c3c9d4; font-size: 15px; line-height: 1; padding: 1px 2px; }
+  .rt-hint { font-size: 10.5px; color: #a7afbd; line-height: 1.5; margin: 7px 0 0; }
+  .rt-sum { display: flex; gap: 8px; margin-top: 8px; }
+  .rt-sum div { flex: 1; background: #f7fafc; border-radius: 12px; padding: 10px 11px; }
+  .rt-sum b { font-size: 18px; font-weight: 800; display: block; }
+  .rt-sum span { font-size: 10.5px; color: var(--muted); }
+
+  /* 토스트 */
+  #toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 14px); z-index: 3000;
+    max-width: 88vw; background: rgba(27, 36, 52, 0.94); color: #fff; font-size: 12px; font-weight: 700;
+    padding: 10px 14px; border-radius: 12px; box-shadow: 0 12px 30px rgba(18, 26, 38, 0.28);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; line-height: 1.45;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
   /* ---------- tabs ---------- */
   .tabs {
     display: flex; gap: 3px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
@@ -364,6 +478,13 @@
     <div class="live-badge"><span class="live-dot"></span>LIVE</div>
   </div>
 
+  <div class="sync-bar">
+    <span id="connBadge" class="conn-badge"><i></i><span id="connText">로컬 모드</span></span>
+    <span id="syncInfo" class="sync-info">이 브라우저에만 저장 중</span>
+    <button id="syncBtn" class="sync-btn" type="button" title="구글 시트에서 새로고침" aria-label="구글 시트에서 새로고침">⟳ 동기화</button>
+    <button id="linkBtn" class="sync-btn" type="button" title="구글 시트 연동 설정" aria-label="구글 시트 연동 설정">⚙️ 연동</button>
+  </div>
+
   <div class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="office" role="tab">오피스</button>
     <button class="tab-btn" data-tab="meeting" role="tab">회의실</button>
@@ -463,6 +584,12 @@
         <div class="kv-row"><span class="kv-k">20:00 라운지</span><span class="kv-v">다음 날 소재 정리하며 휴식</span></div>
       </div>
     </div>
+    <div class="card" id="remoteCard" hidden>
+      <span class="ws-pill">구글 시트 업무</span>
+      <h2 class="status-title">시트로 오간 업무</h2>
+      <div class="rt-sum" id="remoteSum"></div>
+      <p class="status-desc" id="remoteWhen" style="margin-top:8px;font-size:11px;"></p>
+    </div>
     <div class="card">
       <span class="ws-pill">오늘의 숫자</span>
       <div style="display:flex;gap:8px;margin-top:6px;">
@@ -498,6 +625,42 @@
 
   <div class="foot">코아월드 v2 · 움직이는 오피스 · 코아 · 몽실 · 보험패스 · 인사이트윤 · 란이</div>
 </div>
+
+<!-- 연동 설정 모달 -->
+<div id="linkModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="linkTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="linkTitle">구글 시트 연동</div>
+        <div class="modal-sub">Apps Script 웹 앱 주소와 PIN을 넣으면 업무 지시가 시트로 오갑니다.</div>
+      </div>
+      <button id="linkClose" class="modal-x" type="button" aria-label="닫기">×</button>
+    </div>
+    <div class="field">
+      <label for="linkUrl">웹 앱 URL (.../exec)</label>
+      <input id="linkUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false"
+             placeholder="https://script.google.com/macros/s/AKfy…/exec" />
+    </div>
+    <div class="field">
+      <label for="linkPin">PIN</label>
+      <div class="pin-row">
+        <input id="linkPin" type="password" inputmode="numeric" autocomplete="off" maxlength="24" placeholder="Code.gs의 PIN" />
+        <button id="pinShow" class="sync-btn" type="button" aria-label="PIN 보기">보기</button>
+      </div>
+    </div>
+    <div id="linkMsg" class="link-msg" role="status"></div>
+    <div class="modal-actions">
+      <button id="linkTest" class="btn-ghost" type="button">연결 테스트</button>
+      <button id="linkSave" class="btn-primary" type="button">저장하고 연결</button>
+    </div>
+    <div class="modal-actions" style="margin-top:7px;">
+      <button id="linkOff" class="btn-ghost danger" type="button">연동 해제</button>
+    </div>
+    <p class="modal-note">URL·PIN은 이 브라우저(localStorage)에만 저장되고 공개 페이지에는 들어가지 않아요. 구글 계정 권한은 건드리지 않습니다.</p>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* =======================================================================
@@ -649,7 +812,8 @@ function loadState() {
       { text: "이번 주는 란이의 첫 줄 카피를 먼저 테스트하기", at: "" },
       { text: "파트 발행 간격은 최소 20분 이상 두기", at: "" }
     ],
-    selected: "coa", motion: !reduced
+    selected: "coa", motion: !reduced,
+    remote: [], remoteAt: ""
   };
   Object.keys(PARTS).forEach(k => {
     base.parts[k] = PARTS[k].tasks.map(t => ({ t: t.t, done: !!t.done }));
@@ -664,6 +828,8 @@ function loadState() {
       });
     }
     if (Array.isArray(saved.memos)) base.memos = saved.memos;
+    if (Array.isArray(saved.remote)) base.remote = saved.remote;
+    if (typeof saved.remoteAt === "string") base.remoteAt = saved.remoteAt;
     if (typeof saved.motion === "boolean") base.motion = saved.motion;
     if (ORDER.indexOf(saved.selected) >= 0) base.selected = saved.selected;
   }
@@ -1021,11 +1187,13 @@ function renderDetail(key) {
       '<span class="task-text">' + escapeHtml(t.t) + '</span></li>';
   });
   if (!tasks.length) html += '<li class="empty">아직 등록된 업무가 없어요.</li>';
-  html += '</ul>' +
+  const toSheet = syncAddsToSheet(key, isRoom);
+  html += '</ul>' + remoteBlock(key, isRoom) +
     '<div class="add-row">' +
-      '<input type="text" maxlength="80" placeholder="' + (isRoom ? "안건 추가" : p.name + "에게 업무 추가") + '" data-add="' + key + '" />' +
-      '<button class="btn-primary" data-addbtn="' + key + '">추가</button>' +
-    '</div>';
+      '<input type="text" maxlength="80" placeholder="' + escapeHtml(addPlaceholder(key, p.name, isRoom)) + '" data-add="' + key + '" />' +
+      '<button class="btn-primary" data-addbtn="' + key + '">' + (toSheet ? "지시" : "추가") + '</button>' +
+    '</div>' +
+    (toSheet ? '<p class="rt-hint">보내면 구글 시트에 기록되고 알림 메일이 가요. 상태·메모는 ⟳ 로 받아옵니다.</p>' : '');
 
   detailEl.innerHTML = html;
   updateStats();
@@ -1056,6 +1224,10 @@ function avatarHtml(key) {
 }
 
 detailEl.addEventListener("click", e => {
+  const stBtn = e.target.closest("[data-rtstatus]");
+  if (stBtn) { cycleRemoteStatus(stBtn.dataset.rtstatus); return; }
+  const delBtn = e.target.closest("[data-rtdel]");
+  if (delBtn) { deleteRemoteTask(delBtn.dataset.rtdel); return; }
   const row = e.target.closest(".task-row");
   if (row) {
     const part = row.dataset.part, idx = Number(row.dataset.idx);
@@ -1064,16 +1236,7 @@ detailEl.addEventListener("click", e => {
     return;
   }
   const addBtn = e.target.closest("[data-addbtn]");
-  if (addBtn) {
-    const key = addBtn.dataset.addbtn;
-    const inp = detailEl.querySelector('[data-add="' + key + '"]');
-    if (inp && inp.value.trim()) {
-      (state.parts[key] = state.parts[key] || []).push({ t: inp.value.trim(), done: false });
-      inp.value = "";
-      saveState(); renderDetail(key); renderWorkshop();
-    }
-    return;
-  }
+  if (addBtn) { submitTaskInput(addBtn.dataset.addbtn, addBtn); return; }
   const call = e.target.closest("[data-call]");
   if (call) { callChar(call.dataset.call); return; }
   const rallyBtn = e.target.closest("[data-rally]");
@@ -1082,12 +1245,8 @@ detailEl.addEventListener("click", e => {
 
 detailEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.matches("[data-add]")) {
-    const key = e.target.dataset.add;
-    if (e.target.value.trim()) {
-      (state.parts[key] = state.parts[key] || []).push({ t: e.target.value.trim(), done: false });
-      e.target.value = "";
-      saveState(); renderDetail(key); renderWorkshop();
-    }
+    e.preventDefault();
+    submitTaskInput(e.target.dataset.add, null);
   }
 });
 
@@ -1280,7 +1439,441 @@ document.getElementById("memoList").addEventListener("click", e => {
   saveState(); renderMemos();
 });
 
+/* =======================================================================
+   구글 시트 연동 (Google Apps Script 웹 앱)
+   - 설정(URL·PIN)은 localStorage(coa_world_v2_sync)에만 저장합니다.
+   - 공개 HTML 에는 어떤 주소·PIN 도 하드코딩하지 않습니다.
+   - GET  : ?pin=…&action=list  → { ok:true, tasks:[…] }
+   - POST : text/plain 본문(JSON) → CORS preflight 회피
+   ======================================================================= */
+const SYNC_KEY = "coa_world_v2_sync";
+const REMOTE_PARTS = CHAR_KEYS.slice();          // 시트 업무는 5개 파트에만 붙습니다
+const STATUS_ORDER = { "진행중": 0, "대기": 1, "완료": 2 };
+const STATUS_NEXT = { "대기": "진행중", "진행중": "완료", "완료": "대기" };
+const STATUS_CLS = { "대기": "st-wait", "진행중": "st-doing", "완료": "st-done" };
+
+let sync = loadSyncConfig();
+let conn = { state: "local", msg: "" };            // local | idle | busy | ok | err
+let syncing = false;
+let lastPullAt = 0;
+let autoSyncTimer = null;
+
+const connBadge = document.getElementById("connBadge");
+const connText = document.getElementById("connText");
+const syncInfo = document.getElementById("syncInfo");
+const syncBtn = document.getElementById("syncBtn");
+const linkBtn = document.getElementById("linkBtn");
+const linkModal = document.getElementById("linkModal");
+const linkUrl = document.getElementById("linkUrl");
+const linkPin = document.getElementById("linkPin");
+const linkMsg = document.getElementById("linkMsg");
+const toastEl = document.getElementById("toast");
+
+function loadSyncConfig() {
+  try {
+    const o = JSON.parse(localStorage.getItem(SYNC_KEY) || "null");
+    if (o && typeof o.url === "string") {
+      return { url: o.url.replace(/\s+/g, ""), pin: String(o.pin == null ? "" : o.pin) };
+    }
+  } catch (e) {}
+  return { url: "", pin: "" };
+}
+function saveSyncConfig(next) {
+  sync = { url: String(next.url || "").replace(/\s+/g, ""), pin: String(next.pin || "") };
+  try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) {}
+  renderSyncBar();
+}
+function hasSync() { return !!(sync.url && sync.pin); }
+
+function nowClock() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+function shortTime(s) {
+  const m = String(s || "").match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  return m ? m[2] + "/" + m[3] + " " + m[4] + ":" + m[5] : String(s || "");
+}
+function errorText(err) {
+  if (!err) return "알 수 없는 오류";
+  if (err.name === "TypeError") return "연결 실패 · URL·배포 권한 확인";
+  return err.message || String(err);
+}
+
+function toast(msg) {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toastEl.classList.remove("show"), 2800);
+}
+
+/* ---------- 연결 상태 배지 ---------- */
+function setConn(state, msg) {
+  conn = { state: state, msg: msg || "" };
+  renderSyncBar();
+}
+
+function renderSyncBar() {
+  const on = hasSync();
+  const s = conn.state;
+  connBadge.classList.toggle("on", on && s !== "err" && s !== "local");
+  connBadge.classList.toggle("err", on && s === "err");
+  connBadge.classList.toggle("busy", s === "busy");
+  connText.textContent = !on ? "로컬 모드" : s === "err" ? "연결 오류" : s === "busy" ? "동기화 중" : "연동됨";
+  if (!on) {
+    syncInfo.textContent = "이 브라우저에만 저장 중";
+  } else if (s === "busy") {
+    syncInfo.textContent = "시트에서 불러오는 중…";
+  } else if (s === "err") {
+    syncInfo.textContent = conn.msg || "동기화에 실패했어요";
+  } else if (state.remoteAt) {
+    syncInfo.textContent = "마지막 동기화 " + state.remoteAt + " · " + state.remote.length + "건";
+  } else {
+    syncInfo.textContent = "연동됨 · ⟳ 를 눌러 불러오세요";
+  }
+  syncBtn.classList.toggle("spin", s === "busy");
+  syncBtn.title = on ? "구글 시트에서 새로고침" : "연동을 먼저 설정하세요";
+}
+
+/* ---------- 시트 업무 정리·표시 ---------- */
+function normTask(t) {
+  if (!t || !String(t.title || "").trim()) return null;
+  const part = REMOTE_PARTS.indexOf(String(t.part || "")) >= 0 ? String(t.part) : "coa";
+  const st = String(t.status || "");
+  return {
+    id: String(t.id || ""),
+    part: part,
+    title: String(t.title || "").slice(0, 200),
+    status: STATUS_ORDER.hasOwnProperty(st) ? st : "대기",
+    note: String(t.note || ""),
+    createdAt: String(t.createdAt || ""),
+    updatedAt: String(t.updatedAt || "")
+  };
+}
+
+function setRemote(list) {
+  state.remote = (Array.isArray(list) ? list : []).map(normTask).filter(Boolean);
+  state.remoteAt = nowClock();
+  saveState();
+}
+
+function remoteFor(key) {
+  return (state.remote || []).filter(t => t.part === key).slice().sort((a, b) =>
+    (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
+    String(b.createdAt).localeCompare(String(a.createdAt))
+  );
+}
+
+function syncAddsToSheet(key, isRoom) {
+  return !isRoom && hasSync() && REMOTE_PARTS.indexOf(key) >= 0;
+}
+
+function addPlaceholder(key, name, isRoom) {
+  if (syncAddsToSheet(key, isRoom)) return name + "에게 업무 지시 (시트로 전송)";
+  return isRoom ? "안건 추가" : name + "에게 업무 추가";
+}
+
+function remoteBlock(key, isRoom) {
+  if (isRoom || REMOTE_PARTS.indexOf(key) < 0) return "";
+  const on = hasSync();
+  const list = remoteFor(key);
+  if (!on && !list.length) return "";
+
+  let h = '<div class="rt-head"><span>지시 업무</span>' +
+    '<span class="rt-src' + (on ? "" : " off") + '">' + (on ? "구글 시트" : "마지막 시트 기록") + '</span></div>';
+
+  if (!list.length) {
+    h += '<div class="rt-empty">아직 이 파트에 지시한 업무가 없어요. 아래에 적으면 시트로 바로 전송돼요.</div>';
+    return h;
+  }
+
+  h += '<ul class="tasks rt-list">';
+  list.forEach(t => {
+    h += '<li class="rt' + (t.status === "완료" ? " done" : "") + '">' +
+      '<div class="rt-main">' +
+        '<div class="rt-line">' +
+          '<span class="rt-title">' + escapeHtml(t.title) + '</span>' +
+          '<button type="button" class="st-badge ' + STATUS_CLS[t.status] + '" data-rtstatus="' + escapeHtml(t.id) +
+            '" title="눌러서 상태 바꾸기">' + t.status + '</button>' +
+        '</div>' +
+        (t.note ? '<div class="rt-note"><b>코아 처리 메모</b>' + escapeHtml(t.note) + '</div>' : '') +
+        '<div class="rt-time">' + escapeHtml(shortTime(t.createdAt)) +
+          (t.updatedAt && t.updatedAt !== t.createdAt ? ' · 갱신 ' + escapeHtml(shortTime(t.updatedAt)) : '') + '</div>' +
+      '</div>' +
+      '<button type="button" class="rt-del" data-rtdel="' + escapeHtml(t.id) + '" aria-label="시트에서 삭제">×</button>' +
+    '</li>';
+  });
+  h += '</ul>';
+  return h;
+}
+
+function renderAllRemote() {
+  renderDetail(selectedKey);
+  renderRemoteSummary();
+}
+
+function renderRemoteSummary() {
+  const card = document.getElementById("remoteCard");
+  if (!card) return;
+  const list = state.remote || [];
+  card.hidden = !list.length && !hasSync();
+  const c = { "대기": 0, "진행중": 0, "완료": 0 };
+  list.forEach(t => { c[t.status] = (c[t.status] || 0) + 1; });
+  document.getElementById("remoteSum").innerHTML =
+    '<div><b>' + c["대기"] + '</b><span>대기</span></div>' +
+    '<div><b>' + c["진행중"] + '</b><span>진행중</span></div>' +
+    '<div><b>' + c["완료"] + '</b><span>완료</span></div>';
+  document.getElementById("remoteWhen").textContent = list.length
+    ? "마지막 동기화 " + (state.remoteAt || "-") + " · 총 " + list.length + "건"
+    : "아직 받아온 시트 업무가 없어요.";
+}
+
+/* ---------- 통신 ---------- */
+function withQuery(url, params) {
+  const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
+  return url + (url.indexOf("?") >= 0 ? "&" : "?") + qs;
+}
+
+async function readJson(res) {
+  const txt = await res.text();
+  try { return JSON.parse(txt); }
+  catch (e) {
+    const err = new Error("응답이 JSON이 아니에요 (배포 권한을 '모든 사용자'로)");
+    err.detail = String(txt || "").slice(0, 100);
+    throw err;
+  }
+}
+
+async function getTasks(url, pin) {
+  const res = await fetch(withQuery(url, { pin: pin, action: "list", t: Date.now() }),
+    { method: "GET", redirect: "follow", cache: "no-store" });
+  const data = await readJson(res);
+  if (!data.ok) throw new Error(data.error === "PIN_MISMATCH" ? "PIN이 맞지 않아요" : (data.message || data.error || "시트 오류"));
+  return data;
+}
+
+async function postRemote(payload) {
+  if (!hasSync()) throw new Error("연동이 설정되지 않았어요");
+  const res = await fetch(sync.url, {
+    method: "POST",
+    redirect: "follow",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },   // preflight 회피
+    body: JSON.stringify(Object.assign({ pin: sync.pin }, payload))
+  });
+  const data = await readJson(res);
+  if (!data.ok) throw new Error(data.error === "PIN_MISMATCH" ? "PIN이 맞지 않아요" : (data.message || data.error || "시트 오류"));
+  return data;
+}
+
+async function pullRemote(opts) {
+  opts = opts || {};
+  if (!hasSync() || syncing) return false;
+  syncing = true;
+  lastPullAt = Date.now();
+  if (!opts.silent) setConn("busy");
+  else renderSyncBar();
+  try {
+    const data = await getTasks(sync.url, sync.pin);
+    setRemote(data.tasks || []);
+    setConn("ok");
+    renderAllRemote();
+    if (opts.toast) toast("시트에서 " + state.remote.length + "건을 불러왔어요");
+    return true;
+  } catch (err) {
+    setConn("err", errorText(err));
+    if (!opts.silent) toast("동기화 실패 · " + errorText(err));
+    return false;
+  } finally {
+    syncing = false;
+    renderSyncBar();
+  }
+}
+
+/* ---------- 업무 지시 · 상태 · 삭제 ---------- */
+function submitTaskInput(key, btn) {
+  const inp = detailEl.querySelector('[data-add="' + key + '"]');
+  const v = inp ? inp.value.trim() : "";
+  if (!v) return;
+  if (syncAddsToSheet(key, key === "meeting" || key === "lounge")) {
+    createRemoteTask(key, v, btn);
+    return;
+  }
+  (state.parts[key] = state.parts[key] || []).push({ t: v, done: false });
+  if (inp) inp.value = "";
+  saveState(); renderDetail(key); renderWorkshop();
+}
+
+async function createRemoteTask(key, title, btn) {
+  const label = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "전송 중"; }
+  try {
+    const data = await postRemote({ action: "create", part: key, title: title, status: "대기" });
+    const t = normTask(data.task) || { id: "", part: key, title: title, status: "대기", note: "", createdAt: "", updatedAt: "" };
+    if (t.id) state.remote = (state.remote || []).filter(x => x.id !== t.id);
+    (state.remote = state.remote || []).unshift(t);
+    state.remoteAt = nowClock();
+    saveState();
+    setConn("ok");
+    renderAllRemote();
+    toast(data.mailSent === false ? "시트에 기록했어요 (알림 메일은 실패)" : "시트에 지시했어요 · 알림 메일도 보냈어요");
+    return true;
+  } catch (err) {
+    setConn("err", errorText(err));
+    if (btn) { btn.disabled = false; btn.textContent = label || "지시"; }
+    toast("전송 실패 · " + errorText(err));
+    return false;
+  }
+}
+
+async function cycleRemoteStatus(id) {
+  const t = (state.remote || []).find(x => x.id === id);
+  if (!t) return;
+  const prev = t.status;
+  const next = STATUS_NEXT[prev] || "대기";
+  t.status = next;
+  saveState(); renderAllRemote();
+  try {
+    const data = await postRemote({ action: "update", id: id, status: next });
+    const nt = normTask(data.task);
+    if (nt) { Object.assign(t, nt); saveState(); renderAllRemote(); }
+    setConn("ok");
+    toast("상태를 '" + next + "'로 바꿨어요");
+  } catch (err) {
+    t.status = prev;
+    saveState(); renderAllRemote();
+    setConn("err", errorText(err));
+    toast("상태 변경 실패 · " + errorText(err));
+  }
+}
+
+async function deleteRemoteTask(id) {
+  const t = (state.remote || []).find(x => x.id === id);
+  if (!t) return;
+  if (!window.confirm("'" + t.title + "' 업무를 시트에서 지울까요?")) return;
+  try {
+    await postRemote({ action: "delete", id: id });
+    state.remote = state.remote.filter(x => x.id !== id);
+    saveState(); renderAllRemote(); setConn("ok");
+    toast("시트에서 지웠어요");
+  } catch (err) {
+    setConn("err", errorText(err));
+    toast("삭제 실패 · " + errorText(err));
+  }
+}
+
+/* ---------- 연동 설정 모달 ---------- */
+function normalizeUrl(v) {
+  let u = String(v || "").trim().replace(/\s+/g, "");
+  if (u && !/^https?:\/\//i.test(u)) u = "https://" + u;
+  return u;
+}
+function looksLikeScriptUrl(u) {
+  return /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/(exec|dev)/.test(u);
+}
+function setLinkMsg(text, kind) {
+  linkMsg.textContent = text;
+  linkMsg.className = "link-msg" + (kind ? " " + kind : "");
+}
+
+function openLinkModal() {
+  linkUrl.value = sync.url;
+  linkPin.value = sync.pin;
+  setLinkMsg(hasSync() ? "저장된 설정이 있어요. 값을 바꾸면 새 값으로 연결합니다." : "아직 연동 전이에요. Apps Script 배포 주소와 PIN을 넣어 주세요.", "");
+  linkModal.hidden = false;
+  document.body.classList.add("modal-open");
+  setTimeout(() => linkUrl.focus(), 60);
+}
+function closeLinkModal() {
+  linkModal.hidden = true;
+  document.body.classList.remove("modal-open");
+}
+
+async function testLinkFromForm() {
+  const url = normalizeUrl(linkUrl.value);
+  const pin = linkPin.value.trim();
+  if (!url || !pin) { setLinkMsg("URL과 PIN을 모두 넣어 주세요.", "err"); return; }
+  if (!/^https:\/\//i.test(url)) { setLinkMsg("https:// 로 시작하는 주소를 넣어 주세요.", "err"); return; }
+  setLinkMsg("확인 중…", "");
+  try {
+    const data = await getTasks(url, pin);
+    setLinkMsg("연결됐어요 · 시트 업무 " + (data.tasks || []).length + "건", "ok");
+  } catch (err) {
+    setLinkMsg("연결 실패 · " + errorText(err), "err");
+  }
+}
+
+async function saveLinkFromForm() {
+  const url = normalizeUrl(linkUrl.value);
+  const pin = linkPin.value.trim();
+  if (!url || !pin) { setLinkMsg("URL과 PIN을 모두 넣어 주세요.", "err"); return; }
+  if (!/^https:\/\//i.test(url)) { setLinkMsg("https:// 로 시작하는 주소를 넣어 주세요.", "err"); return; }
+  if (!looksLikeScriptUrl(url)) {
+    if (!window.confirm("Apps Script 웹 앱(/exec) 주소가 아닌 것 같아요. 그래도 저장할까요?")) {
+      setLinkMsg("주소를 다시 확인해 주세요. 보통 …/macros/s/…/exec 로 끝나요.", "err");
+      return;
+    }
+  }
+  saveSyncConfig({ url: url, pin: pin });
+  setConn("idle");
+  setLinkMsg("저장했어요. 시트에서 목록을 불러오는 중…", "");
+  const ok = await pullRemote({ silent: true });
+  renderLinkMsgAfterSave(ok);
+  if (ok) {
+    closeLinkModal();
+    toast("연동됐어요 · 시트 업무 " + state.remote.length + "건");
+    renderAllRemote();
+  }
+}
+
+function renderLinkMsgAfterSave(ok) {
+  if (ok) setLinkMsg("연결됐어요 · 시트 업무 " + state.remote.length + "건", "ok");
+  else setLinkMsg("저장은 했지만 연결하지 못했어요 · " + (conn.msg || "URL·PIN·배포 권한을 확인해 주세요"), "err");
+}
+
+linkBtn.addEventListener("click", openLinkModal);
+linkModal.addEventListener("click", e => { if (e.target === linkModal) closeLinkModal(); });
+document.getElementById("linkClose").addEventListener("click", closeLinkModal);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !linkModal.hidden) closeLinkModal(); });
+document.getElementById("linkTest").addEventListener("click", testLinkFromForm);
+document.getElementById("linkSave").addEventListener("click", saveLinkFromForm);
+linkPin.addEventListener("keydown", e => { if (e.key === "Enter") saveLinkFromForm(); });
+document.getElementById("pinShow").addEventListener("click", e => {
+  const show = linkPin.type === "password";
+  linkPin.type = show ? "text" : "password";
+  e.currentTarget.textContent = show ? "가리기" : "보기";
+});
+document.getElementById("linkOff").addEventListener("click", () => {
+  if (!hasSync()) { setLinkMsg("지금은 로컬 모드예요.", ""); return; }
+  if (!window.confirm("연동을 해제할까요? 이미 받아온 업무는 화면에 남아 있어요.")) return;
+  saveSyncConfig({ url: "", pin: "" });
+  setConn("local");
+  linkUrl.value = "";
+  linkPin.value = "";
+  setLinkMsg("연동을 해제했어요. 이제 이 브라우저에만 저장됩니다.", "");
+  renderAllRemote();
+});
+
+syncBtn.addEventListener("click", () => {
+  if (!hasSync()) { openLinkModal(); return; }
+  pullRemote({ toast: true });
+});
+
+/* ---------- 자동 동기화 ---------- */
+function maybeAutoPull() {
+  if (!hasSync() || syncing) return;
+  if (Date.now() - lastPullAt < 2000) return;
+  if (document.visibilityState !== "visible") return;
+  pullRemote({ silent: true });
+}
+function startAutoSync() {
+  clearInterval(autoSyncTimer);
+  autoSyncTimer = setInterval(maybeAutoPull, 60000);
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") maybeAutoPull(); });
+window.addEventListener("focus", maybeAutoPull);
+
 /* ---------------- 시작 ---------------- */
+state.remote = (state.remote || []).map(normTask).filter(Boolean);
 buildChars();
 buildChips();
 renderMotion();
@@ -1288,10 +1881,19 @@ renderDetail(selectedKey);
 renderWorkshop();
 updateStats();
 renderMemos();
+renderRemoteSummary();
+renderSyncBar();
 measure();
 window.addEventListener("resize", measure);
 if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
 requestAnimationFrame(t => { last = t; tick(t); });
+
+/* 연동 설정이 있으면 조용히 한 번 맞춰 봅니다 (실패해도 화면은 그대로) */
+if (hasSync()) {
+  setConn("idle");
+  pullRemote({ silent: true });
+}
+startAutoSync();
 
 /* 칩 클릭 시 선택된 캐릭터가 화면 밖이면 살짝 불러오기 */
 document.querySelectorAll(".room-hit").forEach(el => {
