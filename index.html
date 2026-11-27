@@ -1,1175 +1,1307 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="theme-color" content="#f4f6f9" />
-  <title>코아월드 — 영록 본부 AI 오피스</title>
-  <link rel="preload" as="image" href="./office.webp" type="image/webp" />
-  <style>
-    :root {
-      --bg: #f4f6f9;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --dark: #161d29;
-      --green: #10b981;
-      --green-bg: #ecfdf5;
-      --pill-bg: #eef1f5;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .app {
-      width: 100%;
-      max-width: 460px;
-      padding: 16px 14px 40px;
-    }
-    /* 즉시 반응: 모든 터치 요소의 300ms 지연 제거 */
-    button, .tab-btn, .pill-btn, .hotspot, .chip, .task-item, .kv-row {
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      user-select: none;
-      font-family: inherit;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#eef3f8" />
+<title>코아월드 v2 — 움직이는 오피스</title>
+<link rel="preload" as="image" href="./office-bg.webp" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/coa.webp?v=1" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/mongsil.webp?v=1" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/bohumpass.webp?v=1" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/insight.webp?v=1" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/rani.webp?v=1" type="image/webp" />
+<style>
+  :root {
+    --ink: #1e2430;
+    --muted: #7c8496;
+    --line: #e7edf4;
+    --bg: #eef3f8;
+    --card: #ffffff;
+    --mint: #4fbf9f;
+    --mint-deep: #2b9579;
+    --mint-soft: #e6f7f1;
+    --peach: #ef9a72;
+    --peach-soft: #fdf0e8;
+    --navy: #1b2434;
+    --shadow: 0 8px 24px rgba(31, 42, 58, 0.07);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1000px 500px at 15% -10%, #e4f5ef 0%, rgba(228,245,239,0) 60%),
+      radial-gradient(900px 520px at 95% 0%, #fdeee6 0%, rgba(253,238,230,0) 55%),
+      var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { width: 100%; max-width: 480px; padding: 16px 14px 44px; }
+  button, input, .tab-btn, .chip, .task-row { font-family: inherit; touch-action: manipulation; }
+  button { cursor: pointer; }
 
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 13px;
-      background: var(--dark);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      letter-spacing: -0.5px;
-      box-shadow: 0 4px 12px rgba(22, 29, 41, 0.16);
-    }
-    .brand-title {
-      font-size: 19px;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-      line-height: 1.2;
-    }
-    .brand-sub {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .live-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--green-bg);
-      color: #059669;
-      font-weight: 700;
-      font-size: 12px;
-      padding: 6px 11px;
-      border-radius: 999px;
-      border: 1px solid #d1fae5;
-    }
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(0.82); }
-    }
+  /* ---------- header ---------- */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 14px; background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px;
+    letter-spacing: -0.5px; box-shadow: 0 6px 16px rgba(27, 36, 52, 0.2); position: relative;
+  }
+  .logo::after {
+    content: ""; position: absolute; right: 7px; bottom: 7px; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 2px var(--navy);
+  }
+  .brand-title { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.15; }
+  .brand-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-weight: 500; }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px;
+    background: #fff; border: 1px solid var(--line); font-size: 10.5px; font-weight: 800;
+    letter-spacing: 0.6px; color: var(--mint-deep); box-shadow: var(--shadow);
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.45; } }
 
-    /* Tabs */
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      background: #e9edf3;
-      border-radius: 16px;
-      padding: 4px;
-      gap: 4px;
-      margin-bottom: 14px;
-    }
-    .tab-btn {
-      border: none;
-      background: transparent;
-      padding: 9px 4px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #4b5563;
-      cursor: pointer;
-      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, scale 0.08s ease;
-    }
-    .tab-btn:active { scale: 0.95; }
-    .tab-btn.active {
-      background: var(--card);
-      color: var(--text);
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-    }
+  /* ---------- tabs ---------- */
+  .tabs {
+    display: flex; gap: 3px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 4px; margin-bottom: 14px; box-shadow: var(--shadow);
+  }
+  .tab-btn {
+    flex: 1; border: 0; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 700;
+    padding: 9px 2px; border-radius: 10px; transition: background 0.16s, color 0.16s, transform 0.12s;
+    letter-spacing: -0.2px;
+  }
+  .tab-btn.active { background: var(--navy); color: #fff; box-shadow: 0 4px 10px rgba(27, 36, 52, 0.18); }
+  .tab-btn:active { transform: scale(0.97); }
 
-    /* Status Card */
-    .card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-      margin-bottom: 12px;
-    }
-    .ws-pill {
-      display: inline-block;
-      background: var(--pill-bg);
-      color: #374151;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      margin-bottom: 8px;
-    }
-    .status-title {
-      font-size: 17px;
-      font-weight: 800;
-      margin: 0 0 5px;
-      letter-spacing: -0.3px;
-    }
-    .status-desc {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.45;
-    }
+  .section-view { display: none; animation: fadeUp 0.28s ease both; }
+  .section-view.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-    /* Control Pills */
-    .pills-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .pill-btn {
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-size: 12.5px;
-      font-weight: 700;
-      padding: 7px 13px;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, scale 0.08s ease;
-    }
-    .pill-btn:active { scale: 0.95; }
-    .pill-btn.dark {
-      background: var(--dark);
-      color: #fff;
-      border-color: var(--dark);
-    }
+  /* ---------- cards ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px;
+    box-shadow: var(--shadow); margin-bottom: 12px;
+  }
+  .ws-pill {
+    display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px;
+    color: var(--mint-deep); background: var(--mint-soft); padding: 4px 9px; border-radius: 999px;
+    margin-bottom: 8px; text-transform: uppercase;
+  }
+  .status-title { font-size: 16.5px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 6px; }
+  .status-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: 0; }
+  .kv-row {
+    display: flex; justify-content: space-between; gap: 10px; padding: 9px 0;
+    border-bottom: 1px dashed var(--line); font-size: 12.5px;
+  }
+  .kv-row:last-child { border-bottom: 0; }
+  .kv-k { font-weight: 700; white-space: nowrap; }
+  .kv-v { color: var(--muted); text-align: right; }
 
-    /* Office Diorama */
-    .office-wrap {
-      background: var(--card);
-      border-radius: 22px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-      margin-bottom: 14px;
-    }
-    .office-stage {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1402 / 1122;
-      border-radius: 16px;
-      overflow: hidden;
-      /* 로딩 중에도 레이아웃이 튀지 않도록 오피스 톤의 자리표시 */
-      background: radial-gradient(120% 80% at 50% 12%, #fdf7ee 0%, #f3ece2 46%, #e8dfd3 100%);
-    }
-    .office-stage img {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      user-select: none;
-      -webkit-user-drag: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-    }
-    .office-stage img.loaded { opacity: 1; }
+  .pills-row { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; }
+  .pill-btn {
+    border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 12px; font-weight: 700;
+    padding: 8px 13px; border-radius: 999px; box-shadow: 0 3px 10px rgba(31, 42, 58, 0.05);
+    transition: transform 0.12s, background 0.16s;
+  }
+  .pill-btn:active { transform: scale(0.96); }
+  .pill-btn.dark { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-    /* 자리 묶음: 그림 전체를 덮는 투명 레이어 (자식들이 % 로 배치됨) */
-    .spot {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .spot .glow, .spot .dot-pin { pointer-events: none; }
+  /* ---------- stage ---------- */
+  .stage-wrap { margin-bottom: 10px; }
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden;
+    background: #f3efe7; box-shadow: 0 12px 30px rgba(31, 42, 58, 0.14), 0 0 0 1px rgba(31, 42, 58, 0.05);
+    isolation: isolate;
+  }
+  .stage img.office {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+    user-select: none; -webkit-user-drag: none; pointer-events: none;
+  }
+  .stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 400;
+    box-shadow: inset 0 0 46px rgba(30, 42, 56, 0.10); border-radius: inherit;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.10), rgba(255,255,255,0) 22%);
+  }
+  .room-hit {
+    position: absolute; z-index: 20; border: 0; background: transparent; padding: 0;
+    border-radius: 16px;
+  }
+  .room-hit.meeting { left: 8%; top: 29%; width: 28%; height: 28%; }
+  .room-hit.lounge { left: 63%; top: 53%; width: 27%; height: 34%; }
+  .room-hit:active { background: rgba(79, 191, 159, 0.10); }
 
-    /* 캐릭터/방 위 투명 클릭 영역 — 그림을 가리지 않음 */
-    .hotspot {
-      pointer-events: auto;
-      position: absolute;
-      z-index: 1;
-      border: none;
-      background: transparent;
-      padding: 0;
-      margin: 0;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.16s ease;
-    }
-    .hotspot:active, .hotspot.pressed {
-      background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.22) 0%, rgba(16, 185, 129, 0) 72%);
-    }
-    .hotspot:focus-visible {
-      outline: 2px solid #10b981;
-      outline-offset: 1px;
-    }
+  /* character */
+  .ch {
+    position: absolute; transform: translate(-50%, -100%); pointer-events: none;
+    will-change: left, top;
+    width: var(--ch-w, 52px); height: var(--ch-h, 65px);
+  }
+  .ch-shadow {
+    position: absolute; left: 50%; bottom: -3px; transform: translateX(-50%);
+    width: 74%; height: 12%; border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(38, 46, 58, 0.30), rgba(38, 46, 58, 0) 72%);
+    transition: width 0.2s, opacity 0.2s;
+  }
+  .ch.jump .ch-shadow { width: 58%; opacity: 0.6; }
+  .ch-move { width: 100%; height: 100%; transform-origin: 50% 100%; animation: breathe 3.4s ease-in-out infinite; }
+  .ch-flip { width: 100%; height: 100%; transform-origin: 50% 100%; }
+  .ch-art {
+    display: block; width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 1.5px 2px rgba(48, 38, 30, 0.20));
+  }
+  .ch-hit {
+    position: absolute; left: -6%; top: -4%; width: 112%; height: 108%; border: 0; background: transparent;
+    border-radius: 46%; pointer-events: auto; cursor: pointer;
+  }
+  .ch-hit:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .ch-dot {
+    position: absolute; right: 8%; bottom: 1px; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--mint); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92); z-index: 2;
+    transition: background 0.2s;
+  }
+  .ch[data-status="rest"] .ch-dot { background: #f0b45c; }
+  .ch[data-status="walk"] .ch-dot { background: #6aa8ef; }
+  .ch.selected .ch-art { filter: drop-shadow(0 2px 5px rgba(79, 191, 159, 0.9)) drop-shadow(0 0 1px rgba(79, 191, 159, 1)); }
+  .ch.selected .ch-shadow { opacity: 0.85; }
 
-    /* 아주 작은 상태 점 */
-    .dot-pin {
-      position: absolute;
-      z-index: 2;
-      width: 10px;
-      height: 10px;
-      margin: -5px 0 0 -5px;
-      border-radius: 50%;
-      background: #10b981;
-      border: 1.6px solid #fff;
-      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.35);
-      pointer-events: none;
-    }
-    .dot-pin.idle { background: #fbbf24; }
-    .dot-pin::after {
-      content: "";
-      position: absolute;
-      inset: -3px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(16, 185, 129, 0.8);
-      opacity: 0;
-    }
-    .dot-pin.idle::after { border-color: rgba(251, 191, 36, 0.85); }
-    .spot.selected .dot-pin::after { opacity: 1; }
-    .motion-on .spot.selected .dot-pin::after { animation: dotPulse 1.9s ease-out infinite; }
-    @keyframes dotPulse {
-      0% { transform: scale(0.7); opacity: 0.95; }
-      100% { transform: scale(2.6); opacity: 0; }
-    }
-    /* 은은한 가동 상태 빛 */
-    .glow {
-      position: absolute;
-      z-index: 1;
-      width: 64px;
-      height: 64px;
-      margin: -32px 0 0 -32px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.30) 0%, rgba(16, 185, 129, 0.10) 45%, rgba(16, 185, 129, 0) 70%);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    .spot.idle .glow {
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.28) 0%, rgba(251, 191, 36, 0.10) 45%, rgba(251, 191, 36, 0) 70%);
-    }
-    .motion-on .glow {
-      opacity: 1;
-      animation: breathe 3.8s ease-in-out infinite;
-    }
-    .motion-on .spot:nth-of-type(2n) .glow { animation-delay: 0.8s; }
-    .motion-on .spot:nth-of-type(3n) .glow { animation-delay: 1.5s; }
-    @keyframes breathe {
-      0%, 100% { opacity: 0.45; transform: scale(0.86); }
-      50% { opacity: 0.95; transform: scale(1.12); }
-    }
+  /* 스프라이트 모션: 걷기(통통 튀기) · 대기(숨쉬기/꼬물) · 점프 */
+  .ch .ch-art { transform-origin: 50% 100%; }
+  .ch.walking .ch-move { animation: wobble 0.52s ease-in-out infinite; }
+  .ch.walking .ch-art { animation: stepHop 0.52s ease-in-out infinite; }
+  .ch.face-left .ch-flip { transform: scaleX(-1); }
+  .ch.jump .ch-move { animation: jump 0.66s cubic-bezier(0.3, 1.5, 0.5, 1); }
+  .ch.jump .ch-art { animation: sink 0.66s ease-out; }
+  .ch.hop .ch-art { animation: idleHop 0.46s ease-in-out; }
+  .ch.twitch .ch-art { animation: twitch 0.56s ease-in-out; }
 
-    /* 캐릭터 선택 칩 바 (그림 바로 아래) */
-    .char-bar {
-      display: flex;
-      gap: 5px;
-      margin-top: 10px;
-      padding: 0 2px 2px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .char-bar::-webkit-scrollbar { display: none; }
-    .chip {
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      border: 1px solid var(--border);
-      background: #f7f9fb;
-      color: #4b5563;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      padding: 7px 9px;
-      border-radius: 999px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, scale 0.08s ease;
-    }
-    .chip:active { scale: 0.94; }
-    .chip .c-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10b981;
-    }
-    .chip.idle .c-dot { background: #fbbf24; }
-    .chip.active {
-      background: var(--dark);
-      color: #fff;
-      border-color: var(--dark);
-      box-shadow: 0 4px 10px rgba(22, 29, 41, 0.18);
-    }
-    .chip.active .c-dot { box-shadow: 0 0 8px rgba(16, 185, 129, 0.9); }
+  @keyframes breathe {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    50% { transform: translateY(-1.3%) scale(1.006, 1.012); }
+  }
+  @keyframes wobble {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-2.5%) rotate(1.2deg); }
+  }
+  @keyframes stepHop {
+    0%   { transform: translateY(0) scale(1.012, 0.988); }
+    26%  { transform: translateY(-4.5%) scale(0.994, 1.016); }
+    50%  { transform: translateY(-0.6%) scale(1.012, 0.988); }
+    76%  { transform: translateY(-5.2%) scale(0.994, 1.016); }
+    100% { transform: translateY(0) scale(1.012, 0.988); }
+  }
+  @keyframes idleHop {
+    0%   { transform: translateY(0) scale(1, 1); }
+    34%  { transform: translateY(-3.6%) scale(0.99, 1.02); }
+    70%  { transform: translateY(0) scale(1.012, 0.986); }
+    100% { transform: translateY(0) scale(1, 1); }
+  }
+  @keyframes jump {
+    0% { transform: translateY(0) scale(1, 1); }
+    22% { transform: translateY(2%) scale(1.06, 0.94); }
+    52% { transform: translateY(-26%) scale(0.97, 1.05); }
+    78% { transform: translateY(0) scale(1.04, 0.97); }
+    100% { transform: translateY(0) scale(1, 1); }
+  }
+  @keyframes sink {
+    0% { transform: scale(1, 1); }
+    22% { transform: scale(1.03, 0.97); }
+    52% { transform: scale(0.985, 1.02); }
+    100% { transform: scale(1, 1); }
+  }
+  @keyframes twitch {
+    0%, 100% { transform: rotate(0); }
+    40% { transform: rotate(-4deg) translateY(-2%); }
+    70% { transform: rotate(2.5deg); }
+  }
+  .motion-off .ch:not(.jump) .ch-move, .motion-off .ch .ch-art { animation: none; }
 
-    /* 핀 말풍선 */
-    .bubble {
-      position: absolute;
-      z-index: 8;
-      display: block;
-      text-align: left;
-      width: max-content;
-      max-width: 62%;
-      background: #ffffff;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      border-radius: 13px;
-      padding: 7px 10px 8px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08);
-      cursor: pointer;
-      opacity: 0;
-      transform-origin: var(--arrow-x, 50%) 100%;
-      pointer-events: auto;
-      will-change: transform, opacity;
-    }
-    .bubble[hidden] { display: none; }
-    .bubble[data-side="below"] { transform-origin: var(--arrow-x, 50%) 0%; }
-    .bubble[data-side="right"] { transform-origin: 0% var(--arrow-y, 50%); }
-    .bubble[data-side="left"] { transform-origin: 100% var(--arrow-y, 50%); }
-    .bubble.pop { animation: bubblePop 0.18s cubic-bezier(0.22, 1.1, 0.4, 1) forwards; }
-    @keyframes bubblePop {
-      from { opacity: 0; transform: translateY(4px) scale(0.92); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .bubble .bubble-title {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.3px;
-      white-space: nowrap;
-    }
-    .bubble .bubble-live {
-      display: block;
-      font-size: 10.5px;
-      color: #4b5563;
-      margin-top: 1px;
-      line-height: 1.3;
-      white-space: nowrap;
-    }
-    .bubble .bubble-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 1px;
-      margin-top: 4px;
-      font-size: 10px;
-      font-weight: 800;
-      color: #059669;
-    }
-    .bubble .bubble-arrow {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #fff;
-    }
-    .bubble[data-side="above"] .bubble-arrow,
-    .bubble:not([data-side]) .bubble-arrow {
-      left: var(--arrow-x, 50%);
-      bottom: -4.5px;
-      margin-left: -4.5px;
-      border-right: 1px solid rgba(16, 185, 129, 0.4);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.4);
-      transform: rotate(45deg);
-    }
-    .bubble[data-side="below"] .bubble-arrow {
-      left: var(--arrow-x, 50%);
-      top: -4.5px;
-      margin-left: -4.5px;
-      border-left: 1px solid rgba(16, 185, 129, 0.4);
-      border-top: 1px solid rgba(16, 185, 129, 0.4);
-      transform: rotate(45deg);
-    }
-    .bubble[data-side="right"] .bubble-arrow {
-      left: -4.5px;
-      top: var(--arrow-y, 50%);
-      margin-top: -4.5px;
-      border-left: 1px solid rgba(16, 185, 129, 0.4);
-      border-bottom: 1px solid rgba(16, 185, 129, 0.4);
-      transform: rotate(45deg);
-    }
-    .bubble[data-side="left"] .bubble-arrow {
-      right: -4.5px;
-      top: var(--arrow-y, 50%);
-      margin-top: -4.5px;
-      border-right: 1px solid rgba(16, 185, 129, 0.4);
-      border-top: 1px solid rgba(16, 185, 129, 0.4);
-      transform: rotate(45deg);
-    }
+  /* sparkles */
+  #fx { position: absolute; inset: 0; pointer-events: none; z-index: 700; overflow: hidden; }
+  .spark {
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #ffd98a 60%, rgba(255, 217, 138, 0) 72%);
+    animation: sparkOut 0.85s ease-out forwards;
+  }
+  @keyframes sparkOut {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity: 0; }
+  }
 
-    /* Drawer / Detail */
-    .detail-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .detail-title {
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .role-tag {
-      font-size: 11px;
-      font-weight: 700;
-      background: var(--pill-bg);
-      color: #374151;
-      padding: 4px 9px;
-      border-radius: 999px;
-    }
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .progress-bar {
-      flex: 1;
-      height: 5px;
-      border-radius: 999px;
-      background: #eef1f5;
-      overflow: hidden;
-    }
-    .progress-bar i {
-      display: block;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #34d399, #10b981);
-      transition: width 0.4s ease;
-    }
-    .progress-text {
-      font-size: 10.5px;
-      font-weight: 800;
-      color: #059669;
-      white-space: nowrap;
-    }
-    #roomDetail.flash { animation: cardFlash 0.8s ease-out; }
-    @keyframes cardFlash {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-      100% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
-    }
-    .task-list {
-      list-style: none;
-      padding: 0;
-      margin: 10px 0 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .task-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 9px;
-      background: #f9fafb;
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      line-height: 1.4;
-      cursor: pointer;
-      transition: background 0.12s ease, scale 0.09s ease;
-    }
-    .task-item:active { background: #eef2f7; scale: 0.99; }
-    .task-item.done {
-      color: var(--muted);
-      text-decoration: line-through;
-    }
-    .task-check {
-      width: 17px;
-      height: 17px;
-      border-radius: 5px;
-      border: 1.8px solid #9ca3af;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-      font-size: 11px;
-      color: #fff;
-    }
-    .task-item.done .task-check {
-      background: var(--green);
-      border-color: var(--green);
-    }
+  /* speech bubble */
+  .bubble {
+    position: absolute; z-index: 800; max-width: 172px; min-width: 104px;
+    background: #fff; border: 1px solid #e9eef6; border-radius: 13px; padding: 8px 10px 7px;
+    box-shadow: 0 10px 24px rgba(26, 38, 54, 0.18); text-align: left; border: 0;
+    animation: pop 0.24s cubic-bezier(0.2, 1.4, 0.5, 1) both;
+  }
+  .bubble[hidden] { display: none; }
+  @keyframes pop { from { opacity: 0; transform: scale(0.82) translateY(6px); } to { opacity: 1; transform: none; } }
+  .bubble .b-row { display: flex; align-items: center; gap: 5px; }
+  .bubble .b-name { font-size: 11.5px; font-weight: 800; letter-spacing: -0.2px; }
+  .bubble .b-role { font-size: 9px; font-weight: 700; color: var(--mint-deep); background: var(--mint-soft); padding: 2px 6px; border-radius: 999px; }
+  .bubble .b-live { display: block; font-size: 10.5px; color: #5c6474; margin-top: 3px; line-height: 1.4; }
+  .bubble .b-cta { display: inline-block; font-size: 9.5px; font-weight: 800; color: var(--mint-deep); margin-top: 5px; }
+  .bubble .b-arrow {
+    position: absolute; left: var(--ax, 50%); bottom: -7px; width: 12px; height: 12px; background: #fff;
+    transform: translateX(-50%) rotate(45deg); border-right: 1px solid #e9eef6; border-bottom: 1px solid #e9eef6;
+    border-radius: 0 0 3px 0;
+  }
+  .bubble.side-above .b-arrow { bottom: -7px; }
+  .bubble.side-below .b-arrow { top: -7px; bottom: auto; transform: translateX(-50%) rotate(225deg); }
 
-    /* Forms & Lists in other tabs */
-    .input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .input-row input, .input-row textarea {
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-    }
-    .btn-primary {
-      background: var(--dark);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: scale 0.08s ease, opacity 0.15s ease;
-    }
-    .btn-primary:active { scale: 0.95; }
-    .section-view { display: none; }
-    .section-view.active { display: block; }
-    .kv-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 9px 0;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 13px;
-      transition: background 0.12s ease;
-    }
-    .kv-row:last-child { border-bottom: none; }
-    .kv-k { color: var(--muted); font-weight: 600; }
-    .kv-v { font-weight: 700; text-align: right; max-width: 65%; }
+  /* chips */
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 10px; margin: 0 0 6px;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line);
+    background: #fff; color: #4a5262; font-size: 12px; font-weight: 700; padding: 7px 11px;
+    border-radius: 999px; box-shadow: 0 2px 8px rgba(31, 42, 58, 0.05); transition: all 0.16s;
+    letter-spacing: -0.2px;
+  }
+  .chip .c-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c, #b9c0cd); }
+  .chip.room { color: #6c7385; }
+  .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: 0 5px 14px rgba(27, 36, 52, 0.22); }
+  .chip.active .c-dot { background: #fff; }
+  .chip:active { transform: scale(0.96); }
 
-    @media (prefers-reduced-motion: reduce) {
-      .motion-on .glow,
-      .motion-on .spot.selected .dot-pin::after,
-      .live-dot { animation: none !important; }
-      .bubble.pop { animation: none; opacity: 1; }
-    }
-  </style>
+  /* ---------- detail card ---------- */
+  .dc-head { display: flex; align-items: center; gap: 11px; }
+  .dc-avatar {
+    width: 46px; height: 46px; border-radius: 15px; display: flex; align-items: center; justify-content: center;
+    font-size: 23px; background: var(--mint-soft); flex: 0 0 auto; box-shadow: inset 0 0 0 1px rgba(79, 191, 159, 0.14);
+    overflow: hidden;
+  }
+  .dc-avatar img { height: 100%; width: 100%; object-fit: contain; padding: 3px 0 0; }
+  .part-av img { height: 100%; width: 100%; object-fit: contain; padding: 2px 0 0; }
+  .dc-id { flex: 1; min-width: 0; }
+  .dc-name { font-size: 15.5px; font-weight: 800; letter-spacing: -0.3px; display: flex; align-items: center; gap: 6px; }
+  .dc-role { font-size: 10px; font-weight: 800; color: var(--mint-deep); background: var(--mint-soft); padding: 2px 7px; border-radius: 999px; letter-spacing: -0.1px; }
+  .dc-state { font-size: 11.5px; color: var(--muted); margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+  .dc-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); display: inline-block; }
+  .dc-call {
+    border: 1px solid var(--line); background: #fff; border-radius: 10px; font-size: 11px; font-weight: 800;
+    color: #48505f; padding: 8px 10px; white-space: nowrap; box-shadow: 0 2px 8px rgba(31, 42, 58, 0.05);
+  }
+  .dc-call:active { transform: scale(0.96); }
+  .dc-live {
+    margin: 12px 0 4px; font-size: 12.5px; line-height: 1.55; color: #465061; background: #f8fafc;
+    border: 1px solid #eef2f7; border-radius: 12px; padding: 10px 11px;
+  }
+  .dc-live b { color: var(--ink); }
+
+  .tasks { list-style: none; margin: 8px 0 0; padding: 0; }
+  .task-row {
+    display: flex; align-items: center; gap: 9px; padding: 9px 2px; border-bottom: 1px dashed #edf1f6;
+    font-size: 12.5px; line-height: 1.4;
+  }
+  .task-row:last-child { border-bottom: 0; }
+  .task-box {
+    width: 19px; height: 19px; border-radius: 6px; border: 1.6px solid #d5dce7; background: #fff;
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff;
+    transition: all 0.15s;
+  }
+  .task-row.done .task-box { background: var(--mint); border-color: var(--mint); }
+  .task-row.done .task-text { color: #a2aab8; text-decoration: line-through; }
+  .task-text { flex: 1; }
+  .add-row { display: flex; gap: 7px; margin-top: 11px; }
+  .add-row input {
+    flex: 1; min-width: 0; border: 1px solid var(--line); background: #fafbfd; border-radius: 11px;
+    padding: 10px 11px; font-size: 12.5px; color: var(--ink); outline: none;
+  }
+  .add-row input:focus { border-color: var(--mint); background: #fff; box-shadow: 0 0 0 3px rgba(79, 191, 159, 0.12); }
+  .btn-primary {
+    border: 0; background: var(--navy); color: #fff; font-weight: 800; font-size: 12px;
+    padding: 0 14px; border-radius: 11px; white-space: nowrap;
+  }
+  .btn-primary:active { transform: scale(0.96); }
+
+  /* workshop list */
+  .part-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px dashed var(--line); }
+  .part-row:last-child { border-bottom: 0; }
+  .part-av { width: 34px; height: 34px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; background: #f5f8fb; flex: 0 0 auto; }
+  .part-main { flex: 1; min-width: 0; }
+  .part-name { font-size: 13px; font-weight: 800; display: flex; justify-content: space-between; gap: 8px; }
+  .part-name span { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+  .part-role { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .bar { height: 5px; border-radius: 999px; background: #eef2f7; margin-top: 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #7ad7bc, #4fbf9f); }
+
+  .memo-item { display: flex; align-items: flex-start; gap: 9px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 12.5px; line-height: 1.5; }
+  .memo-item:last-child { border-bottom: 0; }
+  .memo-item .m-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); margin-top: 6px; flex: 0 0 auto; }
+  .memo-item .m-text { flex: 1; }
+  .memo-item .m-time { font-size: 10px; color: #aab2c0; }
+  .memo-del { border: 0; background: transparent; color: #b9c0cc; font-size: 15px; padding: 0 2px; line-height: 1; }
+  .empty { font-size: 12px; color: #a6aebc; padding: 10px 0; }
+
+  .legend { display: flex; gap: 12px; align-items: center; font-size: 10.5px; color: var(--muted); padding: 2px 4px 0; }
+  .legend b { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+  .legend i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .foot { text-align: center; font-size: 10.5px; color: #a7afbd; margin-top: 16px; letter-spacing: -0.1px; }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <div class="brand">
-        <div class="logo">C.</div>
-        <div>
-          <div class="brand-title">코아월드</div>
-          <div class="brand-sub">영록 본부 · 4개 파트 가동 중</div>
+<div class="app">
+
+  <div class="header">
+    <div class="brand">
+      <div class="logo">C.</div>
+      <div>
+        <div class="brand-title">코아월드 v2</div>
+        <div class="brand-sub">움직이는 오피스 · 5개 파트 가동 중</div>
+      </div>
+    </div>
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="office" role="tab">오피스</button>
+    <button class="tab-btn" data-tab="meeting" role="tab">회의실</button>
+    <button class="tab-btn" data-tab="workshop" role="tab">작업실</button>
+    <button class="tab-btn" data-tab="status" role="tab">현황</button>
+    <button class="tab-btn" data-tab="memo" role="tab">메모</button>
+  </div>
+
+  <!-- 1. 오피스 -->
+  <div id="tab-office" class="section-view active">
+    <div class="card">
+      <span class="ws-pill">Workspace</span>
+      <h2 class="status-title">다섯 식구가 오피스에서 움직이고 있어요</h2>
+      <p class="status-desc">책상을 오가며 일하는 캐릭터를 탭하면 점프하고, 머리 위 말풍선과 아래 업무 카드가 바로 바뀝니다. 이름표 없이 발밑 점으로만 상태를 보여줘요.</p>
+    </div>
+
+    <div class="pills-row">
+      <button id="motionToggle" class="pill-btn dark">모션 ON</button>
+      <button class="pill-btn" data-jump="all">다 같이 점프</button>
+      <button class="pill-btn" data-rally="meeting">회의 소집</button>
+    </div>
+
+    <div class="stage-wrap">
+      <div id="stage" class="stage" aria-label="움직이는 2D 오피스">
+        <picture>
+          <source srcset="./office-bg.webp" type="image/webp" />
+          <img class="office" id="officeImg" src="./office-bg.png" width="1536" height="1024"
+               alt="파스텔 톤 아이소메트릭 오피스 — 지휘실 책상, 대회의실, 파트 책상 3개, 라운지" decoding="async" fetchpriority="high" />
+        </picture>
+        <button class="room-hit meeting" data-room="meeting" aria-label="대회의실 보기"></button>
+        <button class="room-hit lounge" data-room="lounge" aria-label="라운지 보기"></button>
+        <div id="chars"></div>
+        <button id="bubble" class="bubble" type="button" hidden aria-live="polite">
+          <span class="b-row"><span class="b-name" id="bubbleName"></span><span class="b-role" id="bubbleRole"></span></span>
+          <span class="b-live" id="bubbleLive"></span>
+          <span class="b-cta">자세히 보기 ›</span>
+          <span class="b-arrow"></span>
+        </button>
+        <div id="fx"></div>
+      </div>
+      <div class="legend">
+        <b><i style="background:#4fbf9f"></i>집중</b>
+        <b><i style="background:#6aa8ef"></i>이동 중</b>
+        <b><i style="background:#f0b45c"></i>휴식</b>
+        <b style="margin-left:auto;color:#a7afbd">탭해서 말 걸기</b>
+      </div>
+    </div>
+
+    <div id="chips" class="chips" aria-label="캐릭터와 장소"></div>
+
+    <div id="detail" class="card"></div>
+  </div>
+
+  <!-- 2. 회의실 -->
+  <div id="tab-meeting" class="section-view">
+    <div class="card">
+      <span class="ws-pill">대회의실</span>
+      <h2 class="status-title">5개 파트 주간 전략 회의</h2>
+      <p class="status-desc">각 파트가 같은 채널에서 겹치지 않게 동선을 나누고, 이번 주 콘텐츠 순서를 맞춥니다.</p>
+      <div style="margin-top:10px;">
+        <div class="kv-row"><span class="kv-k">🐶 코아</span><span class="kv-v">일정·우선순위 총괄, 발행 순서 조율</span></div>
+        <div class="kv-row"><span class="kv-k">🐰 몽실</span><span class="kv-v">일상 공감 글 → 제휴 링크 연결</span></div>
+        <div class="kv-row"><span class="kv-k">🐻 보험패스</span><span class="kv-v">보장 사례 → 1:1 상담 동선</span></div>
+        <div class="kv-row"><span class="kv-k">🐱 인사이트윤</span><span class="kv-v">AI 실무 팁 → 상품 안내 브릿지</span></div>
+        <div class="kv-row"><span class="kv-k">🦊 란이</span><span class="kv-v">첫 줄 후킹 카피 · 유입 전환 점검</span></div>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:14px;padding:12px;" data-rally="meeting">지금 회의 소집하기</button>
+    </div>
+    <div class="card">
+      <span class="ws-pill">오늘의 안건</span>
+      <ul class="tasks" id="meetingAgenda"></ul>
+    </div>
+  </div>
+
+  <!-- 3. 작업실 -->
+  <div id="tab-workshop" class="section-view">
+    <div class="card">
+      <span class="ws-pill">파트별 역할</span>
+      <h2 class="status-title">가동 중인 5개 파트</h2>
+      <p class="status-desc" style="margin-bottom:4px;">진행률은 각 파트 업무 체크리스트와 함께 움직입니다.</p>
+      <div id="workshopList"></div>
+    </div>
+  </div>
+
+  <!-- 4. 현황 -->
+  <div id="tab-status" class="section-view">
+    <div class="card">
+      <span class="ws-pill">오늘의 흐름</span>
+      <h2 class="status-title">파트별 실행 타임라인</h2>
+      <div style="margin-top:10px;">
+        <div class="kv-row"><span class="kv-k">09:00 모닝 브리핑</span><span class="kv-v">코아 · 오늘 우선순위 3건 정리</span></div>
+        <div class="kv-row"><span class="kv-k">10:20 몽실</span><span class="kv-v">일상 공감 글 1편 발행</span></div>
+        <div class="kv-row"><span class="kv-k">11:40 인사이트윤</span><span class="kv-v">AI 실무 팁 초안 작성</span></div>
+        <div class="kv-row"><span class="kv-k">13:00 란이</span><span class="kv-v">첫 줄 후킹 카피 5개 테스트</span></div>
+        <div class="kv-row"><span class="kv-k">15:00 대회의실</span><span class="kv-v">5개 파트 주간 회의</span></div>
+        <div class="kv-row"><span class="kv-k">17:30 보험패스</span><span class="kv-v">보장 사례 타래 예약 발행</span></div>
+        <div class="kv-row"><span class="kv-k">20:00 라운지</span><span class="kv-v">다음 날 소재 정리하며 휴식</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="ws-pill">오늘의 숫자</span>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <div style="flex:1;background:#f7fafc;border-radius:12px;padding:12px;">
+          <div style="font-size:20px;font-weight:800;">5</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">가동 파트</div>
         </div>
-      </div>
-      <div class="live-badge"><span class="live-dot"></span> LIVE</div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="office">오피스</button>
-      <button class="tab-btn" data-tab="meeting">회의실</button>
-      <button class="tab-btn" data-tab="workshop">작업실</button>
-      <button class="tab-btn" data-tab="status">현황</button>
-      <button class="tab-btn" data-tab="memo">메모</button>
-    </div>
-
-    <!-- 1. 오피스 탭 -->
-    <div id="tab-office" class="section-view active">
-      <div class="card">
-        <span class="ws-pill">Workspace</span>
-        <h2 class="status-title">대표님, 4개 파트가 대기 중이에요</h2>
-        <p class="status-desc">캐릭터나 아래 이름 칩을 탭하면 그 자리에 말풍선이 뜨고, 아래 카드에서 진행 현황을 볼 수 있어요.</p>
-      </div>
-
-      <div class="pills-row">
-        <button id="motionToggle" class="pill-btn dark">모션 ON</button>
-        <button class="pill-btn" onclick="switchTab('workshop')">가동 4파트</button>
-        <button class="pill-btn" onclick="selectRoom('command')">Lv.3 코아</button>
-      </div>
-
-      <div id="officeWrap" class="office-wrap motion-on">
-        <div id="stage" class="office-stage">
-          <picture>
-            <source srcset="./office.webp" type="image/webp" />
-            <img id="officeImg" src="./office.png" width="1402" height="1122"
-                 alt="코아월드 아이소메트릭 오피스 — 코아, 몽실, 보험패스, 인사이트윤이 일하는 사무실"
-                 decoding="async" fetchpriority="high" />
-          </picture>
-          <!-- 클릭 영역 · 상태 점 · 말풍선은 스크립트가 채웁니다 -->
+        <div style="flex:1;background:#f7fafc;border-radius:12px;padding:12px;">
+          <div style="font-size:20px;font-weight:800;" id="statOpen">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">남은 업무</div>
         </div>
-        <div id="charBar" class="char-bar"></div>
-      </div>
-
-      <div id="roomDetail" class="card"></div>
-    </div>
-
-    <!-- 2. 회의실 탭 -->
-    <div id="tab-meeting" class="section-view">
-      <div class="card">
-        <span class="ws-pill">전략 회의실</span>
-        <h2 class="status-title">3계정 + 디지털 상품 시너지 회의</h2>
-        <p class="status-desc">각 파트가 서로 겹치지 않게 수익화 동선을 나누어 움직입니다.</p>
-        <div style="margin-top:12px;">
-          <div class="kv-row"><span class="kv-k">몽실 (@mongsil.good)</span><span class="kv-v">일상 반말 공감 → 쿠팡·토스 파트너스</span></div>
-          <div class="kv-row"><span class="kv-k">보험패스 (@bohumpass)</span><span class="kv-v">병원 자문·사례 → 1:1 보장분석 문의</span></div>
-          <div class="kv-row"><span class="kv-k">인사이트윤 (@insight.yoon)</span><span class="kv-v">AI 실무 팁 → 모두의비서 · 패스톡 · 보험</span></div>
+        <div style="flex:1;background:#f7fafc;border-radius:12px;padding:12px;">
+          <div style="font-size:20px;font-weight:800;" id="statDone">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">완료 업무</div>
         </div>
-      </div>
-    </div>
-
-    <!-- 3. 작업실 탭 -->
-    <div id="tab-workshop" class="section-view">
-      <div class="card">
-        <span class="ws-pill">파트별 역할 &amp; 스케줄</span>
-        <h2 class="status-title">가동 중인 4개 파트</h2>
-        <div id="workshopList" style="margin-top:8px;"></div>
-      </div>
-    </div>
-
-    <!-- 4. 현황 탭 -->
-    <div id="tab-status" class="section-view">
-      <div class="card">
-        <span class="ws-pill">오늘의 가동 현황</span>
-        <h2 class="status-title">최근 실행 및 예정 타임라인</h2>
-        <div style="margin-top:10px;">
-          <div class="kv-row"><span class="kv-k">14:02 몽실 스레드</span><span class="kv-v">1번 글 게시 + 소통 3건 완료</span></div>
-          <div class="kv-row"><span class="kv-k">15:06 귀가 연락</span><span class="kv-v">통화 전달 완료</span></div>
-          <div class="kv-row"><span class="kv-k">17:15 예정</span><span class="kv-v">쿠팡 파트너스 로그인 재시도 알림</span></div>
-          <div class="kv-row"><span class="kv-k">20:18 예정</span><span class="kv-v">몽실 스레드 저녁 루틴 (서울 날씨/이슈)</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. 메모 탭 -->
-    <div id="tab-memo" class="section-view">
-      <div class="card">
-        <span class="ws-pill">대표님 메모장</span>
-        <h2 class="status-title">코아에게 남기는 메모</h2>
-        <div class="input-row">
-          <input id="memoInput" type="text" placeholder="예: 패스톡 홍보 링크 추가하기" />
-          <button class="btn-primary" onclick="addMemo()">저장</button>
-        </div>
-        <ul id="memoList" class="task-list"></ul>
       </div>
     </div>
   </div>
 
-  <script>
-    /* ---------- 자리(캐릭터/방) 정의 ----------
-       short  : 그림 아래 칩 이름
-       hit    : 캐릭터를 덮지 않는 투명 클릭 영역 [left, top, width, height] (%)
-       dot    : 아주 작은 상태 점 위치 [x, y] (%)
-       anchor : 말풍선 꼬리가 가리키는 위치 [x, y] (%)
-       side   : 말풍선이 뜨는 방향 (above | below | right | left) — 얼굴을 가리지 않도록 자리별 지정
-       live   : 핀을 눌렀을 때 뜨는 한 줄 상태
-       order  : 칩 바 순서 */
-    const SPOTS = {
-      // 캐릭터 실제 위치(그림 기준 %): 개(49.5~60, 19.5~31), 토끼(36~43.5, 44~62),
-      // 곰(56~63, 44~54), 고양이(71~76, 41.5~49), 회의실 탁자(12~30, 33~52), 소파(66~92, 55~72)
-      command:   { short: "코아",      hit: [48.5, 17.5, 13, 16], dot: [55, 38],    anchor: [61, 25],   side: "right",
-                   live: "지휘 중 · 17:15 알림",   tone: "on" },
-      mongsil:   { short: "몽실",      hit: [34.5, 42.5, 10, 20], dot: [40, 64],    anchor: [40, 43],   side: "above",
-                   live: "20:18 저녁 글 준비",     tone: "on" },
-      bohumpass: { short: "보험패스",   hit: [54.5, 42.5, 10, 16], dot: [60, 57.5],  anchor: [60, 58],   side: "below",
-                   live: "사례형 타래 작성 중",   tone: "on" },
-      insight:   { short: "인사이트윤", hit: [69.5, 39.5, 9.5, 13], dot: [73.5, 52],  anchor: [73.5, 40.5], side: "above", cx: 79,
-                   live: "AI 실무 팁 준비 중",    tone: "on" },
-      meeting:   { short: "회의실",     hit: [11, 30.5, 20, 22],   dot: [20, 44],    anchor: [20, 32],   side: "above",
-                   live: "수익화 동선 점검 중",   tone: "on" },
-      lounge:    { short: "라운지",     hit: [65, 55, 27, 18],     dot: [79, 63],    anchor: [79, 66],   side: "below",
-                   live: "대기 · 간격 조절 중",   tone: "idle" }
+  <!-- 5. 메모 -->
+  <div id="tab-memo" class="section-view">
+    <div class="card">
+      <span class="ws-pill">메모장</span>
+      <h2 class="status-title">코아에게 남기는 메모</h2>
+      <div class="add-row" style="margin-top:10px;">
+        <input id="memoInput" type="text" maxlength="120" placeholder="예: 내일 아침 후킹 카피 점검하기" />
+        <button class="btn-primary" id="memoAdd">저장</button>
+      </div>
+      <ul class="tasks" id="memoList" style="margin-top:6px;"></ul>
+      <p class="status-desc" style="margin-top:6px;font-size:11px;">이 브라우저에만 저장됩니다(localStorage).</p>
+    </div>
+  </div>
+
+  <div class="foot">코아월드 v2 · 움직이는 오피스 · 코아 · 몽실 · 보험패스 · 인사이트윤 · 란이</div>
+</div>
+
+<script>
+/* =======================================================================
+   코아월드 v2 — 움직이는 2D 오피스
+   - 배경: office-bg.webp (빈 아이소메트릭 오피스)
+   - 캐릭터: DOM + 인라인 SVG, 좌표는 무대 대비 비율(0~1)
+   - 이동: 노드 그래프 + 다익스트라 경로, rAF 루프
+   ======================================================================= */
+
+/* ---------------- 캐릭터 스프라이트 (2D 일러스트 WebP · 투명 배경) ---------------- */
+const SPRITE_VER = "1";
+const SPRITE_KEYS = ["coa", "mongsil", "bohumpass", "insight", "rani"];
+function spriteSrc(key) { return "./sprites/" + key + ".webp?v=" + SPRITE_VER; }
+const ART = {};
+SPRITE_KEYS.forEach(key => {
+  ART[key] = '<img class="ch-art" src="' + spriteSrc(key) +
+    '" alt="" draggable="false" decoding="async" width="512" height="640" />';
+});
+
+/* ---------------- 데이터 ---------------- */
+const PARTS = {
+  coa: {
+    name: "코아", emoji: "🐶", role: "총괄", tint: "#e6f7f1", color: "#4fbf9f",
+    status: "지휘 중", live: "다섯 파트의 순서와 간격을 맞추고 있어요",
+    summary: "일정과 업무 흐름을 한눈에 정리하고, 파트끼리 부딪히지 않게 발행 순서를 조율합니다.",
+    tasks: [
+      { t: "오늘 우선순위 3건 정리", done: true },
+      { t: "파트별 발행 간격 조율", done: false },
+      { t: "저녁 루틴 전 최종 점검", done: false }
+    ]
+  },
+  mongsil: {
+    name: "몽실", emoji: "🐰", role: "일상/제휴", tint: "#fdf0f4", color: "#f0a5bd",
+    status: "글감 수집", live: "직장인 공감 글감을 모으고 있어요",
+    summary: "일상과 공감을 담은 짧은 글을 꾸준히 올려 반응을 쌓고, 자연스러운 제휴 동선을 만듭니다.",
+    tasks: [
+      { t: "공감 글 1편 작성", done: true },
+      { t: "댓글 소통 3건", done: false },
+      { t: "저녁 글 소재 2개 메모", done: false }
+    ]
+  },
+  bohumpass: {
+    name: "보험패스", emoji: "🐻", role: "보험/자문", tint: "#f7efe7", color: "#c08a5e",
+    status: "사례 정리", live: "보장 사례를 정리하고 있어요",
+    summary: "현장 경험이 묻어나는 보장 사례로 신뢰를 쌓고, 1:1 상담으로 이어지는 동선을 만듭니다.",
+    tasks: [
+      { t: "한방 비급여 사례 정리", done: false },
+      { t: "상담 문의 동선 점검", done: true },
+      { t: "이번 주 발행 3건 예약", done: false }
+    ]
+  },
+  insight: {
+    name: "인사이트윤", emoji: "🐱", role: "AI/상품", tint: "#eef1f8", color: "#8b93ab",
+    status: "팁 다듬는 중", live: "AI 실무 팁을 다듬고 있어요",
+    summary: "AI와 업무 자동화 팁을 정리해 신뢰를 만들고, 상품 안내로 부드럽게 연결합니다.",
+    tasks: [
+      { t: "AI 실무 팁 1편 발행", done: false },
+      { t: "상품 안내 문구 점검", done: true },
+      { t: "질문 응답 템플릿 정리", done: false }
+    ]
+  },
+  rani: {
+    name: "란이", emoji: "🦊", role: "마케팅/후킹", tint: "#fdf1e6", color: "#ef9464",
+    status: "카피 뽑는 중", live: "첫 줄 후킹 카피를 뽑고 있어요",
+    summary: "첫 줄에서 멈추게 만드는 후킹 카피와 바이럴 소재를 찾고, 유입에서 전환까지 문구를 점검합니다.",
+    tasks: [
+      { t: "첫 줄 후킹 카피 5개 뽑기", done: false },
+      { t: "바이럴 소재 2건 발굴", done: false },
+      { t: "유입 전환 문구 점검", done: true }
+    ]
+  },
+  meeting: {
+    name: "대회의실", emoji: "🤝", role: "전략 회의", tint: "#eaf2fb", color: "#6aa8ef",
+    status: "회의 준비", live: "이번 주 콘텐츠 순서를 맞추고 있어요",
+    summary: "다섯 파트가 같은 채널에서 겹치지 않게 역할과 순서를 나누는 자리입니다.",
+    tasks: [
+      { t: "이번 주 콘텐츠 캘린더 확정", done: false },
+      { t: "파트별 CTA 한 줄 정리", done: false }
+    ]
+  },
+  lounge: {
+    name: "라운지", emoji: "☕", role: "휴식/리서치", tint: "#fdf6e8", color: "#f0b45c",
+    status: "충전 중", live: "커피 한 잔에 다음 소재를 정리해요",
+    summary: "잠깐 쉬면서 다음 소재를 모으는 곳이에요. 세 명씩 번갈아 쉬고, 나머지는 일을 이어갑니다.",
+    tasks: [
+      { t: "파트 간 실행 간격 지키기", done: true },
+      { t: "다음 소재 아이디어 1개 적기", done: false }
+    ]
+  }
+};
+const ORDER = ["coa", "mongsil", "bohumpass", "insight", "rani", "meeting", "lounge"];
+const CHAR_KEYS = ["coa", "mongsil", "bohumpass", "insight", "rani"];
+const HOME = { coa: "home_coa", mongsil: "home_mong", bohumpass: "home_pass", insight: "home_ins", rani: "home_rani" };
+
+/* ---------------- 무대 노드 그래프 (비율 좌표) ---------------- */
+const NODES = {
+  home_coa:  { x: 0.503, y: 0.548 },
+  home_mong: { x: 0.437, y: 0.527 },
+  home_pass: { x: 0.590, y: 0.532 },
+  home_ins:  { x: 0.748, y: 0.530 },
+  home_rani: { x: 0.812, y: 0.522 },
+
+  hall_c:    { x: 0.470, y: 0.612 },
+  hall_cl:   { x: 0.372, y: 0.610 },
+  hall_cr:   { x: 0.612, y: 0.612 },
+  hall_r:    { x: 0.678, y: 0.538 },
+  right_f:   { x: 0.868, y: 0.516 },
+
+  meet_f:    { x: 0.238, y: 0.585 },
+  meet_l:    { x: 0.150, y: 0.578 },
+  far_l:     { x: 0.090, y: 0.558 },
+
+  sofa_l:    { x: 0.648, y: 0.570 },
+  rug_ul:    { x: 0.635, y: 0.700 },
+  rug_dc:    { x: 0.660, y: 0.862 },
+
+  m1: { x: 0.115, y: 0.600 }, m2: { x: 0.192, y: 0.626 }, m3: { x: 0.262, y: 0.612 },
+  m4: { x: 0.108, y: 0.492 }, m5: { x: 0.345, y: 0.500 },
+
+  l1: { x: 0.610, y: 0.795 }, l2: { x: 0.641, y: 0.812 }, l3: { x: 0.676, y: 0.878 },
+  l4: { x: 0.744, y: 0.890 }, l5: { x: 0.814, y: 0.876 }
+};
+const EDGES = [
+  ["home_coa","hall_c"], ["home_mong","hall_c"], ["home_pass","hall_c"],
+  ["home_ins","hall_r"], ["home_rani","right_f"], ["home_ins","hall_r"],
+  ["hall_c","hall_cl"], ["hall_c","hall_cr"], ["hall_c","hall_r"],
+  ["hall_cl","meet_f"], ["hall_cl","meet_l"], ["meet_l","far_l"], ["meet_f","meet_l"],
+  ["hall_cr","hall_r"], ["hall_r","home_ins"], ["hall_r","sofa_l"], ["right_f","home_rani"],
+  ["sofa_l","rug_ul"], ["rug_ul","rug_dc"],
+  ["rug_dc","l1"], ["rug_dc","l2"], ["rug_dc","l3"], ["l3","l4"], ["l4","l5"],
+  ["meet_l","m1"], ["m1","m2"], ["m2","m3"], ["meet_l","m4"], ["meet_f","m5"]
+];
+
+const ROUTES = {
+  coa:      ["home_coa", "hall_c", "meet_f", "hall_cr", "hall_r", "home_mong"],
+  mongsil:  ["home_mong", "hall_c", "meet_l", "meet_f", "hall_cl"],
+  bohumpass:["home_pass", "hall_c", "hall_cl", "hall_cr", "home_mong"],
+  insight:  ["home_ins", "hall_r", "right_f", "hall_cr", "home_coa"],
+  rani:     ["home_rani", "right_f", "hall_r", "sofa_l", "home_ins"]
+};
+
+/* ---------------- 저장 ---------------- */
+const KEY = "coa_world_v2_state";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function loadState() {
+  const base = {
+    parts: {}, memos: [
+      { text: "이번 주는 란이의 첫 줄 카피를 먼저 테스트하기", at: "" },
+      { text: "파트 발행 간격은 최소 20분 이상 두기", at: "" }
+    ],
+    selected: "coa", motion: !reduced
+  };
+  Object.keys(PARTS).forEach(k => {
+    base.parts[k] = PARTS[k].tasks.map(t => ({ t: t.t, done: !!t.done }));
+  });
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { saved = null; }
+  if (saved) {
+    if (saved.parts) {
+      Object.keys(PARTS).forEach(k => {
+        const s = saved.parts[k];
+        if (Array.isArray(s)) base.parts[k] = s.filter(x => x && typeof x.t === "string");
+      });
+    }
+    if (Array.isArray(saved.memos)) base.memos = saved.memos;
+    if (typeof saved.motion === "boolean") base.motion = saved.motion;
+    if (ORDER.indexOf(saved.selected) >= 0) base.selected = saved.selected;
+  }
+  return base;
+}
+let state = loadState();
+function saveState() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+/* ---------------- 무대 준비 ---------------- */
+const stage = document.getElementById("stage");
+const charsLayer = document.getElementById("chars");
+const fxLayer = document.getElementById("fx");
+const bubbleEl = document.getElementById("bubble");
+const bubbleName = document.getElementById("bubbleName");
+const bubbleRole = document.getElementById("bubbleRole");
+const bubbleLive = document.getElementById("bubbleLive");
+const detailEl = document.getElementById("detail");
+const chipsEl = document.getElementById("chips");
+const motionBtn = document.getElementById("motionToggle");
+
+let W = 0, H = 0, CH_W = 52, CH_H = 65;
+
+const chars = {}; // key -> runtime
+
+function measure() {
+  const r = stage.getBoundingClientRect();
+  W = r.width; H = r.height;
+  CH_W = Math.max(40, Math.min(66, W * 0.114));
+  CH_H = CH_W * 1.25;
+  stage.style.setProperty("--ch-w", CH_W + "px");
+  stage.style.setProperty("--ch-h", CH_H + "px");
+  Object.keys(chars).forEach(k => place(chars[k]));
+  if (!bubbleEl.hidden) placeBubble();
+}
+
+function buildChars() {
+  CHAR_KEYS.forEach(key => {
+    const p = PARTS[key];
+    const el = document.createElement("div");
+    el.className = "ch";
+    el.dataset.key = key;
+    el.dataset.status = "focus";
+    el.style.zIndex = 100;
+    el.innerHTML =
+      '<div class="ch-shadow"></div>' +
+      '<div class="ch-move"><div class="ch-flip">' + ART[key] + '</div></div>' +
+      '<span class="ch-dot"></span>' +
+      '<button class="ch-hit" type="button" aria-label="' + p.name + ' — ' + p.role + ' 보기"></button>';
+    charsLayer.appendChild(el);
+    const homeId = HOME[key];
+    const start = NODES[homeId] || NODES.home_coa;
+    chars[key] = {
+      key, el, x: start.x, y: start.y, node: homeId,
+      path: [], target: null, state: "idle", nextAt: performance.now() + 1200 + Math.random() * 2600,
+      facing: 1, speed: 0.125, status: "focus"
     };
-    const CHIP_ORDER = ["command", "mongsil", "bohumpass", "insight", "meeting", "lounge"];
-    const SPOT_KEYS = Object.keys(SPOTS);
-    const BUBBLE_MS = 6500; // 말풍선이 잠깐 머물다 사라지는 시간
+    el.querySelector(".ch-hit").addEventListener("click", e => { e.stopPropagation(); select(key, true); });
+    place(chars[key]);
+    scheduleLife(key);
+  });
+}
 
-    const defaultRooms = {
-      command: {
-        name: "🐶 지휘실 · 코아",
-        role: "총괄 비서 (Lv.3)",
-        summary: "영록 대표님의 일정, 메일, 스레드 3개 파트 및 전화 연락을 총괄 지휘합니다.",
-        tasks: [
-          { text: "17:15 쿠팡 파트너스 로그인 재시도 알림", done: false },
-          { text: "ChatGPT Plus 만료(11/28) 등 메일 긴급 건 챙기기", done: false },
-          { text: "몽실·보험패스·인사이트윤 스케줄 충돌 방지", done: true }
-        ]
-      },
-      meeting: {
-        name: "🤝 대회의실",
-        role: "전략 · 수익화 기획",
-        summary: "세 스레드 계정과 모두의비서(19,900원)·패스톡(월 구독) 연결 전략을 점검합니다.",
-        tasks: [
-          { text: "패스톡 구독 안내 페이지 링크 확보하기", done: false },
-          { text: "모두의비서 제작기 콘텐츠 주 1회 편성", done: true }
-        ]
-      },
-      mongsil: {
-        name: "🐰 몽실 파트",
-        role: "@mongsil.good · 일상/제휴",
-        summary: "일상·공감 콘텐츠를 친근한 반말 톤으로 발행해 팔로워를 모읍니다.",
-        tasks: [
-          { text: "오후 2시 직장인 공감글 & 스하리 3건 완료", done: true },
-          { text: "20:18 서울 날씨/실시간 이슈 반영 저녁 글 게시", done: false }
-        ]
-      },
-      bohumpass: {
-        name: "🐻 보험패스 파트",
-        role: "@bohumpass · 보험/자문",
-        summary: "10년 차 보험전문가 & 필한방·자생한방병원 자문위원. 1:1 보장분석 문의를 유도합니다.",
-        tasks: [
-          { text: "월·수·금 08:37 / 일 17:19 사례형 타래 발행", done: false },
-          { text: "한방 비급여·감액기간 복귀 타래 게시", done: false }
-        ]
-      },
-      insight: {
-        name: "🐱 인사이트윤 파트",
-        role: "@insight.yoon · AI/상품",
-        summary: "AI·업무 자동화 꿀팁 + 모두의비서·패스톡 소개 + 오픈카톡 보험 브릿지 운영.",
-        tasks: [
-          { text: "화·목 09:24 / 주말 오전 AI 실무 팁 발행", done: false },
-          { text: "모두의비서 스마트스토어(19,900원) 제작기 준비", done: false }
-        ]
-      },
-      lounge: {
-        name: "☕ 라운지",
-        role: "대기 · 리서치",
-        summary: "계정 무결성 보호를 위해 파트별 실행 간격(3~20분 랜덤 지연)을 조절하며 휴식합니다.",
-        tasks: [
-          { text: "메타 계정 안전 수칙 준수 (과도한 연속 작업 금지)", done: true }
-        ]
-      }
-    };
+function depthScale(y) {
+  return Math.max(0.86, Math.min(1.02, 0.86 + (y - 0.45) * 0.36));
+}
+function place(c) {
+  c.el.style.left = (c.x * 100) + "%";
+  c.el.style.top = (c.y * 100) + "%";
+  c.el.style.zIndex = String(100 + Math.round(c.y * 1000));
+  c.el.style.transform = "translate(-50%, -100%) scale(" + depthScale(c.y).toFixed(3) + ")";
+}
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function loadState() {
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem("coa_world_state") || "null"); } catch (e) { saved = null; }
-      const base = {
-        rooms: {},
-        memos: [
-          { text: "스레드는 반말 기본(몽실), 전문가 톤(보험패스·인사이트윤) 유지!", done: false },
-          { text: "모두의비서: 스마트스토어 단건 19,900원 / 패스톡: 월 구독(7일 체험)", done: false }
-        ],
-        selectedRoom: "command",
-        motion: true
-      };
-      // 저장된 값이 있어도 새로 추가된 자리/필드는 기본값으로 메꿔준다
-      Object.keys(defaultRooms).forEach(k => {
-        const s = saved && saved.rooms && saved.rooms[k];
-        base.rooms[k] = s && Array.isArray(s.tasks)
-          ? Object.assign({}, defaultRooms[k], s)
-          : Object.assign({}, defaultRooms[k]);
-      });
-      if (saved) {
-        if (Array.isArray(saved.memos)) base.memos = saved.memos;
-        if (saved.rooms && SPOT_KEYS.indexOf(saved.selectedRoom) >= 0) base.selectedRoom = saved.selectedRoom;
-        if (typeof saved.motion === "boolean") base.motion = saved.motion;
-      }
-      return base;
+function scheduleLife(key) {
+  const c = chars[key];
+  if (!c) return;
+  const wait = 2200 + Math.random() * 4200;
+  setTimeout(() => {
+    if (!state.motion) { scheduleLife(key); return; }
+    c.el.classList.add("hop");
+    setTimeout(() => c.el.classList.remove("hop"), 470);
+    if (Math.random() < 0.45) {
+      c.el.classList.add("twitch");
+      setTimeout(() => c.el.classList.remove("twitch"), 580);
     }
+    scheduleLife(key);
+  }, wait);
+}
 
-    let state = loadState();
-
-    function saveState() {
-      try { localStorage.setItem("coa_world_state", JSON.stringify(state)); } catch (e) {}
+/* ---------------- 경로 탐색 ---------------- */
+function dist(a, b) {
+  const dx = (a.x - b.x) * W, dy = (a.y - b.y) * H;
+  return Math.hypot(dx, dy);
+}
+function findPath(fromId, toId) {
+  if (fromId === toId) return [toId];
+  const adj = {};
+  EDGES.forEach(([a, b]) => {
+    (adj[a] = adj[a] || []).push(b);
+    (adj[b] = adj[b] || []).push(a);
+  });
+  const distTo = {}, prev = {}, visited = {};
+  Object.keys(NODES).forEach(k => { distTo[k] = Infinity; });
+  distTo[fromId] = 0;
+  while (true) {
+    let u = null, best = Infinity;
+    for (const k in distTo) {
+      if (!visited[k] && distTo[k] < best) { best = distTo[k]; u = k; }
     }
-
-    const stage = document.getElementById("stage");
-    const officeWrap = document.getElementById("officeWrap");
-    const motionBtn = document.getElementById("motionToggle");
-    const detailEl = document.getElementById("roomDetail");
-    const charBar = document.getElementById("charBar");
-
-    function labelFor(key) {
-      return state.rooms[key] ? state.rooms[key].name : key;
-    }
-
-    /* ---------- 캐릭터 클릭 영역 + 상태 점 + 칩 ---------- */
-    function buildSpots() {
-      SPOT_KEYS.forEach(key => {
-        const s = SPOTS[key];
-        const spot = document.createElement("div");
-        spot.className = "spot" + (s.tone === "idle" ? " idle" : "");
-        spot.dataset.key = key;
-
-        const glow = document.createElement("span");
-        glow.className = "glow";
-        glow.style.left = s.dot[0] + "%";
-        glow.style.top = s.dot[1] + "%";
-
-        const dot = document.createElement("span");
-        dot.className = "dot-pin" + (s.tone === "idle" ? " idle" : "");
-        dot.style.left = s.dot[0] + "%";
-        dot.style.top = s.dot[1] + "%";
-
-        const hit = document.createElement("button");
-        hit.type = "button";
-        hit.className = "hotspot";
-        hit.style.left = s.hit[0] + "%";
-        hit.style.top = s.hit[1] + "%";
-        hit.style.width = s.hit[2] + "%";
-        hit.style.height = s.hit[3] + "%";
-        hit.setAttribute("aria-label", labelFor(key) + " 보기");
-        hit.addEventListener("pointerdown", () => hit.classList.add("pressed"));
-        ["pointerup", "pointercancel", "pointerleave"].forEach(ev =>
-          hit.addEventListener(ev, () => hit.classList.remove("pressed"))
-        );
-        hit.addEventListener("click", e => {
-          e.stopPropagation();
-          selectRoom(key);
-        });
-
-        spot.appendChild(glow);
-        spot.appendChild(dot);
-        spot.appendChild(hit);
-        stage.appendChild(spot);
-
-        // 칩은 칩 바에 따로
-        const chip = document.createElement("button");
-        chip.type = "button";
-        chip.className = "chip" + (s.tone === "idle" ? " idle" : "");
-        chip.dataset.key = key;
-        chip.innerHTML = '<span class="c-dot"></span>' + s.short;
-        chip.addEventListener("click", () => selectRoom(key));
-        charBar.appendChild(chip);
-      });
-
-      // 말풍선(가장 위 레이어)
-      const b = document.createElement("button");
-      b.id = "bubble";
-      b.className = "bubble";
-      b.type = "button";
-      b.hidden = true;
-      b.setAttribute("aria-live", "polite");
-      b.innerHTML =
-        '<span class="bubble-title" id="bubbleTitle"></span>' +
-        '<span class="bubble-live" id="bubbleLive"></span>' +
-        '<span class="bubble-cta">자세히 보기 ›</span>' +
-        '<span class="bubble-arrow"></span>';
-      b.addEventListener("click", e => {
-        e.stopPropagation();
-        scrollToDetail();
-        setTimeout(hideBubble, 700);
-      });
-      stage.appendChild(b);
-    }
-
-    const bubble = () => document.getElementById("bubble");
-
-    /* ---------- 말풍선 ---------- */
-    let bubbleTimer = null;
-
-    function showBubble(key) {
-      const s = SPOTS[key];
-      const b = bubble();
-      if (!b || !s) return;
-      b.dataset.key = key;
-      document.getElementById("bubbleTitle").textContent = labelFor(key);
-      document.getElementById("bubbleLive").textContent = s.live;
-      b.hidden = false;
-      placeBubble(key);
-      b.classList.remove("pop");
-      void b.offsetWidth; // 애니메이션 재생
-      b.classList.add("pop");
-
-      clearTimeout(bubbleTimer);
-      bubbleTimer = setTimeout(hideBubble, BUBBLE_MS);
-    }
-
-    function placeBubble(key) {
-      const s = SPOTS[key];
-      const b = bubble();
-      if (!b || b.hidden || !s) return;
-      const W = stage.clientWidth;
-      const H = stage.clientHeight;
-      if (!W || !H) return;
-      const ax = (s.anchor[0] / 100) * W;
-      const ay = (s.anchor[1] / 100) * H;
-      const cx = ((s.cx != null ? s.cx : s.anchor[0]) / 100) * W;
-      const w = b.offsetWidth;
-      const h = b.offsetHeight;
-      const side = s.side || "above";
-      let left, top;
-
-      if (side === "right") {
-        left = ax + 7;
-        top = ay - h / 2;
-      } else if (side === "left") {
-        left = ax - 7 - w;
-        top = ay - h / 2;
-      } else if (side === "below") {
-        left = cx - w / 2;
-        top = ay + 8;
-      } else {
-        left = cx - w / 2;
-        top = ay - 8 - h;
-      }
-      left = Math.min(Math.max(left, 4), Math.max(4, W - w - 4));
-      top = Math.min(Math.max(top, 4), Math.max(4, H - h - 4));
-
-      b.style.left = left + "px";
-      b.style.top = top + "px";
-      b.dataset.side = side;
-      b.style.setProperty("--arrow-x", Math.min(Math.max(ax - left, 16), Math.max(16, w - 16)) + "px");
-      b.style.setProperty("--arrow-y", Math.min(Math.max(ay - top, 12), Math.max(12, h - 12)) + "px");
-    }
-
-    function hideBubble() {
-      clearTimeout(bubbleTimer);
-      const b = bubble();
-      if (!b || b.hidden) return;
-      b.hidden = true;
-      b.classList.remove("pop");
-      b.dataset.key = "";
-    }
-
-    /* ---------- 탭 ---------- */
-    function switchTab(tabId) {
-      document.querySelectorAll(".tab-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.tab === tabId);
-      });
-      document.querySelectorAll(".section-view").forEach(v => {
-        v.classList.toggle("active", v.id === "tab-" + tabId);
-      });
-      if (tabId !== "office") hideBubble();
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    if (u === null) break;
+    if (u === toId) break;
+    visited[u] = true;
+    (adj[u] || []).forEach(v => {
+      const nd = distTo[u] + dist(NODES[u], NODES[v]);
+      if (nd < distTo[v]) { distTo[v] = nd; prev[v] = u; }
     });
+  }
+  if (distTo[toId] === Infinity) return [toId];
+  const out = [toId];
+  let cur = toId;
+  while (prev[cur]) { cur = prev[cur]; out.unshift(cur); }
+  return out;
+}
 
-    /* ---------- 모션 ---------- */
-    function renderMotion() {
-      motionBtn.textContent = state.motion ? "모션 ON" : "모션 OFF";
-      motionBtn.classList.toggle("dark", state.motion);
-      officeWrap.classList.toggle("motion-on", state.motion);
-    }
-    motionBtn.addEventListener("click", () => {
-      state.motion = !state.motion;
-      saveState();
-      renderMotion();
-    });
+function nearestNode(c) {
+  let bestId = "hall_c", best = Infinity;
+  Object.keys(NODES).forEach(id => {
+    if (id.length <= 2) return; // 회의/라운지 좌석 제외
+    const d = dist(c, NODES[id]);
+    if (d < best) { best = d; bestId = id; }
+  });
+  return bestId;
+}
 
-    /* ---------- 선택 (핵심 인터랙션) ---------- */
-    let scrollTimer = null;
+function goToNode(c, nodeId, opts) {
+  opts = opts || {};
+  const from = c.node && NODES[c.node] ? c.node : nearestNode(c);
+  let path = findPath(from, nodeId);
+  if (path.length && path[0] === from) path = path.slice(1);
+  // 현재 위치가 노드에서 살짝 벗어났으면 첫 구간만 실제 좌표로 대체
+  c.path = path.map(id => ({ id, node: NODES[id] }));
+  if (!c.path.length) { arrive(c); return; }
+  c.state = "walk";
+  c.el.classList.add("walking");
+  c.el.dataset.status = "walk";
+  if (opts.noWait) c.rush = true;
+}
 
-    function selectRoom(key, opts) {
-      opts = opts || {};
-      if (!state.rooms[key] || !SPOTS[key]) return;
-      const b = bubble();
-      const sameOpen = !!(b && !b.hidden && b.dataset.key === key);
-      state.selectedRoom = key;
-      saveState();
+function arrive(c) {
+  c.state = "idle";
+  const resting = c.node && c.node.charAt(0) === "l" && c.node.length <= 2;
+  c.status = resting ? "rest" : "focus";
+  c.el.classList.remove("walking");
+  c.el.dataset.status = c.status;
+  c.nextAt = performance.now() + 2400 + Math.random() * 4200;
+  refreshDetailStatus();
+}
 
-      // 1) 캐릭터 위 작은 점 하이라이트 (즉시)
-      document.querySelectorAll(".spot").forEach(s => {
-        s.classList.toggle("selected", s.dataset.key === key);
-      });
-      document.querySelectorAll(".chip").forEach(c => {
-        c.classList.toggle("active", c.dataset.key === key);
-      });
+/* ---------------- 루프 ---------------- */
+let last = performance.now();
+let rally = null; // {type:'meeting'|'lounge', until}
+let selectedKey = state.selected;
 
-      // 2) 카드 내용 갱신 (즉시)
-      renderRoomDetail();
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
 
-      // 3) 캐릭터 머리 위에 말풍선 (즉시) — 같은 자리를 다시 누르면 닫기
-      if (sameOpen) hideBubble();
-      else showBubble(key);
+  if (state.motion) {
+    CHAR_KEYS.forEach((key, idx) => {
+      const c = chars[key];
+      if (!c) return;
 
-      // 4) 폰에서 누른 느낌
-      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
-
-      // 5) 칩에서 누른 경우에만 카드로 부드럽게 이동 (그림은 계속 감상)
-      if (opts.scroll) {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(scrollToDetail, 420);
-      }
-    }
-
-    function scrollToDetail() {
-      const target = detailEl;
-      const r = target.getBoundingClientRect();
-      const vh = window.innerHeight;
-      if (r.top < vh * 0.45 || r.bottom > vh - 8) {
-        try {
-          target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
-        } catch (e) {
-          window.scrollTo(0, target.getBoundingClientRect().top + window.pageYOffset - 40);
+      if (c.state === "walk" && c.path.length) {
+        const tgt = c.path[0];
+        const tx = tgt.node.x, ty = tgt.node.y;
+        const dpx = (tx - c.x) * W, dpy = (ty - c.y) * H;
+        const d = Math.hypot(dpx, dpy);
+        const step = c.speed * (0.85 + (idx % 3) * 0.08) * W * dt;
+        if (d <= Math.max(2.2, step)) {
+          c.x = tx; c.y = ty; c.node = tgt.id; c.path.shift();
+          if (!c.path.length) { arrive(c); }
+        } else {
+          c.x += (dpx / d) * step / W;
+          c.y += (dpy / d) * step / H;
+          if (dpx < -1.2 && c.facing !== -1) { c.facing = -1; c.el.classList.add("face-left"); }
+          else if (dpx > 1.2 && c.facing !== 1) { c.facing = 1; c.el.classList.remove("face-left"); }
         }
+        place(c);
+      } else if (c.state === "idle" && now > c.nextAt && (!rally || !c.rallySeat)) {
+        const list = ROUTES[key] || ["hall_c"];
+        const free = list.filter(id => {
+          if (id === c.node) return false;
+          return CHAR_KEYS.every(k => {
+            if (k === key) return true;
+            const o = chars[k];
+            return Math.hypot(NODES[id].x - o.x, NODES[id].y - o.y) > 0.10;
+          });
+        });
+        const options = free.length ? free : list.filter(id => id !== c.node);
+        const pick = options[Math.floor(Math.random() * options.length)] || list[0];
+        goToNode(c, pick);
       }
-      target.classList.remove("flash");
-      void target.offsetWidth;
-      target.classList.add("flash");
-      setTimeout(() => target.classList.remove("flash"), 820);
-    }
-
-    /* ---------- 업무 토글 ---------- */
-    function toggleTask(roomKey, idx) {
-      const t = state.rooms[roomKey] && state.rooms[roomKey].tasks[idx];
-      if (!t) return;
-      t.done = !t.done;
-      saveState();
-      renderRoomDetail();
-    }
-
-    function addRoomTask(roomKey) {
-      const input = document.getElementById("newTaskInput");
-      if (!input) return;
-      const val = input.value.trim();
-      if (!val) return;
-      state.rooms[roomKey].tasks.unshift({ text: val, done: false });
-      input.value = "";
-      saveState();
-      renderRoomDetail();
-    }
-
-    function renderRoomDetail() {
-      const key = state.selectedRoom;
-      const room = state.rooms[key];
-      if (!room) { detailEl.innerHTML = ""; return; }
-      const total = room.tasks.length;
-      const done = room.tasks.filter(t => t.done).length;
-      const pct = total ? Math.round((done / total) * 100) : 0;
-      detailEl.innerHTML =
-        '<div class="detail-header">' +
-          '<div class="detail-title">' + room.name + "</div>" +
-          '<span class="role-tag">' + room.role + "</span>" +
-        "</div>" +
-        '<p class="status-desc">' + room.summary + "</p>" +
-        '<div class="progress-row">' +
-          '<div class="progress-bar"><i style="width:' + pct + '%"></i></div>' +
-          '<span class="progress-text">' + done + "/" + total + " 완료</span>" +
-        "</div>" +
-        '<ul class="task-list">' +
-          room.tasks.map((t, i) =>
-            '<li class="task-item ' + (t.done ? "done" : "") + '" onclick="toggleTask(\'' + key + "', " + i + ')">' +
-              '<span class="task-check">' + (t.done ? "✓" : "") + "</span>" +
-              "<span>" + t.text + "</span>" +
-            "</li>"
-          ).join("") +
-        "</ul>" +
-        '<div class="input-row">' +
-          '<input id="newTaskInput" type="text" placeholder="이 파트에 새 업무 추가..." ' +
-            'onkeydown="if(event.key===\'Enter\') addRoomTask(\'' + key + '\')" />' +
-          '<button class="btn-primary" onclick="addRoomTask(\'' + key + '\')">추가</button>' +
-        "</div>";
-    }
-
-    function renderWorkshop() {
-      const el = document.getElementById("workshopList");
-      const keys = ["command", "mongsil", "bohumpass", "insight"];
-      el.innerHTML = keys.map(k => {
-        const r = state.rooms[k];
-        return '<div class="kv-row" style="cursor:pointer" onclick="switchTab(\'office\'); selectRoom(\'' + k + "', { scroll: true });\">" +
-          '<span class="kv-k">' + r.name + "</span>" +
-          '<span class="kv-v">' + r.role + "</span>" +
-        "</div>";
-      }).join("");
-    }
-
-    function renderMemos() {
-      const el = document.getElementById("memoList");
-      el.innerHTML = state.memos.map((m, i) =>
-        '<li class="task-item ' + (m.done ? "done" : "") + '" onclick="toggleMemo(' + i + ')">' +
-          '<span class="task-check">' + (m.done ? "✓" : "") + "</span>" +
-          "<span>" + m.text + "</span>" +
-        "</li>"
-      ).join("");
-    }
-
-    function addMemo() {
-      const input = document.getElementById("memoInput");
-      const val = input.value.trim();
-      if (!val) return;
-      state.memos.unshift({ text: val, done: false });
-      input.value = "";
-      saveState();
-      renderMemos();
-    }
-
-    function toggleMemo(i) {
-      state.memos[i].done = !state.memos[i].done;
-      saveState();
-      renderMemos();
-    }
-
-    /* ---------- 이벤트 ---------- */
-    // 이미지가 준비되면 부드럽게 나타남 (캐시된 경우 즉시)
-    const img = document.getElementById("officeImg");
-    function markLoaded() { img.classList.add("loaded"); }
-    if (img.complete && img.naturalWidth) markLoaded();
-    else {
-      img.addEventListener("load", markLoaded);
-      img.addEventListener("error", markLoaded);
-    }
-
-    // 그림 빈 곳을 탭하면 말풍선 닫기
-    stage.addEventListener("click", e => {
-      if (!e.target.closest(".hotspot") && !e.target.closest(".bubble")) hideBubble();
     });
 
-    // 화면 크기/회전이 바뀌면 말풍선 위치 보정
-    let resizeRaf = null;
-    window.addEventListener("resize", () => {
-      if (resizeRaf) cancelAnimationFrame(resizeRaf);
-      resizeRaf = requestAnimationFrame(() => {
-        const b = bubble();
-        if (b && !b.hidden && b.dataset.key) placeBubble(b.dataset.key);
-      });
-    }, { passive: true });
+    if (!rally) separate();
+    if (rally && now > rally.until) endRally();
+  }
+  requestAnimationFrame(tick);
+}
 
-    /* ---------- 시작 ---------- */
-    buildSpots();
-    renderMotion();
-    if (!state.rooms[state.selectedRoom]) state.selectedRoom = "command";
-    document.querySelectorAll(".spot").forEach(s => {
-      s.classList.toggle("selected", s.dataset.key === state.selectedRoom);
+function separate() {
+  const minD = CH_W * 1.05;
+  for (let i = 0; i < CHAR_KEYS.length; i++) {
+    for (let j = i + 1; j < CHAR_KEYS.length; j++) {
+      const a = chars[CHAR_KEYS[i]], b = chars[CHAR_KEYS[j]];
+      if (!a || !b) continue;
+      let dx = (b.x - a.x) * W, dy = (b.y - a.y) * H;
+      let d = Math.hypot(dx, dy);
+      if (d > 0 && d < minD) {
+        const push = (minD - d) / 2;
+        const ux = dx / d, uy = dy / d;
+        a.x -= (ux * push) / W; a.y -= (uy * push) / H * 0.4;
+        b.x += (ux * push) / W; b.y += (uy * push) / H * 0.4;
+        place(a); place(b);
+      }
+    }
+  }
+}
+
+/* ---------------- 말풍선 ---------------- */
+let bubbleTimer = null;
+
+function showBubble(key) {
+  const p = PARTS[key];
+  if (!p) return;
+  const c = chars[key];
+  bubbleName.textContent = p.name;
+  bubbleRole.textContent = p.role;
+  bubbleLive.textContent = p.live;
+  bubbleEl.hidden = false;
+  bubbleEl.dataset.key = key;
+  placeBubble();
+  bubbleEl.style.animation = "none";
+  void bubbleEl.offsetWidth;
+  bubbleEl.style.animation = "";
+  clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(hideBubble, 7000);
+}
+
+function placeBubble() {
+  if (bubbleEl.hidden) return;
+  const key = selectedKey;
+  let ax, ay;
+  if (key === "meeting") { ax = 0.205 * W; ay = 0.415 * H; }
+  else if (key === "lounge") { ax = 0.735 * W; ay = 0.735 * H; }
+  else {
+    const c = chars[key];
+    if (!c) return;
+    ax = c.x * W;
+    ay = c.y * H - CH_H * depthScale(c.y) * 0.98;
+  }
+  const bw = bubbleEl.offsetWidth, bh = bubbleEl.offsetHeight;
+  let left = ax - bw / 2;
+  let top = ay - bh - 10;
+  let side = "above";
+  if (top < 4) { top = ay + 12; side = "below"; }
+  left = Math.min(Math.max(left, 4), Math.max(4, W - bw - 4));
+  top = Math.min(Math.max(top, 4), Math.max(4, H - bh - 4));
+  bubbleEl.style.left = left + "px";
+  bubbleEl.style.top = top + "px";
+  bubbleEl.classList.toggle("side-below", side === "below");
+  bubbleEl.classList.toggle("side-above", side !== "below");
+  const arrowX = Math.min(Math.max(ax - left, 14), Math.max(14, bw - 14));
+  bubbleEl.style.setProperty("--ax", arrowX + "px");
+}
+
+function hideBubble() {
+  clearTimeout(bubbleTimer);
+  if (bubbleEl.hidden) return;
+  bubbleEl.hidden = true;
+}
+
+bubbleEl.addEventListener("click", e => {
+  e.stopPropagation();
+  hideBubble();
+  detailEl.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+/* ---------------- 선택 ---------------- */
+function select(key, doJump) {
+  if (!PARTS[key]) return;
+  selectedKey = key;
+  state.selected = key;
+  saveState();
+
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.key === key));
+  document.querySelectorAll(".ch").forEach(el => el.classList.toggle("selected", el.dataset.key === key));
+
+  renderDetail(key);
+  showBubble(key);
+  if (doJump && chars[key]) celebrate(chars[key]);
+  if (key !== "meeting" && key !== "lounge") refreshDetailStatus();
+}
+
+function celebrate(c) {
+  c.el.classList.remove("jump");
+  void c.el.offsetWidth;
+  c.el.classList.add("jump");
+  setTimeout(() => c.el.classList.remove("jump"), 700);
+  const cx = c.x * W, cy = c.y * H - CH_H * 0.55;
+  for (let i = 0; i < 9; i++) {
+    const s = document.createElement("span");
+    s.className = "spark";
+    const ang = (Math.PI * 2 * i) / 9 + Math.random() * 0.5;
+    const rad = CH_W * (0.55 + Math.random() * 0.5);
+    s.style.left = cx + "px";
+    s.style.top = cy + "px";
+    s.style.setProperty("--dx", Math.cos(ang) * rad + "px");
+    s.style.setProperty("--dy", (Math.sin(ang) * rad - 10) + "px");
+    s.style.background = i % 2
+      ? "radial-gradient(circle at 35% 35%, #fff, #ffe3a3 60%, rgba(255,227,163,0) 72%)"
+      : "radial-gradient(circle at 35% 35%, #fff, #b9ecdd 60%, rgba(185,236,221,0) 72%)";
+    fxLayer.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+}
+
+/* ---------------- 상세 카드 ---------------- */
+function renderDetail(key) {
+  const p = PARTS[key];
+  const tasks = state.parts[key] || [];
+  const done = tasks.filter(t => t.done).length;
+  const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  const isRoom = key === "meeting" || key === "lounge";
+
+  let html = '<div class="dc-head">' +
+    '<div class="dc-avatar" style="background:' + p.tint + '">' + avatarHtml(key) + '</div>' +
+    '<div class="dc-id">' +
+      '<div class="dc-name">' + p.name + '<span class="dc-role">' + p.role + '</span></div>' +
+      '<div class="dc-state"><i style="background:' + p.color + '"></i><span id="dcState">' + statusText(key) + '</span></div>' +
+    '</div>' +
+    (isRoom
+      ? '<button class="dc-call" data-rally="' + key + '">' + (key === "meeting" ? "회의 소집" : "쉬러 가기") + '</button>'
+      : '<button class="dc-call" data-call="' + key + '">불러오기</button>') +
+  '</div>' +
+  '<p class="dc-live">' + p.summary + '</p>' +
+  '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:10px;">' +
+    '<span>이번 주 업무</span><span><b style="color:var(--ink)">' + done + '</b> / ' + tasks.length + '</span>' +
+  '</div>' +
+  '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+  '<ul class="tasks">';
+
+  tasks.forEach((t, i) => {
+    html += '<li class="task-row' + (t.done ? " done" : "") + '" data-part="' + key + '" data-idx="' + i + '">' +
+      '<span class="task-box">' + (t.done ? "✓" : "") + '</span>' +
+      '<span class="task-text">' + escapeHtml(t.t) + '</span></li>';
+  });
+  if (!tasks.length) html += '<li class="empty">아직 등록된 업무가 없어요.</li>';
+  html += '</ul>' +
+    '<div class="add-row">' +
+      '<input type="text" maxlength="80" placeholder="' + (isRoom ? "안건 추가" : p.name + "에게 업무 추가") + '" data-add="' + key + '" />' +
+      '<button class="btn-primary" data-addbtn="' + key + '">추가</button>' +
+    '</div>';
+
+  detailEl.innerHTML = html;
+  updateStats();
+}
+
+function statusText(key) {
+  if (key === "meeting") return rally && rally.type === "meeting" ? "회의 중 · 5인방 모였어요" : "회의 준비";
+  if (key === "lounge") return rally && rally.type === "lounge" ? "커피 타임 중" : "충전 중";
+  const c = chars[key];
+  if (!c) return PARTS[key].status;
+  if (c.state === "walk") return "이동 중";
+  return PARTS[key].status;
+}
+
+function refreshDetailStatus() {
+  const el = document.getElementById("dcState");
+  if (el) el.textContent = statusText(selectedKey);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* 캐릭터는 스프라이트 섬네일, 회의실·라운지는 이모지 */
+function avatarHtml(key) {
+  if (SPRITE_KEYS.indexOf(key) < 0) return (PARTS[key] || {}).emoji || "";
+  return '<img src="' + spriteSrc(key) + '" alt="" draggable="false" />';
+}
+
+detailEl.addEventListener("click", e => {
+  const row = e.target.closest(".task-row");
+  if (row) {
+    const part = row.dataset.part, idx = Number(row.dataset.idx);
+    const t = state.parts[part] && state.parts[part][idx];
+    if (t) { t.done = !t.done; saveState(); renderDetail(part); renderWorkshop(); }
+    return;
+  }
+  const addBtn = e.target.closest("[data-addbtn]");
+  if (addBtn) {
+    const key = addBtn.dataset.addbtn;
+    const inp = detailEl.querySelector('[data-add="' + key + '"]');
+    if (inp && inp.value.trim()) {
+      (state.parts[key] = state.parts[key] || []).push({ t: inp.value.trim(), done: false });
+      inp.value = "";
+      saveState(); renderDetail(key); renderWorkshop();
+    }
+    return;
+  }
+  const call = e.target.closest("[data-call]");
+  if (call) { callChar(call.dataset.call); return; }
+  const rallyBtn = e.target.closest("[data-rally]");
+  if (rallyBtn) { startRally(rallyBtn.dataset.rally); return; }
+});
+
+detailEl.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.matches("[data-add]")) {
+    const key = e.target.dataset.add;
+    if (e.target.value.trim()) {
+      (state.parts[key] = state.parts[key] || []).push({ t: e.target.value.trim(), done: false });
+      e.target.value = "";
+      saveState(); renderDetail(key); renderWorkshop();
+    }
+  }
+});
+
+function callChar(key) {
+  const c = chars[key];
+  if (!c) return;
+  goToNode(c, HOME[key]);
+  celebrate(c);
+  select(key, false);
+  showBubble(key);
+}
+
+/* ---------------- 소집 ---------------- */
+function startRally(type) {
+  const plan = type === "meeting"
+    ? [["coa", "m1"], ["mongsil", "m2"], ["bohumpass", "m3"], ["insight", "m4"], ["rani", "m5"]]
+    : [["coa", "l1"], ["mongsil", "l3"], ["rani", "l5"]];   // 라운지는 3명씩 번갈아 쉼
+  rally = { type, until: performance.now() + 26000 };
+  CHAR_KEYS.forEach(k => { const c = chars[k]; if (c) c.rallySeat = false; });
+  select(type, false);
+  showBubble(type);
+  clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(hideBubble, 9000);
+  plan.forEach(([key, seat], i) => {
+    const c = chars[key];
+    if (!c) return;
+    c.rallySeat = true;
+    setTimeout(() => {
+      if (!rally || rally.type !== type) return;
+      goToNode(c, seat);
+    }, i * 220);
+  });
+  refreshDetailStatus();
+}
+
+function endRally() {
+  const prev = rally;
+  rally = null;
+  CHAR_KEYS.forEach((key, i) => {
+    const cc = chars[key];
+    if (cc) cc.rallySeat = false;
+    const c = chars[key];
+    if (!c) return;
+    setTimeout(() => goToNode(c, ROUTES[key][0]), 500 + i * 180);
+  });
+  if (prev && (selectedKey === "meeting" || selectedKey === "lounge")) {
+    refreshDetailStatus();
+  }
+}
+
+/* ---------------- 칩 ---------------- */
+function buildChips() {
+  ORDER.forEach(key => {
+    const p = PARTS[key];
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (key === "meeting" || key === "lounge" ? " room" : "");
+    b.dataset.key = key;
+    b.style.setProperty("--c", p.color);
+    b.innerHTML = '<span class="c-dot"></span>' + (key === "meeting" ? "회의실" : key === "lounge" ? "라운지" : p.name);
+    if (key === selectedKey) b.classList.add("active");
+    b.addEventListener("click", () => {
+      if (key === "meeting" || key === "lounge") startRally(key);
+      else select(key, true);
     });
-    document.querySelectorAll(".chip").forEach(c => {
-      c.classList.toggle("active", c.dataset.key === state.selectedRoom);
+    chipsEl.appendChild(b);
+  });
+}
+
+/* ---------------- 모션 토글 ---------------- */
+function renderMotion() {
+  motionBtn.textContent = state.motion ? "모션 ON" : "모션 OFF";
+  motionBtn.classList.toggle("dark", state.motion);
+  stage.classList.toggle("motion-off", !state.motion);
+  CHAR_KEYS.forEach(k => {
+    const c = chars[k];
+    if (!c) return;
+    if (!state.motion) {
+      c.path = [];
+      c.state = "idle";
+      c.el.classList.remove("walking");
+      c.el.dataset.status = "rest";
+    } else {
+      c.el.dataset.status = "focus";
+      c.nextAt = performance.now() + 600 + Math.random() * 1800;
+    }
+  });
+}
+motionBtn.addEventListener("click", () => {
+  state.motion = !state.motion;
+  saveState();
+  renderMotion();
+});
+
+document.querySelectorAll("[data-jump]").forEach(b => {
+  b.addEventListener("click", () => {
+    CHAR_KEYS.forEach((k, i) => setTimeout(() => { if (chars[k]) celebrate(chars[k]); }, i * 90));
+  });
+});
+document.querySelectorAll("[data-rally]").forEach(b => {
+  b.addEventListener("click", () => startRally(b.dataset.rally));
+});
+
+/* ---------------- 탭 ---------------- */
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll(".section-view").forEach(v => v.classList.toggle("active", v.id === "tab-" + tab));
+  if (tab !== "office") hideBubble();
+  if (tab === "workshop") renderWorkshop();
+  if (tab === "status") updateStats();
+}
+document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+/* ---------------- 작업실 / 현황 ---------------- */
+function renderWorkshop() {
+  const el = document.getElementById("workshopList");
+  el.innerHTML = CHAR_KEYS.map(key => {
+    const p = PARTS[key];
+    const tasks = state.parts[key] || [];
+    const done = tasks.filter(t => t.done).length;
+    const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+    return '<div class="part-row">' +
+      '<div class="part-av">' + avatarHtml(key) + '</div>' +
+      '<div class="part-main">' +
+        '<div class="part-name">' + p.name + '<span>' + done + '/' + tasks.length + '</span></div>' +
+        '<div class="part-role">' + p.role + ' · ' + p.status + '</div>' +
+        '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+      '</div></div>';
+  }).join("");
+}
+
+function updateStats() {
+  let open = 0, done = 0;
+  CHAR_KEYS.forEach(k => {
+    (state.parts[k] || []).forEach(t => { t.done ? done++ : open++; });
+  });
+  const a = document.getElementById("statOpen"), b = document.getElementById("statDone");
+  if (a) a.textContent = open;
+  if (b) b.textContent = done;
+  renderMeetingAgenda();
+}
+
+function renderMeetingAgenda() {
+  const el = document.getElementById("meetingAgenda");
+  if (!el) return;
+  const rooms = ["meeting"];
+  let html = "";
+  rooms.forEach(k => {
+    (state.parts[k] || []).forEach((t, i) => {
+      html += '<li class="task-row' + (t.done ? " done" : "") + '" data-part="' + k + '" data-idx="' + i + '">' +
+        '<span class="task-box">' + (t.done ? "✓" : "") + '</span><span class="task-text">' + escapeHtml(t.t) + '</span></li>';
     });
-    renderRoomDetail();
-    renderWorkshop();
-    renderMemos();
-  </script>
+  });
+  el.innerHTML = html || '<li class="empty">안건이 없어요.</li>';
+}
+document.getElementById("meetingAgenda").addEventListener("click", e => {
+  const row = e.target.closest(".task-row");
+  if (!row) return;
+  const part = row.dataset.part, idx = Number(row.dataset.idx);
+  const t = state.parts[part] && state.parts[part][idx];
+  if (t) { t.done = !t.done; saveState(); renderMeetingAgenda(); renderDetail(part); }
+});
+
+/* ---------------- 메모 ---------------- */
+const memoInput = document.getElementById("memoInput");
+function renderMemos() {
+  const ul = document.getElementById("memoList");
+  if (!state.memos.length) { ul.innerHTML = '<li class="empty">아직 메모가 없어요.</li>'; return; }
+  ul.innerHTML = state.memos.map((m, i) =>
+    '<li class="memo-item"><span class="m-dot"></span><span class="m-text">' + escapeHtml(m.text) +
+    (m.at ? ' <span class="m-time">' + escapeHtml(m.at) + '</span>' : '') + '</span>' +
+    '<button class="memo-del" data-del="' + i + '" aria-label="메모 삭제">×</button></li>'
+  ).join("");
+}
+function addMemo() {
+  const v = memoInput.value.trim();
+  if (!v) return;
+  const d = new Date();
+  const at = (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  state.memos.unshift({ text: v, at });
+  memoInput.value = "";
+  saveState(); renderMemos();
+}
+document.getElementById("memoAdd").addEventListener("click", addMemo);
+memoInput.addEventListener("keydown", e => { if (e.key === "Enter") addMemo(); });
+document.getElementById("memoList").addEventListener("click", e => {
+  const btn = e.target.closest("[data-del]");
+  if (!btn) return;
+  state.memos.splice(Number(btn.dataset.del), 1);
+  saveState(); renderMemos();
+});
+
+/* ---------------- 시작 ---------------- */
+buildChars();
+buildChips();
+renderMotion();
+renderDetail(selectedKey);
+renderWorkshop();
+updateStats();
+renderMemos();
+measure();
+window.addEventListener("resize", measure);
+if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
+requestAnimationFrame(t => { last = t; tick(t); });
+
+/* 칩 클릭 시 선택된 캐릭터가 화면 밖이면 살짝 불러오기 */
+document.querySelectorAll(".room-hit").forEach(el => {
+  el.addEventListener("click", e => { e.stopPropagation(); select(el.dataset.room, false); });
+});
+
+/* 무대 빈 곳을 누르면 말풍선 닫기 */
+stage.addEventListener("click", e => {
+  if (e.target === stage || e.target.id === "officeImg" || e.target.classList.contains("office")) hideBubble();
+});
+</script>
 </body>
 </html>
