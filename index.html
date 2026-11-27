@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#f4f6f9" />
   <title>코아월드 — 영록 본부 AI 오피스</title>
+  <link rel="preload" as="image" href="./office.webp" type="image/webp" />
   <style>
     :root {
       --bg: #f4f6f9;
@@ -32,6 +34,14 @@
       max-width: 460px;
       padding: 16px 14px 40px;
     }
+    /* 즉시 반응: 모든 터치 요소의 300ms 지연 제거 */
+    button, .tab-btn, .pill-btn, .hotspot, .chip, .task-item, .kv-row {
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      font-family: inherit;
+    }
+
     /* Header */
     .header {
       display: flex;
@@ -112,8 +122,9 @@
       font-weight: 600;
       color: #4b5563;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, scale 0.08s ease;
     }
+    .tab-btn:active { scale: 0.95; }
     .tab-btn.active {
       background: var(--card);
       color: var(--text);
@@ -169,8 +180,9 @@
       padding: 7px 13px;
       border-radius: 999px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, scale 0.08s ease;
     }
+    .pill-btn:active { scale: 0.95; }
     .pill-btn.dark {
       background: var(--dark);
       color: #fff;
@@ -189,57 +201,248 @@
     .office-stage {
       position: relative;
       width: 100%;
+      aspect-ratio: 1402 / 1122;
       border-radius: 16px;
       overflow: hidden;
-      background: #fafafa;
+      /* 로딩 중에도 레이아웃이 튀지 않도록 오피스 톤의 자리표시 */
+      background: radial-gradient(120% 80% at 50% 12%, #fdf7ee 0%, #f3ece2 46%, #e8dfd3 100%);
     }
     .office-stage img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
       display: block;
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: cover;
       user-select: none;
+      -webkit-user-drag: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
-    .hotspot {
+    .office-stage img.loaded { opacity: 1; }
+
+    /* 자리 묶음: 그림 전체를 덮는 투명 레이어 (자식들이 % 로 배치됨) */
+    .spot {
       position: absolute;
-      transform: translate(-50%, -50%);
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .spot .glow, .spot .dot-pin { pointer-events: none; }
+
+    /* 캐릭터/방 위 투명 클릭 영역 — 그림을 가리지 않음 */
+    .hotspot {
+      pointer-events: auto;
+      position: absolute;
+      z-index: 1;
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.16s ease;
+    }
+    .hotspot:active, .hotspot.pressed {
+      background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.22) 0%, rgba(16, 185, 129, 0) 72%);
+    }
+    .hotspot:focus-visible {
+      outline: 2px solid #10b981;
+      outline-offset: 1px;
+    }
+
+    /* 아주 작은 상태 점 */
+    .dot-pin {
+      position: absolute;
+      z-index: 2;
+      width: 10px;
+      height: 10px;
+      margin: -5px 0 0 -5px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 1.6px solid #fff;
+      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.35);
+      pointer-events: none;
+    }
+    .dot-pin.idle { background: #fbbf24; }
+    .dot-pin::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(16, 185, 129, 0.8);
+      opacity: 0;
+    }
+    .dot-pin.idle::after { border-color: rgba(251, 191, 36, 0.85); }
+    .spot.selected .dot-pin::after { opacity: 1; }
+    .motion-on .spot.selected .dot-pin::after { animation: dotPulse 1.9s ease-out infinite; }
+    @keyframes dotPulse {
+      0% { transform: scale(0.7); opacity: 0.95; }
+      100% { transform: scale(2.6); opacity: 0; }
+    }
+    /* 은은한 가동 상태 빛 */
+    .glow {
+      position: absolute;
+      z-index: 1;
+      width: 64px;
+      height: 64px;
+      margin: -32px 0 0 -32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.30) 0%, rgba(16, 185, 129, 0.10) 45%, rgba(16, 185, 129, 0) 70%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .spot.idle .glow {
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.28) 0%, rgba(251, 191, 36, 0.10) 45%, rgba(251, 191, 36, 0) 70%);
+    }
+    .motion-on .glow {
+      opacity: 1;
+      animation: breathe 3.8s ease-in-out infinite;
+    }
+    .motion-on .spot:nth-of-type(2n) .glow { animation-delay: 0.8s; }
+    .motion-on .spot:nth-of-type(3n) .glow { animation-delay: 1.5s; }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.45; transform: scale(0.86); }
+      50% { opacity: 0.95; transform: scale(1.12); }
+    }
+
+    /* 캐릭터 선택 칩 바 (그림 바로 아래) */
+    .char-bar {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 0 2px 2px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .char-bar::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: 0 0 auto;
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(22, 29, 41, 0.86);
-      backdrop-filter: blur(6px);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 11.5px;
+      border: 1px solid var(--border);
+      background: #f7f9fb;
+      color: #4b5563;
+      font-size: 12px;
       font-weight: 700;
-      white-space: nowrap;
+      letter-spacing: -0.2px;
+      padding: 7px 12px;
+      border-radius: 999px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-      transition: transform 0.15s ease, background 0.15s ease;
-      z-index: 2;
+      white-space: nowrap;
+      transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease, scale 0.08s ease;
     }
-    .hotspot:hover, .hotspot.selected {
-      background: #0f172a;
-      transform: translate(-50%, -50%) scale(1.07);
-      border-color: #34d399;
-    }
-    .hotspot .dot {
+    .chip:active { scale: 0.94; }
+    .chip .c-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: #10b981;
-      flex-shrink: 0;
     }
-    .hotspot .dot.idle { background: #fbbf24; }
-    .motion-on .hotspot {
-      animation: floatPin 3s ease-in-out infinite;
+    .chip.idle .c-dot { background: #fbbf24; }
+    .chip.active {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+      box-shadow: 0 4px 10px rgba(22, 29, 41, 0.18);
     }
-    .motion-on .hotspot:nth-child(2n) { animation-delay: 0.6s; }
-    .motion-on .hotspot:nth-child(3n) { animation-delay: 1.2s; }
-    @keyframes floatPin {
-      0%, 100% { transform: translate(-50%, -50%); }
-      50% { transform: translate(-50%, calc(-50% - 3px)); }
+    .chip.active .c-dot { box-shadow: 0 0 8px rgba(16, 185, 129, 0.9); }
+
+    /* 핀 말풍선 */
+    .bubble {
+      position: absolute;
+      z-index: 8;
+      display: block;
+      text-align: left;
+      width: max-content;
+      max-width: 62%;
+      background: #ffffff;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 13px;
+      padding: 7px 10px 8px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      opacity: 0;
+      transform-origin: var(--arrow-x, 50%) 100%;
+      pointer-events: auto;
+      will-change: transform, opacity;
+    }
+    .bubble[hidden] { display: none; }
+    .bubble[data-side="below"] { transform-origin: var(--arrow-x, 50%) 0%; }
+    .bubble[data-side="right"] { transform-origin: 0% var(--arrow-y, 50%); }
+    .bubble[data-side="left"] { transform-origin: 100% var(--arrow-y, 50%); }
+    .bubble.pop { animation: bubblePop 0.18s cubic-bezier(0.22, 1.1, 0.4, 1) forwards; }
+    @keyframes bubblePop {
+      from { opacity: 0; transform: translateY(4px) scale(0.92); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .bubble .bubble-title {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+    }
+    .bubble .bubble-live {
+      display: block;
+      font-size: 10.5px;
+      color: #4b5563;
+      margin-top: 1px;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .bubble .bubble-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 1px;
+      margin-top: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #059669;
+    }
+    .bubble .bubble-arrow {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+    }
+    .bubble[data-side="above"] .bubble-arrow,
+    .bubble:not([data-side]) .bubble-arrow {
+      left: var(--arrow-x, 50%);
+      bottom: -4.5px;
+      margin-left: -4.5px;
+      border-right: 1px solid rgba(16, 185, 129, 0.4);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.4);
+      transform: rotate(45deg);
+    }
+    .bubble[data-side="below"] .bubble-arrow {
+      left: var(--arrow-x, 50%);
+      top: -4.5px;
+      margin-left: -4.5px;
+      border-left: 1px solid rgba(16, 185, 129, 0.4);
+      border-top: 1px solid rgba(16, 185, 129, 0.4);
+      transform: rotate(45deg);
+    }
+    .bubble[data-side="right"] .bubble-arrow {
+      left: -4.5px;
+      top: var(--arrow-y, 50%);
+      margin-top: -4.5px;
+      border-left: 1px solid rgba(16, 185, 129, 0.4);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.4);
+      transform: rotate(45deg);
+    }
+    .bubble[data-side="left"] .bubble-arrow {
+      right: -4.5px;
+      top: var(--arrow-y, 50%);
+      margin-top: -4.5px;
+      border-right: 1px solid rgba(16, 185, 129, 0.4);
+      border-top: 1px solid rgba(16, 185, 129, 0.4);
+      transform: rotate(45deg);
     }
 
     /* Drawer / Detail */
@@ -264,6 +467,37 @@
       padding: 4px 9px;
       border-radius: 999px;
     }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      border-radius: 999px;
+      background: #eef1f5;
+      overflow: hidden;
+    }
+    .progress-bar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #34d399, #10b981);
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #059669;
+      white-space: nowrap;
+    }
+    #roomDetail.flash { animation: cardFlash 0.8s ease-out; }
+    @keyframes cardFlash {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      100% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
+    }
     .task-list {
       list-style: none;
       padding: 0;
@@ -282,7 +516,9 @@
       font-size: 13px;
       line-height: 1.4;
       cursor: pointer;
+      transition: background 0.12s ease, scale 0.09s ease;
     }
+    .task-item:active { background: #eef2f7; scale: 0.99; }
     .task-item.done {
       color: var(--muted);
       text-decoration: line-through;
@@ -329,7 +565,9 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
+      transition: scale 0.08s ease, opacity 0.15s ease;
     }
+    .btn-primary:active { scale: 0.95; }
     .section-view { display: none; }
     .section-view.active { display: block; }
     .kv-row {
@@ -338,10 +576,18 @@
       padding: 9px 0;
       border-bottom: 1px solid #f3f4f6;
       font-size: 13px;
+      transition: background 0.12s ease;
     }
     .kv-row:last-child { border-bottom: none; }
     .kv-k { color: var(--muted); font-weight: 600; }
     .kv-v { font-weight: 700; text-align: right; max-width: 65%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .motion-on .glow,
+      .motion-on .spot.selected .dot-pin::after,
+      .live-dot { animation: none !important; }
+      .bubble.pop { animation: none; opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -370,7 +616,7 @@
       <div class="card">
         <span class="ws-pill">Workspace</span>
         <h2 class="status-title">대표님, 4개 파트가 대기 중이에요</h2>
-        <p class="status-desc">공간이나 담당자를 탭하면 역할과 진행 현황을 바로 보고 업무를 추가할 수 있어요.</p>
+        <p class="status-desc">캐릭터나 아래 이름 칩을 탭하면 그 자리에 말풍선이 뜨고, 아래 카드에서 진행 현황을 볼 수 있어요.</p>
       </div>
 
       <div class="pills-row">
@@ -380,27 +626,16 @@
       </div>
 
       <div id="officeWrap" class="office-wrap motion-on">
-        <div class="office-stage">
-          <img src="./office.png" alt="코아월드 아이소메트릭 오피스" />
-          <button class="hotspot selected" style="left: 55%; top: 38%;" onclick="selectRoom('command')">
-            <span class="dot"></span> 지휘실 · 코아
-          </button>
-          <button class="hotspot" style="left: 20%; top: 47%;" onclick="selectRoom('meeting')">
-            <span class="dot"></span> 대회의실
-          </button>
-          <button class="hotspot" style="left: 41%; top: 61%;" onclick="selectRoom('mongsil')">
-            <span class="dot"></span> 몽실
-          </button>
-          <button class="hotspot" style="left: 58%; top: 55%;" onclick="selectRoom('bohumpass')">
-            <span class="dot"></span> 보험패스
-          </button>
-          <button class="hotspot" style="left: 74%; top: 49%;" onclick="selectRoom('insight')">
-            <span class="dot"></span> 인사이트윤
-          </button>
-          <button class="hotspot" style="left: 76%; top: 73%;" onclick="selectRoom('lounge')">
-            <span class="dot idle"></span> 라운지
-          </button>
+        <div id="stage" class="office-stage">
+          <picture>
+            <source srcset="./office.webp" type="image/webp" />
+            <img id="officeImg" src="./office.png" width="1402" height="1122"
+                 alt="코아월드 아이소메트릭 오피스 — 코아, 몽실, 보험패스, 인사이트윤이 일하는 사무실"
+                 decoding="async" fetchpriority="high" />
+          </picture>
+          <!-- 클릭 영역 · 상태 점 · 말풍선은 스크립트가 채웁니다 -->
         </div>
+        <div id="charBar" class="char-bar"></div>
       </div>
 
       <div id="roomDetail" class="card"></div>
@@ -423,7 +658,7 @@
     <!-- 3. 작업실 탭 -->
     <div id="tab-workshop" class="section-view">
       <div class="card">
-        <span class="ws-pill">파트별 역할 & 스케줄</span>
+        <span class="ws-pill">파트별 역할 &amp; 스케줄</span>
         <h2 class="status-title">가동 중인 4개 파트</h2>
         <div id="workshopList" style="margin-top:8px;"></div>
       </div>
@@ -458,6 +693,32 @@
   </div>
 
   <script>
+    /* ---------- 자리(캐릭터/방) 정의 ----------
+       short  : 그림 아래 칩 이름
+       hit    : 캐릭터를 덮지 않는 투명 클릭 영역 [left, top, width, height] (%)
+       dot    : 아주 작은 상태 점 위치 [x, y] (%)
+       anchor : 말풍선 꼬리가 가리키는 위치 [x, y] (%)
+       side   : 말풍선이 뜨는 방향 (above | below | right | left) — 얼굴을 가리지 않도록 자리별 지정
+       live   : 핀을 눌렀을 때 뜨는 한 줄 상태
+       order  : 칩 바 순서 */
+    const SPOTS = {
+      command:   { short: "코아",      hit: [49.5, 15.5, 16, 18], dot: [56.5, 33.5], anchor: [64.5, 25],  side: "right",
+                   live: "지휘 중 · 17:15 알림",   tone: "on" },
+      mongsil:   { short: "몽실",      hit: [24.5, 42.5, 13, 21], dot: [30, 61],     anchor: [30, 43.5], side: "above",
+                   live: "20:18 저녁 글 준비",     tone: "on" },
+      bohumpass: { short: "보험패스",   hit: [51, 38.5, 16, 18],   dot: [58.5, 54],   anchor: [58.5, 39], side: "above",
+                   live: "사례형 타래 작성 중",   tone: "on" },
+      insight:   { short: "인사이트윤", hit: [67, 34.5, 16, 18],   dot: [74.5, 49.5], anchor: [72, 34],   side: "above", cx: 79,
+                   live: "AI 실무 팁 준비 중",    tone: "on" },
+      meeting:   { short: "회의실",     hit: [7.5, 28, 15.5, 24], dot: [20, 43],     anchor: [20, 29],   side: "above",
+                   live: "수익화 동선 점검 중",   tone: "on" },
+      lounge:    { short: "라운지",     hit: [63, 55, 25, 19],     dot: [74, 62],     anchor: [74, 63],   side: "below",
+                   live: "대기 · 간격 조절 중",   tone: "idle" }
+    };
+    const CHIP_ORDER = ["command", "mongsil", "bohumpass", "insight", "meeting", "lounge"];
+    const SPOT_KEYS = Object.keys(SPOTS);
+    const BUBBLE_MS = 5200; // 말풍선이 잠깐 머물다 사라지는 시간
+
     const defaultRooms = {
       command: {
         name: "🐶 지휘실 · 코아",
@@ -515,35 +776,206 @@
       }
     };
 
-    let state = JSON.parse(localStorage.getItem("coa_world_state") || "null") || {
-      rooms: defaultRooms,
-      memos: [
-        { text: "스레드는 반말 기본(몽실), 전문가 톤(보험패스·인사이트윤) 유지!", done: false },
-        { text: "모두의비서: 스마트스토어 단건 19,900원 / 패스톡: 월 구독(7일 체험)", done: false }
-      ],
-      selectedRoom: "command",
-      motion: true
-    };
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    function saveState() {
-      localStorage.setItem("coa_world_state", JSON.stringify(state));
+    function loadState() {
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem("coa_world_state") || "null"); } catch (e) { saved = null; }
+      const base = {
+        rooms: {},
+        memos: [
+          { text: "스레드는 반말 기본(몽실), 전문가 톤(보험패스·인사이트윤) 유지!", done: false },
+          { text: "모두의비서: 스마트스토어 단건 19,900원 / 패스톡: 월 구독(7일 체험)", done: false }
+        ],
+        selectedRoom: "command",
+        motion: true
+      };
+      // 저장된 값이 있어도 새로 추가된 자리/필드는 기본값으로 메꿔준다
+      Object.keys(defaultRooms).forEach(k => {
+        const s = saved && saved.rooms && saved.rooms[k];
+        base.rooms[k] = s && Array.isArray(s.tasks)
+          ? Object.assign({}, defaultRooms[k], s)
+          : Object.assign({}, defaultRooms[k]);
+      });
+      if (saved) {
+        if (Array.isArray(saved.memos)) base.memos = saved.memos;
+        if (saved.rooms && SPOT_KEYS.indexOf(saved.selectedRoom) >= 0) base.selectedRoom = saved.selectedRoom;
+        if (typeof saved.motion === "boolean") base.motion = saved.motion;
+      }
+      return base;
     }
 
+    let state = loadState();
+
+    function saveState() {
+      try { localStorage.setItem("coa_world_state", JSON.stringify(state)); } catch (e) {}
+    }
+
+    const stage = document.getElementById("stage");
+    const officeWrap = document.getElementById("officeWrap");
+    const motionBtn = document.getElementById("motionToggle");
+    const detailEl = document.getElementById("roomDetail");
+    const charBar = document.getElementById("charBar");
+
+    function labelFor(key) {
+      return state.rooms[key] ? state.rooms[key].name : key;
+    }
+
+    /* ---------- 캐릭터 클릭 영역 + 상태 점 + 칩 ---------- */
+    function buildSpots() {
+      SPOT_KEYS.forEach(key => {
+        const s = SPOTS[key];
+        const spot = document.createElement("div");
+        spot.className = "spot" + (s.tone === "idle" ? " idle" : "");
+        spot.dataset.key = key;
+
+        const glow = document.createElement("span");
+        glow.className = "glow";
+        glow.style.left = s.dot[0] + "%";
+        glow.style.top = s.dot[1] + "%";
+
+        const dot = document.createElement("span");
+        dot.className = "dot-pin" + (s.tone === "idle" ? " idle" : "");
+        dot.style.left = s.dot[0] + "%";
+        dot.style.top = s.dot[1] + "%";
+
+        const hit = document.createElement("button");
+        hit.type = "button";
+        hit.className = "hotspot";
+        hit.style.left = s.hit[0] + "%";
+        hit.style.top = s.hit[1] + "%";
+        hit.style.width = s.hit[2] + "%";
+        hit.style.height = s.hit[3] + "%";
+        hit.setAttribute("aria-label", labelFor(key) + " 보기");
+        hit.addEventListener("pointerdown", () => hit.classList.add("pressed"));
+        ["pointerup", "pointercancel", "pointerleave"].forEach(ev =>
+          hit.addEventListener(ev, () => hit.classList.remove("pressed"))
+        );
+        hit.addEventListener("click", e => {
+          e.stopPropagation();
+          selectRoom(key);
+        });
+
+        spot.appendChild(glow);
+        spot.appendChild(dot);
+        spot.appendChild(hit);
+        stage.appendChild(spot);
+
+        // 칩은 칩 바에 따로
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip" + (s.tone === "idle" ? " idle" : "");
+        chip.dataset.key = key;
+        chip.innerHTML = '<span class="c-dot"></span>' + s.short;
+        chip.addEventListener("click", () => selectRoom(key));
+        charBar.appendChild(chip);
+      });
+
+      // 말풍선(가장 위 레이어)
+      const b = document.createElement("button");
+      b.id = "bubble";
+      b.className = "bubble";
+      b.type = "button";
+      b.hidden = true;
+      b.setAttribute("aria-live", "polite");
+      b.innerHTML =
+        '<span class="bubble-title" id="bubbleTitle"></span>' +
+        '<span class="bubble-live" id="bubbleLive"></span>' +
+        '<span class="bubble-cta">자세히 보기 ›</span>' +
+        '<span class="bubble-arrow"></span>';
+      b.addEventListener("click", e => {
+        e.stopPropagation();
+        scrollToDetail();
+        setTimeout(hideBubble, 700);
+      });
+      stage.appendChild(b);
+    }
+
+    const bubble = () => document.getElementById("bubble");
+
+    /* ---------- 말풍선 ---------- */
+    let bubbleTimer = null;
+
+    function showBubble(key) {
+      const s = SPOTS[key];
+      const b = bubble();
+      if (!b || !s) return;
+      b.dataset.key = key;
+      document.getElementById("bubbleTitle").textContent = labelFor(key);
+      document.getElementById("bubbleLive").textContent = s.live;
+      b.hidden = false;
+      placeBubble(key);
+      b.classList.remove("pop");
+      void b.offsetWidth; // 애니메이션 재생
+      b.classList.add("pop");
+
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(hideBubble, BUBBLE_MS);
+    }
+
+    function placeBubble(key) {
+      const s = SPOTS[key];
+      const b = bubble();
+      if (!b || b.hidden || !s) return;
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      if (!W || !H) return;
+      const ax = (s.anchor[0] / 100) * W;
+      const ay = (s.anchor[1] / 100) * H;
+      const cx = ((s.cx != null ? s.cx : s.anchor[0]) / 100) * W;
+      const w = b.offsetWidth;
+      const h = b.offsetHeight;
+      const side = s.side || "above";
+      let left, top;
+
+      if (side === "right") {
+        left = ax + 7;
+        top = ay - h / 2;
+      } else if (side === "left") {
+        left = ax - 7 - w;
+        top = ay - h / 2;
+      } else if (side === "below") {
+        left = cx - w / 2;
+        top = ay + 8;
+      } else {
+        left = cx - w / 2;
+        top = ay - 8 - h;
+      }
+      left = Math.min(Math.max(left, 4), Math.max(4, W - w - 4));
+      top = Math.min(Math.max(top, 4), Math.max(4, H - h - 4));
+
+      b.style.left = left + "px";
+      b.style.top = top + "px";
+      b.dataset.side = side;
+      b.style.setProperty("--arrow-x", Math.min(Math.max(ax - left, 16), Math.max(16, w - 16)) + "px");
+      b.style.setProperty("--arrow-y", Math.min(Math.max(ay - top, 12), Math.max(12, h - 12)) + "px");
+    }
+
+    function hideBubble() {
+      clearTimeout(bubbleTimer);
+      const b = bubble();
+      if (!b || b.hidden) return;
+      b.hidden = true;
+      b.classList.remove("pop");
+      b.dataset.key = "";
+    }
+
+    /* ---------- 탭 ---------- */
     function switchTab(tabId) {
-      document.querySelectorAll(".tab-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.tab === tabId);
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabId);
       });
       document.querySelectorAll(".section-view").forEach(v => {
         v.classList.toggle("active", v.id === "tab-" + tabId);
       });
+      if (tabId !== "office") hideBubble();
     }
 
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => switchTab(btn.dataset.tab));
     });
 
-    const motionBtn = document.getElementById("motionToggle");
-    const officeWrap = document.getElementById("officeWrap");
+    /* ---------- 모션 ---------- */
     function renderMotion() {
       motionBtn.textContent = state.motion ? "모션 ON" : "모션 OFF";
       motionBtn.classList.toggle("dark", state.motion);
@@ -555,24 +987,71 @@
       renderMotion();
     });
 
-    function selectRoom(key) {
+    /* ---------- 선택 (핵심 인터랙션) ---------- */
+    let scrollTimer = null;
+
+    function selectRoom(key, opts) {
+      opts = opts || {};
+      if (!state.rooms[key] || !SPOTS[key]) return;
+      const b = bubble();
+      const sameOpen = !!(b && !b.hidden && b.dataset.key === key);
       state.selectedRoom = key;
       saveState();
-      document.querySelectorAll(".hotspot").forEach(h => h.classList.remove("selected"));
-      const keys = ["command", "meeting", "mongsil", "bohumpass", "insight", "lounge"];
-      const idx = keys.indexOf(key);
-      if (idx >= 0) document.querySelectorAll(".hotspot")[idx].classList.add("selected");
+
+      // 1) 캐릭터 위 작은 점 하이라이트 (즉시)
+      document.querySelectorAll(".spot").forEach(s => {
+        s.classList.toggle("selected", s.dataset.key === key);
+      });
+      document.querySelectorAll(".chip").forEach(c => {
+        c.classList.toggle("active", c.dataset.key === key);
+      });
+
+      // 2) 카드 내용 갱신 (즉시)
       renderRoomDetail();
+
+      // 3) 캐릭터 머리 위에 말풍선 (즉시) — 같은 자리를 다시 누르면 닫기
+      if (sameOpen) hideBubble();
+      else showBubble(key);
+
+      // 4) 폰에서 누른 느낌
+      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+
+      // 5) 칩에서 누른 경우에만 카드로 부드럽게 이동 (그림은 계속 감상)
+      if (opts.scroll) {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(scrollToDetail, 420);
+      }
     }
 
+    function scrollToDetail() {
+      const target = detailEl;
+      const r = target.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (r.top < vh * 0.45 || r.bottom > vh - 8) {
+        try {
+          target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+        } catch (e) {
+          window.scrollTo(0, target.getBoundingClientRect().top + window.pageYOffset - 40);
+        }
+      }
+      target.classList.remove("flash");
+      void target.offsetWidth;
+      target.classList.add("flash");
+      setTimeout(() => target.classList.remove("flash"), 820);
+    }
+
+    /* ---------- 업무 토글 ---------- */
     function toggleTask(roomKey, idx) {
-      state.rooms[roomKey].tasks[idx].done = !state.rooms[roomKey].tasks[idx].done;
+      const t = state.rooms[roomKey] && state.rooms[roomKey].tasks[idx];
+      if (!t) return;
+      t.done = !t.done;
       saveState();
       renderRoomDetail();
     }
 
     function addRoomTask(roomKey) {
       const input = document.getElementById("newTaskInput");
+      if (!input) return;
       const val = input.value.trim();
       if (!val) return;
       state.rooms[roomKey].tasks.unshift({ text: val, done: false });
@@ -584,26 +1063,33 @@
     function renderRoomDetail() {
       const key = state.selectedRoom;
       const room = state.rooms[key];
-      const el = document.getElementById("roomDetail");
-      el.innerHTML = `
-        <div class="detail-header">
-          <div class="detail-title">${room.name}</div>
-          <span class="role-tag">${room.role}</span>
-        </div>
-        <p class="status-desc">${room.summary}</p>
-        <ul class="task-list">
-          ${room.tasks.map((t, i) => `
-            <li class="task-item ${t.done ? "done" : ""}" onclick="toggleTask('${key}', ${i})">
-              <span class="task-check">${t.done ? "✓" : ""}</span>
-              <span>${t.text}</span>
-            </li>
-          `).join("")}
-        </ul>
-        <div class="input-row">
-          <input id="newTaskInput" type="text" placeholder="이 파트에 새 업무 추가..." onkeydown="if(event.key==='Enter') addRoomTask('${key}')" />
-          <button class="btn-primary" onclick="addRoomTask('${key}')">추가</button>
-        </div>
-      `;
+      if (!room) { detailEl.innerHTML = ""; return; }
+      const total = room.tasks.length;
+      const done = room.tasks.filter(t => t.done).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      detailEl.innerHTML =
+        '<div class="detail-header">' +
+          '<div class="detail-title">' + room.name + "</div>" +
+          '<span class="role-tag">' + room.role + "</span>" +
+        "</div>" +
+        '<p class="status-desc">' + room.summary + "</p>" +
+        '<div class="progress-row">' +
+          '<div class="progress-bar"><i style="width:' + pct + '%"></i></div>' +
+          '<span class="progress-text">' + done + "/" + total + " 완료</span>" +
+        "</div>" +
+        '<ul class="task-list">' +
+          room.tasks.map((t, i) =>
+            '<li class="task-item ' + (t.done ? "done" : "") + '" onclick="toggleTask(\'' + key + "', " + i + ')">' +
+              '<span class="task-check">' + (t.done ? "✓" : "") + "</span>" +
+              "<span>" + t.text + "</span>" +
+            "</li>"
+          ).join("") +
+        "</ul>" +
+        '<div class="input-row">' +
+          '<input id="newTaskInput" type="text" placeholder="이 파트에 새 업무 추가..." ' +
+            'onkeydown="if(event.key===\'Enter\') addRoomTask(\'' + key + '\')" />' +
+          '<button class="btn-primary" onclick="addRoomTask(\'' + key + '\')">추가</button>' +
+        "</div>";
     }
 
     function renderWorkshop() {
@@ -611,23 +1097,21 @@
       const keys = ["command", "mongsil", "bohumpass", "insight"];
       el.innerHTML = keys.map(k => {
         const r = state.rooms[k];
-        return `
-          <div class="kv-row" style="cursor:pointer" onclick="switchTab('office'); selectRoom('${k}');">
-            <span class="kv-k">${r.name}</span>
-            <span class="kv-v">${r.role}</span>
-          </div>
-        `;
+        return '<div class="kv-row" style="cursor:pointer" onclick="switchTab(\'office\'); selectRoom(\'' + k + "', { scroll: true });\">" +
+          '<span class="kv-k">' + r.name + "</span>" +
+          '<span class="kv-v">' + r.role + "</span>" +
+        "</div>";
       }).join("");
     }
 
     function renderMemos() {
       const el = document.getElementById("memoList");
-      el.innerHTML = state.memos.map((m, i) => `
-        <li class="task-item ${m.done ? "done" : ""}" onclick="toggleMemo(${i})">
-          <span class="task-check">${m.done ? "✓" : ""}</span>
-          <span>${m.text}</span>
-        </li>
-      `).join("");
+      el.innerHTML = state.memos.map((m, i) =>
+        '<li class="task-item ' + (m.done ? "done" : "") + '" onclick="toggleMemo(' + i + ')">' +
+          '<span class="task-check">' + (m.done ? "✓" : "") + "</span>" +
+          "<span>" + m.text + "</span>" +
+        "</li>"
+      ).join("");
     }
 
     function addMemo() {
@@ -646,8 +1130,42 @@
       renderMemos();
     }
 
+    /* ---------- 이벤트 ---------- */
+    // 이미지가 준비되면 부드럽게 나타남 (캐시된 경우 즉시)
+    const img = document.getElementById("officeImg");
+    function markLoaded() { img.classList.add("loaded"); }
+    if (img.complete && img.naturalWidth) markLoaded();
+    else {
+      img.addEventListener("load", markLoaded);
+      img.addEventListener("error", markLoaded);
+    }
+
+    // 그림 빈 곳을 탭하면 말풍선 닫기
+    stage.addEventListener("click", e => {
+      if (!e.target.closest(".hotspot") && !e.target.closest(".bubble")) hideBubble();
+    });
+
+    // 화면 크기/회전이 바뀌면 말풍선 위치 보정
+    let resizeRaf = null;
+    window.addEventListener("resize", () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        const b = bubble();
+        if (b && !b.hidden && b.dataset.key) placeBubble(b.dataset.key);
+      });
+    }, { passive: true });
+
+    /* ---------- 시작 ---------- */
+    buildSpots();
     renderMotion();
-    selectRoom(state.selectedRoom);
+    if (!state.rooms[state.selectedRoom]) state.selectedRoom = "command";
+    document.querySelectorAll(".spot").forEach(s => {
+      s.classList.toggle("selected", s.dataset.key === state.selectedRoom);
+    });
+    document.querySelectorAll(".chip").forEach(c => {
+      c.classList.toggle("active", c.dataset.key === state.selectedRoom);
+    });
+    renderRoomDetail();
     renderWorkshop();
     renderMemos();
   </script>
