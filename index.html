@@ -307,8 +307,21 @@
   .gc.gc-sample .gc-hd { color: #b8895f; }
   /* ---------- 현황 : 계정 카드 안 '최근 3개 포스팅' ---------- */
   .rp-wrap { margin-top: 9px; border-top: 1px dashed #e4ebf3; padding-top: 9px; }
-  .rp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-  .rp-t { font-size: 11px; font-weight: 800; color: #46536b; letter-spacing: -0.2px; }
+  .rp-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    width: 100%; margin: 0 0 6px; padding: 4px 2px; min-height: 26px;
+    border: 0; border-radius: 8px; background: transparent; font: inherit; color: inherit;
+    text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  button.rp-head:active { background: #f4f8fc; }
+  .rp-arw {
+    flex: 0 0 auto; width: 12px; font-size: 10px; font-weight: 800; color: #98a2b3;
+    line-height: 1; text-align: center;
+  }
+  .rp-wrap[data-open="true"] .rp-arw { color: var(--mint-deep); }
+  .rp-wrap[data-open="false"] .rp-head .rp-c { background: #eef2f7; }
+  .rp-list[hidden] { display: none; }
+  .rp-t { margin-right: auto; font-size: 11px; font-weight: 800; color: #46536b; letter-spacing: -0.2px; }
   .rp-c {
     flex: 0 0 auto; font-size: 9.5px; font-weight: 800; color: #8d95a4; background: #eef2f7;
     border-radius: 999px; padding: 2px 7px; white-space: nowrap;
@@ -2605,7 +2618,7 @@ function growthCardHtml(s, empty) {
   } else {
     h += '<div class="gc-post none">' + (empty ? '연동하면 대표 바이럴 글이 여기 표시돼요' : '아직 집계된 대표 글이 없어요') + '</div>';
   }
-  h += recentPostsHtml(m);
+  h += recentPostsHtml(m, a.key);
   return h + '</div>';
 }
 
@@ -2630,15 +2643,51 @@ function rpStatHtml(label, val, hl) {
   const n = (val === null || val === undefined) ? "—" : (label === "조회" ? fmtBig(val) : fmtInt(val));
   return '<span class="rp-s' + (hl ? " hl" : "") + '"><i>' + label + '</i><b>' + n + '</b></span>';
 }
-function recentPostsHtml(m) {
+/*
+ * '최근 3개 포스팅' 접기/펼치기
+ * · 기본은 접힘 — 현황 탭 첫 화면을 짧게 유지합니다.
+ * · 헤더(▸ 3건)를 누르면 열리고 다시 누르면 닫힙니다.
+ * · 계정별로 연 상태를 coa_world_v2_rp_open 에 기억해 새로고침·탭 이동 뒤에도 그대로.
+ */
+const RP_OPEN_KEY = "coa_world_v2_rp_open";
+
+function rpOpenMap() {
+  try {
+    const v = JSON.parse(localStorage.getItem(RP_OPEN_KEY) || "{}");
+    return (v && typeof v === "object" && !Array.isArray(v)) ? v : {};
+  } catch (e) { return {}; }
+}
+function rpIsOpen(acc) {
+  if (!acc) return false;
+  return rpOpenMap()[acc] === true;
+}
+function setRpOpen(acc, open) {
+  if (!acc) return;
+  const map = rpOpenMap();
+  if (open) map[acc] = true; else delete map[acc];
+  try { localStorage.setItem(RP_OPEN_KEY, JSON.stringify(map)); } catch (e) {}
+}
+
+function recentPostsHtml(m, acc) {
   const list = recentPostList(m);
-  let h = '<div class="rp-wrap">' +
-    '<div class="rp-head"><span class="rp-t">최근 3개 포스팅</span>' +
-      '<span class="rp-c" data-rpcount>' + (list.length ? list.length + '건' : '대기') + '</span></div>';
+  const key = acc || "";
+  const has = list.length > 0;
+  const open = has && rpIsOpen(key);
+  const count = list.length ? list.length + '건' : '대기';
+  const headInner = '<span class="rp-t">최근 3개 포스팅</span>' +
+    '<span class="rp-c" data-rpcount>' + count + '</span>';
+  let h = '<div class="rp-wrap" data-rpwrap data-open="' + (open ? 'true' : 'false') + '">';
+  h += has
+    ? '<button class="rp-head" type="button" data-rptoggle aria-expanded="' + (open ? 'true' : 'false') + '"' +
+        (key ? ' aria-controls="rpList-' + escapeHtml(key) + '"' : '') + '>' +
+        '<span class="rp-arw" data-rparw aria-hidden="true">' + (open ? '▾' : '▸') + '</span>' +
+        headInner + '</button>'
+    : '<div class="rp-head">' + headInner + '</div>';
   if (!list.length) {
     return h + '<div class="rp-empty" data-rpempty>아직 받은 글이 없어요. 스레드 루틴이 돌면 최근 글 3건이 여기 채워집니다.</div></div>';
   }
-  h += '<div class="rp-list">' + list.map((p, i) => {
+  h += '<div class="rp-list" data-rplist' + (key ? ' id="rpList-' + escapeHtml(key) + '"' : '') +
+       (open ? '' : ' hidden') + '>' + list.map((p, i) => {
     const hasStats = [p.views, p.likes, p.replies, p.reposts].some(v => v !== null && v !== undefined);
     const stats = hasStats
       ? '<div class="rp-st" data-rpstats>' + rpStatHtml("조회", p.views, true) +
@@ -2655,7 +2704,7 @@ function recentPostsHtml(m) {
       ? '<a class="rp" data-rp="' + (i + 1) + '" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener noreferrer">' + inner + '</a>'
       : '<div class="rp" data-rp="' + (i + 1) + '">' + inner + '</div>';
   }).join('') + '</div></div>';
-  return h + '</div>';
+  return h;
 }
 
 /* 연동 전 미리보기 — 실제 숫자가 아님이 드러나도록 점선·'예시' 표시 */
@@ -2678,9 +2727,40 @@ function growthSampleHtml() {
   '</div>';
 }
 
+/* '최근 3개 포스팅' 헤더 탭 → 그 계정만 접기/펼치기 (상태는 기기에 기억) */
+function applyRpOpen(wrap, open) {
+  if (!wrap) return;
+  const head = wrap.querySelector("[data-rptoggle]");
+  const listEl = wrap.querySelector(".rp-list");
+  const arw = wrap.querySelector("[data-rparw]");
+  if (!head || !listEl) return;
+  listEl.hidden = !open;
+  head.setAttribute("aria-expanded", open ? "true" : "false");
+  wrap.setAttribute("data-open", open ? "true" : "false");
+  if (arw) arw.textContent = open ? "▾" : "▸";
+}
+function bindRecentPostsToggle() {
+  const host = document.getElementById("growCards");
+  if (!host || host.dataset.rpBound === "1") return;
+  host.dataset.rpBound = "1";
+  host.addEventListener("click", e => {
+    const head = e.target.closest ? e.target.closest("[data-rptoggle]") : null;
+    if (!head || !host.contains(head)) return;
+    const wrap = head.closest(".rp-wrap");
+    const card = head.closest(".gc");
+    const acc = card ? (card.dataset.acc || "") : "";
+    const listEl = wrap ? wrap.querySelector(".rp-list") : null;
+    if (!listEl) return;
+    const open = listEl.hidden === true || listEl.hasAttribute("hidden");
+    applyRpOpen(wrap, open);
+    setRpOpen(acc, open);
+  });
+}
+
 function renderGrowth() {
   const listEl = document.getElementById("growCards");
   if (!listEl) return;
+  bindRecentPostsToggle();
   const whenEl = document.getElementById("growWhen");
   const noteEl = document.getElementById("growNote");
   const sumEl = document.getElementById("growSum");
