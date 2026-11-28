@@ -305,18 +305,46 @@
   .gc-hint { margin-top: 8px; font-size: 10.5px; line-height: 1.5; color: #a7afbd; background: #f5f8fb; border-radius: 9px; padding: 6px 9px; }
   .gc.gc-sample { border-style: dashed; background: #fffdfa; opacity: 0.92; }
   .gc.gc-sample .gc-hd { color: #b8895f; }
-  .gc-latest {
-    display: flex; align-items: center; gap: 7px; margin-top: 7px;
-    background: #f2f7fd; border-radius: 10px; padding: 7px 10px;
-    text-decoration: none; color: inherit;
+  /* ---------- 현황 : 계정 카드 안 '최근 3개 포스팅' ---------- */
+  .rp-wrap { margin-top: 9px; border-top: 1px dashed #e4ebf3; padding-top: 9px; }
+  .rp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .rp-t { font-size: 11px; font-weight: 800; color: #46536b; letter-spacing: -0.2px; }
+  .rp-c {
+    flex: 0 0 auto; font-size: 9.5px; font-weight: 800; color: #8d95a4; background: #eef2f7;
+    border-radius: 999px; padding: 2px 7px; white-space: nowrap;
   }
-  .gc-latest .gl-t { font-size: 11.5px; font-weight: 800; color: #2f6cae; white-space: nowrap; }
-  .gc-latest .gl-x {
-    min-width: 0; font-size: 10.5px; color: #6e7c90;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .rp-list { display: flex; flex-direction: column; gap: 6px; }
+  .rp {
+    display: block; background: #fff; border: 1px solid #eaeff6; border-radius: 11px;
+    padding: 7px 9px; text-decoration: none; color: inherit;
   }
-  .gc-latest.none { background: #f5f8fb; font-size: 10.5px; color: #a7afbd; }
-  .gc-latest.none .gl-t { color: #a7afbd; font-weight: 700; font-size: 10.5px; }
+  .rp:active { background: #f7fafd; }
+  .rp-top { display: flex; align-items: center; gap: 5px; min-width: 0; }
+  .rp-n {
+    flex: 0 0 auto; width: 14px; height: 14px; border-radius: 50%; background: #eef2f7; color: #8d95a4;
+    font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .rp-d { flex: 0 0 auto; font-size: 9.5px; font-weight: 700; color: #97a1b1; }
+  .rp-fb {
+    flex: 0 0 auto; font-size: 8.5px; font-weight: 800; color: #b06a3f; background: #fff4ea;
+    border-radius: 999px; padding: 1px 6px; white-space: nowrap;
+  }
+  .rp-go { margin-left: auto; flex: 0 0 auto; font-size: 9.5px; font-weight: 700; color: #2f6cae; white-space: nowrap; }
+  .rp-title {
+    margin-top: 3px; font-size: 11.5px; font-weight: 700; line-height: 1.4; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .rp-st { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 9px; margin-top: 4px; }
+  .rp-s { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; }
+  .rp-s i { font-style: normal; font-size: 9.5px; font-weight: 600; color: #9aa4b4; }
+  .rp-s b { font-size: 10.5px; font-weight: 800; color: #2b3546; letter-spacing: -0.2px; }
+  .rp-s.hl b { color: var(--mint-deep); }
+  .rp-st.none { display: block; font-size: 9.5px; color: #a7afbd; }
+  .rp-empty {
+    background: #f5f8fb; border: 1px dashed #e4ebf3; border-radius: 10px; padding: 8px 9px;
+    font-size: 10px; line-height: 1.5; color: #a7afbd;
+  }
 
   /* ---------- 현황 : 쿠팡 파트너스 ---------- */
   .cp-grid { display: flex; gap: 6px; margin-top: 10px; }
@@ -914,7 +942,7 @@
         <span class="ws-pill" style="margin-bottom:0;">스레드 성장</span>
         <span class="grow-when" id="growWhen">로컬 모드</span>
       </div>
-      <h2 class="status-title" style="margin-top:8px;">계정별 팔로워 · 조회수 · 바이럴</h2>
+      <h2 class="status-title" style="margin-top:8px;">계정별 팔로워 · 최근 글 반응</h2>
       <p class="status-desc" id="growNote">시트 연동 시 실제 스레드 조회수·팔로워 증감이 자동 표시됩니다.</p>
       <div class="grow-sum" id="growSum" hidden></div>
       <div class="grow-list" id="growCards"></div>
@@ -2316,8 +2344,34 @@ function normMetric(m) {
     topPostUrl: String(m.topPostUrl || ""),
     latestPostUrl: String(m.latestPostUrl || ""),
     latestPostText: String(m.latestPostText || ""),
+    recentPosts: normRecentPosts(m),
     updatedAt: String(m.updatedAt || "")
   };
+}
+
+/* 최근 글 3건 — 배열이든 JSON 문자열이든 받아서 {title,url,date,views,likes,replies,reposts} 로 */
+function normRecentPosts(m) {
+  if (!m) return [];
+  let arr = m.recentPosts;
+  if (typeof arr === "string") {
+    try { arr = JSON.parse(arr); } catch (e) { arr = []; }
+  }
+  if (!Array.isArray(arr) && typeof m.recentPostsJson === "string" && m.recentPostsJson.trim()) {
+    try { arr = JSON.parse(m.recentPostsJson); } catch (e) { arr = []; }
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, 3).map(p => {
+    if (!p) return null;
+    const title = String(p.title || "").replace(/\s+/g, " ").trim();
+    const url = /^https?:\/\//i.test(String(p.url || "")) ? String(p.url) : "";
+    if (!title && !url) return null;
+    return {
+      title: title, url: url,
+      date: String(p.date || "").slice(0, 10),
+      views: toNum(p.views), likes: toNum(p.likes),
+      replies: toNum(p.replies), reposts: toNum(p.reposts)
+    };
+  }).filter(Boolean);
 }
 function setMetrics(list) {
   state.metrics = (Array.isArray(list) ? list : []).map(normMetric).filter(Boolean);
@@ -2551,21 +2605,57 @@ function growthCardHtml(s, empty) {
   } else {
     h += '<div class="gc-post none">' + (empty ? '연동하면 대표 바이럴 글이 여기 표시돼요' : '아직 집계된 대표 글이 없어요') + '</div>';
   }
-  h += latestLinkHtml(m);
+  h += recentPostsHtml(m);
   return h + '</div>';
 }
 
-/* 계정 카드의 '최근 발행글 보기' — 시트의 latestPostUrl/latestPostText 를 씀 */
-function latestLinkHtml(m) {
+/*
+ * 계정 카드의 '최근 3개 포스팅'
+ * · m.recentPosts (최대 3건) 를 글마다 요약·날짜·조회·좋아요·댓글·리포스트로 보여 줍니다.
+ * · recentPosts 가 비어 있으면(예: 옛 시트 응답) latestPostText/latestPostUrl 을 1건 폴백으로.
+ * · 그마저도 없으면 "아직 받은 글이 없어요" 안내. (화면이 비거나 깨지지 않게)
+ */
+function recentPostList(m) {
+  let list = (m && Array.isArray(m.recentPosts)) ? m.recentPosts.slice(0, 3) : [];
+  if (list.length) return list;
   const url = (m && /^https?:\/\//i.test(m.latestPostUrl || "")) ? m.latestPostUrl : "";
-  const text = m && m.latestPostText ? m.latestPostText : "";
-  if (!url) {
-    return '<div class="gc-latest none"><span class="gl-t">최근 발행글 보기 ↗</span>' +
-      '<span class="gl-x">아직 링크가 없어요</span></div>';
+  const text = (m && m.latestPostText) ? String(m.latestPostText).replace(/\s+/g, " ").trim() : "";
+  if (!url && !text) return [];
+  return [{
+    title: text || "최근 발행 글", url: url, date: "",
+    views: null, likes: null, replies: null, reposts: null, fallback: true
+  }];
+}
+function rpStatHtml(label, val, hl) {
+  const n = (val === null || val === undefined) ? "—" : (label === "조회" ? fmtBig(val) : fmtInt(val));
+  return '<span class="rp-s' + (hl ? " hl" : "") + '"><i>' + label + '</i><b>' + n + '</b></span>';
+}
+function recentPostsHtml(m) {
+  const list = recentPostList(m);
+  let h = '<div class="rp-wrap">' +
+    '<div class="rp-head"><span class="rp-t">최근 3개 포스팅</span>' +
+      '<span class="rp-c" data-rpcount>' + (list.length ? list.length + '건' : '대기') + '</span></div>';
+  if (!list.length) {
+    return h + '<div class="rp-empty" data-rpempty>아직 받은 글이 없어요. 스레드 루틴이 돌면 최근 글 3건이 여기 채워집니다.</div></div>';
   }
-  return '<a class="gc-latest" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' +
-    '<span class="gl-t">최근 발행글 보기 ↗</span>' +
-    (text ? '<span class="gl-x">' + escapeHtml(text) + '</span>' : '') + '</a>';
+  h += '<div class="rp-list">' + list.map((p, i) => {
+    const hasStats = [p.views, p.likes, p.replies, p.reposts].some(v => v !== null && v !== undefined);
+    const stats = hasStats
+      ? '<div class="rp-st" data-rpstats>' + rpStatHtml("조회", p.views, true) +
+          rpStatHtml("좋아요", p.likes) + rpStatHtml("댓글", p.replies) + rpStatHtml("리포스트", p.reposts) + '</div>'
+      : '<div class="rp-st none">수치는 다음 기록부터 채워져요</div>';
+    const inner = '<div class="rp-top">' +
+        '<span class="rp-n">' + (i + 1) + '</span>' +
+        (p.date ? '<span class="rp-d">' + escapeHtml(shortDay(p.date)) + '</span>' : '') +
+        (p.fallback ? '<span class="rp-fb">최근 글</span>' : '') +
+        (p.url ? '<span class="rp-go">원문 열기 ›</span>' : '') +
+      '</div>' +
+      '<div class="rp-title" data-rptitle>' + escapeHtml(p.title || '제목 없는 글') + '</div>' + stats;
+    return p.url
+      ? '<a class="rp" data-rp="' + (i + 1) + '" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener noreferrer">' + inner + '</a>'
+      : '<div class="rp" data-rp="' + (i + 1) + '">' + inner + '</div>';
+  }).join('') + '</div></div>';
+  return h + '</div>';
 }
 
 /* 연동 전 미리보기 — 실제 숫자가 아님이 드러나도록 점선·'예시' 표시 */
@@ -2611,7 +2701,7 @@ function renderGrowth() {
 
   whenEl.textContent = (on ? "구글 시트" : "마지막 시트 기록") + (state.metricsAt ? " · " + state.metricsAt : "");
   whenEl.className = "grow-when" + (on ? " on" : "");
-  noteEl.textContent = "가장 최근 기록을 보여줘요. 증감은 그 계정의 직전 기록과 비교한 숫자입니다.";
+  noteEl.textContent = "가장 최근 기록을 보여줘요. 증감은 그 계정의 직전 기록과 비교한 숫자이고, 카드 아래엔 최근 글 3건의 반응이 함께 붙습니다.";
 
   let fol = 0, dl = 0, vw = 0, n = 0;
   snap.forEach(s => {
