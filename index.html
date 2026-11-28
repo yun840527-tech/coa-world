@@ -10,7 +10,7 @@
 <link rel="icon" href="./icon-192-v3.png?v=3" sizes="192x192" type="image/png" />
 <link rel="apple-touch-icon" href="./apple-touch-icon-180-v3.png?v=3" />
 <meta name="apple-mobile-web-app-title" content="코아월드" />
-<link rel="preload" as="image" href="./office-clay.webp" type="image/webp" />
+<link rel="preload" as="image" href="./office-clay.webp?v=wide1" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/coa-stand.webp?v=clay1" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/coa-sit.webp?v=clay1" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/mongsil-stand.webp?v=clay1" type="image/webp" />
@@ -365,25 +365,69 @@
   /* ---------- stage ---------- */
   .stage-wrap { margin-bottom: 10px; }
   .stage {
-    position: relative; width: 100%; aspect-ratio: 1402 / 1122; border-radius: 20px; overflow: hidden;
-    background: #f7ecdb; box-shadow: 0 12px 30px rgba(31, 42, 58, 0.14), 0 0 0 1px rgba(31, 42, 58, 0.05);
-    isolation: isolate;
+    position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 20px; overflow: hidden;
+    background: #f2e7d6; box-shadow: 0 12px 30px rgba(31, 42, 58, 0.14), 0 0 0 1px rgba(31, 42, 58, 0.05);
+    isolation: isolate; touch-action: pan-y;
   }
+  .stage.pan-ready { touch-action: none; }
+  .stage-inner {
+    position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; z-index: 1;
+  }
+  .stage.zooming .stage-inner { transition: transform 0.24s cubic-bezier(0.22, 0.7, 0.3, 1); }
+  .stage.panning .stage-inner { transition: none; }
   .stage img.office {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
     user-select: none; -webkit-user-drag: none; pointer-events: none;
   }
-  .stage::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 400;
-    box-shadow: inset 0 0 46px rgba(30, 42, 56, 0.10); border-radius: inherit;
+  .stage-vignette {
+    position: absolute; inset: 0; pointer-events: none; z-index: 401; border-radius: inherit;
+    box-shadow: inset 0 0 46px rgba(30, 42, 56, 0.10);
     background: linear-gradient(to bottom, rgba(255,255,255,0.10), rgba(255,255,255,0) 22%);
+  }
+  /* 무대 오른쪽 위 확대/축소/전체화면 */
+  .stage-tools {
+    position: absolute; right: 8px; top: 8px; z-index: 900;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stage-tools button {
+    width: 34px; height: 34px; border-radius: 11px; padding: 0; line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    color: #3d4351; font-size: 18px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(40, 32, 24, 0.18); transition: transform 0.12s, opacity 0.16s;
+  }
+  .stage-tools button:active { transform: scale(0.92); }
+  .stage-tools button:disabled { opacity: 0.38; }
+  .stage-tools button.fs-on { background: var(--navy); color: #fff; border-color: rgba(255,255,255,0.16); }
+  .stage:fullscreen, .stage.stage-pseudo-full {
+    width: min(100vw, 100vh); height: min(100vw, 100vh); max-width: none;
+    border-radius: 0; margin: auto; inset: 0; position: fixed; background: #14161a;
+  }
+  .stage:fullscreen::backdrop { background: #14161a; }
+  .stage.stage-pseudo-full { z-index: 9000; }
+  body.fs-lock { overflow: hidden; }
+  /* 전체화면은 무대 감싸개에 걸고, 안의 무대는 정사각형을 유지한채 가운데 */
+  .stage-wrap:fullscreen {
+    display: flex; align-items: center; justify-content: center;
+    background: #14161a; border-radius: 0;
+  }
+  .stage-wrap:fullscreen::backdrop { background: #14161a; }
+  .stage-wrap:fullscreen .stage,
+  .stage-wrap.stage-pseudo-full .stage {
+    width: min(100vw, 100vh); height: min(100vw, 100vh); flex: none; border-radius: 0;
+  }
+  .stage-wrap:fullscreen .legend, .stage-wrap.stage-pseudo-full .legend { display: none; }
+  .stage-wrap.stage-pseudo-full {
+    position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center;
+    background: #14161a;
   }
   .room-hit {
     position: absolute; z-index: 20; border: 0; background: transparent; padding: 0;
     border-radius: 16px;
   }
-  .room-hit.meeting { left: 5%; top: 45%; width: 28%; height: 29%; }
-  .room-hit.lounge { left: 66%; top: 43%; width: 33%; height: 43%; }
+  .room-hit.meeting { left: 3%; top: 41%; width: 39%; height: 45%; }
+  .room-hit.lounge { left: 64%; top: 43%; width: 35%; height: 45%; }
   .room-hit:active { background: rgba(79, 191, 159, 0.10); }
 
   /* character */
@@ -462,8 +506,32 @@
   .ch-note i:nth-child(2) { animation-delay: 0.18s; }
   .ch-note i:nth-child(3) { animation-delay: 0.36s; }
   .ch.is-sit .ch-note { opacity: 1; transform: none; }
+  .stage.chatter-on .ch.is-sit .ch-note { opacity: 0; transform: translateY(2px) scale(0.9); }
   @keyframes dotPulse { 0%, 60%, 100% { opacity: 0.35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-1.2px); } }
   .motion-off .ch-note i { animation: none; opacity: 0.55; }
+
+  /* 수다 말풍선 (자동) */
+  #chatter { position: absolute; inset: 0; pointer-events: none; z-index: 760; }
+  .chat-b {
+    position: absolute; left: 0; top: 0; max-width: 132px; background: #fff;
+    border-radius: 12px 12px 12px 4px; padding: 5px 8px 6px;
+    box-shadow: 0 8px 20px rgba(26, 38, 54, 0.17); font-size: 10px; line-height: 1.4; color: #414a5a;
+    transform: translate(-50%, -100%) scale(0.9); opacity: 0; will-change: opacity, transform;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 1.3, 0.5, 1);
+  }
+  .chat-b.in { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+  .chat-b.below { border-radius: 13px 13px 4px 13px; transform: translate(-50%, 0) scale(0.9); }
+  .chat-b.below.in { transform: translate(-50%, 0) scale(1); }
+  .chat-b .cb-name { display: block; font-size: 9px; font-weight: 800; letter-spacing: -0.2px; color: var(--mint-deep); margin-bottom: 1px; }
+  .chat-b .cb-text { display: block; word-break: keep-all; }
+  .chat-b .cb-arrow {
+    position: absolute; left: var(--ax, 50%); bottom: -6px; width: 11px; height: 11px; background: #fff;
+    transform: translateX(-50%) rotate(45deg); border-radius: 0 0 3px 0;
+  }
+  .chat-b.below .cb-arrow { bottom: auto; top: -6px; transform: translateX(-50%) rotate(225deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .chat-b { transition: opacity 0.2s ease; }
+  }
 
   @keyframes breathe {
     0%, 100% { transform: translateY(0) scale(1, 1); }
@@ -756,32 +824,42 @@
     <div class="card">
       <span class="ws-pill">Workspace</span>
       <h2 class="status-title">일곱 식구가 클레이 오피스에서 움직이고 있어요</h2>
-      <p class="status-desc">각자 책상에 앉아 타자 치듯 일하다가, 이따금 자리에서 일어나 회의실·라운지·지휘실을 걸어 다닙니다. 캐릭터나 공간을 탭하면 머리 위 말풍선과 아래 업무 카드가 바로 바뀌어요.</p>
+      <p class="status-desc">각자 책상에 앉아 타자 치듯 일하다가, 이따금 자리에서 일어나 회의실·라운지·지휘실을 걸어 다닙니다. 캐릭터나 공간을 탭하면 머리 위 말풍선과 아래 업무 카드가 바로 바뀌어요. 오른쪽 위 <b>+ / − / ⤢</b> 로 확대·전체화면도 됩니다.</p>
     </div>
 
     <div class="pills-row">
       <button id="motionToggle" class="pill-btn dark">모션 ON</button>
+      <button id="chatterToggle" class="pill-btn dark">수다모드 ON</button>
       <button class="pill-btn" data-jump="all">다 같이 점프</button>
       <button class="pill-btn" data-rally="meeting">회의 소집</button>
     </div>
 
-    <div class="stage-wrap">
+    <div class="stage-wrap" id="stageWrap">
       <div id="stage" class="stage" aria-label="움직이는 클레이 3D 오피스">
-        <picture>
-          <source srcset="./office-clay.webp" type="image/webp" />
-          <img class="office" id="officeImg" src="./office-clay.jpg" width="1402" height="1122"
-               alt="따뜻한 클레이 3D 아이소메트릭 오피스 — 지휘실 책상, 작업실 책상 3개, 회의실 원형 테이블, 라운지 소파" decoding="async" fetchpriority="high" />
-        </picture>
-        <button class="room-hit meeting" data-room="meeting" aria-label="대회의실 보기"></button>
-        <button class="room-hit lounge" data-room="lounge" aria-label="라운지 보기"></button>
-        <div id="chars"></div>
+        <div id="stageInner" class="stage-inner">
+          <picture>
+            <source srcset="./office-clay.webp?v=wide1" type="image/webp" />
+            <img class="office" id="officeImg" src="./office-clay.jpg?v=wide1" width="1254" height="1254"
+                 alt="따뜻한 클레이 3D 아이소메트릭 오피스 — 지휘실 듀얼 모니터 책상, 작업실 책상 3개, 회의실 원형 테이블, 라운지 소파" decoding="async" fetchpriority="high" />
+          </picture>
+          <button class="room-hit meeting" data-room="meeting" aria-label="대회의실 보기"></button>
+          <button class="room-hit lounge" data-room="lounge" aria-label="라운지 보기"></button>
+          <div id="chars"></div>
+          <div id="fx"></div>
+          <div class="stage-vignette"></div>
+        </div>
+        <div id="chatter" aria-hidden="true"></div>
         <button id="bubble" class="bubble" type="button" hidden aria-live="polite">
           <span class="b-row"><span class="b-name" id="bubbleName"></span><span class="b-role" id="bubbleRole"></span></span>
           <span class="b-live" id="bubbleLive"></span>
           <span class="b-cta">자세히 보기 ›</span>
           <span class="b-arrow"></span>
         </button>
-        <div id="fx"></div>
+        <div class="stage-tools">
+          <button id="zoomIn" type="button" aria-label="확대" title="확대">+</button>
+          <button id="zoomOut" type="button" aria-label="축소" title="축소" disabled>−</button>
+          <button id="zoomFull" type="button" aria-label="전체화면" title="전체화면">⤢</button>
+        </div>
       </div>
       <div class="legend">
         <b><i style="background:#4fbf9f"></i>집중</b>
@@ -1096,74 +1174,80 @@ const PARTS = {
 };
 const ORDER = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong", "meeting", "lounge"];
 const CHAR_KEYS = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong"];
-/* 지정 좌석 — 코아는 지휘실, 세 파트는 작업실 책상, 란이는 라운지 소파,
-   비주얼은 회의실 원형 테이블, 소통은 라운지 커피테이블 옆 */
+/* 지정 좌석 — 코아는 지휘실 듀얼 모니터 책상, 세 파트는 작업실 책상 3개,
+   란이는 라운지 소파, 비주얼은 회의실 원형 테이블, 소통은 라운지 커피테이블 옆 */
 const HOME = {
   coa: "s_coa", mongsil: "s_mong", bohumpass: "s_pass", insight: "s_ins",
-  rani: "s_rani", visual: "s_vis", sotong: "s_soc"
+  rani: "s_rani", visual: "m2", sotong: "s_soc"
 };
 
-/* ---------------- 무대 노드 그래프 (비율 좌표) ---------------- */
+/* ---------------- 무대 노드 그래프 (비율 좌표 · 배경 1254×1254 기준) ---------------- */
 const NODES = {
   /* 지정 좌석 */
-  s_coa:  { x: 0.548, y: 0.452 },   // 지휘실 듀얼 모니터 책상
-  s_mong: { x: 0.334, y: 0.548 },   // 작업실 책상 1 (창가)
-  s_pass: { x: 0.488, y: 0.616 },   // 작업실 책상 2 (가운데)
-  s_ins:  { x: 0.630, y: 0.686 },   // 작업실 책상 3 (라운지 쪽)
-  s_rani: { x: 0.820, y: 0.664 },   // 라운지 소파
-  s_vis:  { x: 0.100, y: 0.688 },   // 회의실 원형 테이블 왼쪽 의자
-  s_soc:  { x: 0.742, y: 0.798 },   // 라운지 커피테이블 왼편
+  s_coa:  { x: 0.583, y: 0.462 },   // 지휘실 듀얼 모니터 책상
+  s_mong: { x: 0.523, y: 0.727 },   // 작업실 책상 1 (가운데)
+  s_pass: { x: 0.395, y: 0.800 },   // 작업실 책상 2 (앞쪽)
+  s_ins:  { x: 0.637, y: 0.655 },   // 작업실 책상 3 (라운지 쪽)
+  s_rani: { x: 0.815, y: 0.650 },   // 라운지 소파
+  s_soc:  { x: 0.722, y: 0.760 },   // 라운지 커피테이블 왼편
+
+  /* 회의실 원형 테이블 — 의자 여섯 개 + 진행 자리(서서) */
+  m1: { x: 0.222, y: 0.565 },   // 왼쪽 의자
+  m2: { x: 0.295, y: 0.545 },   // 뒤 가운데 의자 (비주얼 자리)
+  m3: { x: 0.358, y: 0.568 },   // 뒤 오른쪽 의자
+  m4: { x: 0.372, y: 0.635 },   // 오른쪽 의자
+  m5: { x: 0.300, y: 0.685 },   // 앞 가운데 의자
+  m6: { x: 0.225, y: 0.640 },   // 앞 왼쪽 의자
+  ms: { x: 0.345, y: 0.478 },   // 회의 진행 자리 (코아가 서서 진행)
+
+  /* 라운지 추가 좌석 */
+  l1: { x: 0.858, y: 0.722 },   // 커피테이블 오른편 러그
 
   /* 통로 */
-  a1:  { x: 0.412, y: 0.506 },
-  a2:  { x: 0.566, y: 0.452 },
-  a3:  { x: 0.676, y: 0.398 },
-  a4:  { x: 0.738, y: 0.472 },
-  a5:  { x: 0.748, y: 0.612 },
-  a6:  { x: 0.700, y: 0.762 },
-  a7:  { x: 0.560, y: 0.782 },
-  a8:  { x: 0.420, y: 0.762 },
-  a9:  { x: 0.300, y: 0.742 },
-  a10: { x: 0.208, y: 0.742 },
-
-  /* 회의실 원형 테이블 좌석 — 뒤 세 명 + 앞 세 명으로 엇갈려 서로 가리지 않게 */
-  m1: { x: 0.038, y: 0.752 },   // 앞 맨왼쪽
-  m2: { x: 0.126, y: 0.508 },   // 뒤 왼쪽
-  m3: { x: 0.198, y: 0.486 },   // 뒤 가운데
-  m4: { x: 0.264, y: 0.508 },   // 뒤 오른쪽
-  m5: { x: 0.328, y: 0.742 },   // 앞 오른쪽
-  m6: { x: 0.352, y: 0.612 },   // 테이블 오른편
-
-  /* 라운지 좌석 */
-  l1: { x: 0.820, y: 0.664 },
-  l2: { x: 0.892, y: 0.676 },
-  l3: { x: 0.858, y: 0.796 }
+  a1:  { x: 0.400, y: 0.487 },
+  a2:  { x: 0.470, y: 0.505 },
+  a3:  { x: 0.650, y: 0.487 },
+  a4:  { x: 0.735, y: 0.520 },
+  a5:  { x: 0.690, y: 0.600 },
+  a6:  { x: 0.760, y: 0.600 },
+  a7:  { x: 0.700, y: 0.680 },
+  a8:  { x: 0.620, y: 0.760 },
+  a9:  { x: 0.500, y: 0.800 },
+  a10: { x: 0.330, y: 0.820 },
+  a11: { x: 0.270, y: 0.792 },
+  a12: { x: 0.180, y: 0.700 },
+  a13: { x: 0.135, y: 0.600 },
+  a14: { x: 0.163, y: 0.540 },
+  a15: { x: 0.245, y: 0.480 }
 };
 /* 여기 앉으면 앉은 자세(타자) 모드 */
-const SEAT_NODES = ["s_coa", "s_mong", "s_pass", "s_ins", "s_rani", "s_vis", "s_soc",
-  "m1", "m2", "m3", "m4", "m5", "m6", "l1", "l2", "l3"];
-const MEET_NODES = ["s_vis", "m1", "m2", "m3", "m4", "m5", "m6"];
-const LOUNGE_NODES = ["s_soc", "l1", "l2", "l3"];
+const SEAT_NODES = ["s_coa", "s_mong", "s_pass", "s_ins", "s_rani", "s_soc",
+  "m1", "m2", "m3", "m4", "m5", "m6", "l1"];
+const MEET_NODES = ["ms", "m1", "m2", "m3", "m4", "m5", "m6", "a14", "a15"];
+const LOUNGE_NODES = ["s_rani", "s_soc", "l1", "a7"];
 const EDGES = [
-  ["s_mong", "a1"], ["s_mong", "a9"], ["s_mong", "s_pass"],
-  ["a1", "a2"], ["a1", "a8"], ["a2", "s_pass"], ["a2", "s_coa"], ["s_coa", "a3"],
-  ["a3", "a4"], ["a4", "a5"], ["a5", "s_ins"], ["s_ins", "a6"], ["a5", "a6"],
-  ["a6", "a7"], ["a7", "a8"], ["a8", "a9"], ["a9", "a10"],
-  ["a10", "m1"], ["m1", "m2"], ["m2", "m3"], ["m3", "m4"], ["m4", "m5"], ["m5", "a10"],
-  ["m5", "a9"], ["m5", "m6"], ["m6", "a9"],
-  ["s_vis", "m1"], ["s_vis", "m2"], ["s_vis", "a10"],
-  ["a6", "l3"], ["s_soc", "a6"], ["s_soc", "l3"],
-  ["s_rani", "l1"], ["s_rani", "l3"], ["l3", "l1"], ["l1", "l2"]
+  /* 지정 좌석 */
+  ["s_coa", "a3"], ["s_coa", "a2"],
+  ["s_mong", "a9"], ["s_pass", "a10"], ["s_ins", "a5"],
+  ["s_rani", "a6"], ["s_rani", "l1"], ["s_soc", "a7"], ["l1", "a6"], ["l1", "a7"],
+  /* 회의실 */
+  ["m1", "a15"], ["m2", "a15"], ["m2", "a1"], ["m3", "a1"], ["m3", "ms"], ["m4", "a1"],
+  ["m5", "a11"], ["m5", "a12"], ["m6", "a11"], ["m6", "a12"], ["ms", "a15"], ["ms", "a1"],
+  /* 통로 */
+  ["a1", "a2"], ["a2", "a3"], ["a3", "a4"], ["a4", "a5"], ["a5", "a6"],
+  ["a6", "a7"], ["a7", "a8"], ["a8", "a9"], ["a9", "a10"], ["a10", "a11"],
+  ["a11", "a12"], ["a12", "a13"], ["a13", "a14"], ["a14", "a15"], ["a15", "a1"],
+  ["a5", "a8"]
 ];
 
 const ROUTES = {
-  coa:       ["s_coa", "a3", "a5", "a6", "m3", "a7"],
-  mongsil:   ["s_mong", "a1", "a8", "a10", "m2", "a7"],
-  bohumpass: ["s_pass", "a2", "a3", "a4", "a5", "m4"],
-  insight:   ["s_ins", "a5", "a6", "a7", "a8", "m5"],
-  rani:      ["s_rani", "l3", "a6", "a7", "a10", "m1"],
-  visual:    ["s_vis", "a10", "m3", "a9", "a6", "l3"],
-  sotong:    ["s_soc", "a6", "a7", "a10", "m1", "l3"]
+  coa:       ["s_coa", "a3", "a4", "a6", "ms", "s_soc"],
+  mongsil:   ["s_mong", "a9", "a10", "a2", "m5", "a6"],
+  bohumpass: ["s_pass", "a10", "a11", "a1", "m6", "a4"],
+  insight:   ["s_ins", "a5", "a4", "a8", "m3", "a12"],
+  rani:      ["s_rani", "a6", "a5", "a7", "m1", "a11"],
+  visual:    ["m2", "a15", "a1", "a2", "m4", "a7"],
+  sotong:    ["s_soc", "a7", "a8", "a3", "m5", "a13"]
 };
 
 /* ---------------- 저장 ---------------- */
@@ -1173,7 +1257,7 @@ const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function loadState() {
   const base = {
     parts: {}, memos: [], postLogs: [],
-    selected: "coa", motion: !reduced,
+    selected: "coa", motion: !reduced, chatter: true,
     remote: [], remoteAt: "",
     metrics: [], metricsAt: "",
     benchmarks: [], benchmarksAt: "",
@@ -1202,6 +1286,7 @@ function loadState() {
     if (Array.isArray(saved.coupang)) base.coupang = saved.coupang;
     if (typeof saved.coupangAt === "string") base.coupangAt = saved.coupangAt;
     if (typeof saved.motion === "boolean") base.motion = saved.motion;
+    if (typeof saved.chatter === "boolean") base.chatter = saved.chatter;
     if (ORDER.indexOf(saved.selected) >= 0) base.selected = saved.selected;
   }
   return base;
@@ -1211,8 +1296,10 @@ function saveState() { try { localStorage.setItem(KEY, JSON.stringify(state)); }
 
 /* ---------------- 무대 준비 ---------------- */
 const stage = document.getElementById("stage");
+const stageInner = document.getElementById("stageInner");
 const charsLayer = document.getElementById("chars");
 const fxLayer = document.getElementById("fx");
+const chatterLayer = document.getElementById("chatter");
 const bubbleEl = document.getElementById("bubble");
 const bubbleName = document.getElementById("bubbleName");
 const bubbleRole = document.getElementById("bubbleRole");
@@ -1220,10 +1307,125 @@ const bubbleLive = document.getElementById("bubbleLive");
 const detailEl = document.getElementById("detail");
 const chipsEl = document.getElementById("chips");
 const motionBtn = document.getElementById("motionToggle");
+const chatterBtn = document.getElementById("chatterToggle");
+const zoomInBtn = document.getElementById("zoomIn");
+const zoomOutBtn = document.getElementById("zoomOut");
+const zoomFullBtn = document.getElementById("zoomFull");
 
 let W = 0, H = 0, CH_W = 52, CH_H = 66;
+/* 확대·축소·패닝 (무대 좌표는 그대로 두고 stage-inner 만 변환) */
+let zoom = 1, panX = 0, panY = 0;
+const ZOOM_MIN = 1, ZOOM_MAX = 2.6, ZOOM_STEP = 1.4;
 
 const chars = {}; // key -> runtime
+
+/* 무대 안 좌표 → 지금 화면(무대 박스) 좌표. 말풍선은 확대해도 글씨 크기를 유지하려고 밖에 둠 */
+function worldToScreen(x, y) {
+  return { x: (x - W / 2) * zoom + W / 2 + panX, y: (y - H / 2) * zoom + H / 2 + panY };
+}
+
+function applyZoom(animate) {
+  const maxX = Math.max(0, (zoom - 1) * W / 2);
+  const maxY = Math.max(0, (zoom - 1) * H / 2);
+  panX = Math.min(maxX, Math.max(-maxX, panX));
+  panY = Math.min(maxY, Math.max(-maxY, panY));
+  if (zoom <= ZOOM_MIN + 0.001) { zoom = ZOOM_MIN; panX = 0; panY = 0; }
+  if (animate) {
+    stage.classList.add("zooming");
+    clearTimeout(applyZoom.t);
+    applyZoom.t = setTimeout(() => stage.classList.remove("zooming"), 280);
+  }
+  stageInner.style.transform = "translate(" + panX.toFixed(1) + "px," + panY.toFixed(1) + "px) scale(" + zoom.toFixed(3) + ")";
+  stage.classList.toggle("pan-ready", zoom > 1.001);
+  zoomInBtn.disabled = zoom >= ZOOM_MAX - 0.001;
+  zoomOutBtn.disabled = zoom <= ZOOM_MIN + 0.001;
+  placeBubble();
+  placeAllChatter();
+}
+
+function zoomBy(factor) {
+  zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * factor));
+  if (zoom === ZOOM_MIN) { panX = 0; panY = 0; }
+  applyZoom(true);
+}
+
+zoomInBtn.addEventListener("click", e => { e.stopPropagation(); zoomBy(ZOOM_STEP); });
+zoomOutBtn.addEventListener("click", e => { e.stopPropagation(); zoomBy(1 / ZOOM_STEP); });
+
+/* 확대 상태에서 손가락/마우스로 끌어 옮기기 */
+let drag = null;
+stage.addEventListener("pointerdown", e => {
+  if (zoom <= 1.001) return;
+  if (e.target.closest(".stage-tools")) return;
+  drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: panX, sy: panY, moved: false };
+});
+stage.addEventListener("pointermove", e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.moved && Math.hypot(dx, dy) < 7) return;
+  if (!drag.moved) { drag.moved = true; stage.classList.add("panning"); }
+  panX = drag.sx + dx; panY = drag.sy + dy;
+  const maxX = Math.max(0, (zoom - 1) * W / 2), maxY = Math.max(0, (zoom - 1) * H / 2);
+  panX = Math.min(maxX, Math.max(-maxX, panX));
+  panY = Math.min(maxY, Math.max(-maxY, panY));
+  stageInner.style.transform = "translate(" + panX.toFixed(1) + "px," + panY.toFixed(1) + "px) scale(" + zoom.toFixed(3) + ")";
+  placeBubble(); placeAllChatter();
+});
+function endDrag(e) {
+  if (!drag || (e && e.pointerId !== drag.id)) return;
+  const moved = drag.moved;
+  drag = null;
+  stage.classList.remove("panning");
+  if (moved) {
+    /* 끌어서 옮긴 뒤에는 캐릭터 탭이 같이 먹지 않도록 잠깐 막음 */
+    stage.dataset.panGuard = "1";
+    setTimeout(() => { delete stage.dataset.panGuard; }, 60);
+  }
+}
+stage.addEventListener("pointerup", endDrag);
+stage.addEventListener("pointercancel", endDrag);
+
+/* ---------------- 전체화면 ---------------- */
+const stageWrap = document.getElementById("stageWrap");
+function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+function isPseudoFull() { return stageWrap.classList.contains("stage-pseudo-full"); }
+function setFullUI(on) {
+  zoomFullBtn.textContent = on ? "⤡" : "⤢";
+  zoomFullBtn.classList.toggle("fs-on", on);
+  zoomFullBtn.setAttribute("aria-label", on ? "전체화면 닫기" : "전체화면");
+  zoomFullBtn.title = on ? "전체화면 닫기" : "전체화면";
+  document.body.classList.toggle("fs-lock", on);
+  requestAnimationFrame(() => { measure(); placeBubble(); placeAllChatter(); });
+}
+async function toggleFullscreen() {
+  try {
+    if (fsElement()) {
+      if (document.exitFullscreen) await document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      return;
+    }
+    if (isPseudoFull()) { stageWrap.classList.remove("stage-pseudo-full"); setFullUI(false); return; }
+    const el = stageWrap;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      const r = req.call(el, { navigationUI: "hide" });
+      if (r && r.catch) await r.catch(() => { stageWrap.classList.add("stage-pseudo-full"); setFullUI(true); });
+    } else {
+      stageWrap.classList.add("stage-pseudo-full");
+      setFullUI(true);
+    }
+  } catch (err) {
+    stageWrap.classList.add("stage-pseudo-full");
+    setFullUI(true);
+  }
+}
+zoomFullBtn.addEventListener("click", e => { e.stopPropagation(); toggleFullscreen(); });
+document.addEventListener("fullscreenchange", () => {
+  const on = !!fsElement();
+  stageWrap.classList.remove("stage-pseudo-full");
+  setFullUI(on);
+});
+document.addEventListener("webkitfullscreenchange", () => setFullUI(!!fsElement()));
 
 function measure() {
   const r = stage.getBoundingClientRect();
@@ -1233,6 +1435,7 @@ function measure() {
   stage.style.setProperty("--ch-w", CH_W + "px");
   stage.style.setProperty("--ch-h", CH_H + "px");
   Object.keys(chars).forEach(k => place(chars[k]));
+  applyZoom(false);
   if (!bubbleEl.hidden) placeBubble();
 }
 
@@ -1259,7 +1462,7 @@ function buildChars() {
       nextAt: performance.now() + 8000 + Math.random() * 12000,
       facing: 1, speed: 0.115, status: "focus"
     };
-    el.querySelector(".ch-hit").addEventListener("click", e => { e.stopPropagation(); select(key, true); });
+    el.querySelector(".ch-hit").addEventListener("click", e => { e.stopPropagation(); if (stage.dataset.panGuard) return; select(key, true); });
     place(chars[key]);
     scheduleLife(key);
   });
@@ -1327,9 +1530,9 @@ function findPath(fromId, toId) {
 }
 
 function nearestNode(c) {
-  let bestId = "a7", best = Infinity;
+  let bestId = "a1", best = Infinity;
   Object.keys(NODES).forEach(id => {
-    if (id.length <= 2) return; // m1·l1 같은 좌석 제외
+    if (id.charAt(0) !== "a") return; // 통로 노드 중에서만
     const d = dist(c, NODES[id]);
     if (d < best) { best = d; bestId = id; }
   });
@@ -1469,17 +1672,19 @@ function showBubble(key) {
 }
 
 function placeBubble() {
-  if (bubbleEl.hidden) return;
+  if (bubbleEl.hidden || !W) return;
   const key = selectedKey;
-  let ax, ay;
-  if (key === "meeting") { ax = 0.205 * W; ay = 0.415 * H; }
-  else if (key === "lounge") { ax = 0.735 * W; ay = 0.735 * H; }
+  let wx, wy;
+  if (key === "meeting") { wx = 0.215 * W; wy = 0.432 * H; }
+  else if (key === "lounge") { wx = 0.800 * W; wy = 0.640 * H; }
   else {
     const c = chars[key];
     if (!c) return;
-    ax = c.x * W;
-    ay = c.y * H - CH_H * depthScale(c.y) * (c.seated ? 0.80 : 0.98);
+    wx = c.x * W;
+    wy = c.y * H - CH_H * depthScale(c.y) * (c.seated ? 0.80 : 0.98);
   }
+  const sp = worldToScreen(wx, wy);
+  const ax = sp.x, ay = sp.y;
   const bw = bubbleEl.offsetWidth, bh = bubbleEl.offsetHeight;
   let left = ax - bw / 2;
   let top = ay - bh - 10;
@@ -1499,7 +1704,251 @@ function hideBubble() {
   clearTimeout(bubbleTimer);
   if (bubbleEl.hidden) return;
   bubbleEl.hidden = true;
+  placeAllChatter();
 }
+
+/* ---------------- 수다 말풍선 (자동) ---------------- */
+const CHAT_LINES = {
+  coa: [
+    "오늘 순서는 몽실 → 보험패스 → 인사이트윤!",
+    "일곱 명이 안 부딪히게 하는 게 제일 어렵다",
+    "3시까지 초안만 맞춰줄 수 있어?",
+    "라운지 간 애들, 언제 돌아오지?",
+    "발행 간격 40분으로 맞춰줘",
+    "저녁 루틴 전에 한 번 더 점검하자"
+  ],
+  mongsil: [
+    "스레드 1천 명까지 얼마 안 남았어!",
+    "오늘 출근길 공감 글 반응 좋다",
+    "글감은 결국 지하철에서 나와",
+    "댓글 세 개만 더 달고 쉴게",
+    "이 글, 저장 많이 눌렸음 좋겠다",
+    "커피값은 벌었으면 좋겠다 진짜"
+  ],
+  bohumpass: [
+    "실손 청구 거절 사례 하나 정리했어",
+    "증권은 눈으로 보여줘야 설득돼",
+    "상담 문의 하나 들어왔네",
+    "한방 비급여, 이건 진짜 많이 물어봐",
+    "보장은 결국 디테일이야"
+  ],
+  insight: [
+    "AI 툴 하나 더 줄여볼까",
+    "사람 말투로 고치는 게 제일 오래 걸려",
+    "프롬프트 세 줄이면 반나절 아낀다",
+    "이번 글은 반말로 가자, 더 편해",
+    "자동화는 귀찮음을 줄이는 일"
+  ],
+  rani: [
+    "첫 줄이 안 잡히면 다 소용없어",
+    "8시 브리핑 준비 완료했어",
+    "이 훅, 저장률 두 배 나왔어",
+    "벤치마킹 3건 정리해서 보냈어",
+    "제목에 숫자 넣으면 클릭이 붙어"
+  ],
+  visual: [
+    "색감 좀 더 따뜻하게 갈까?",
+    "이 표, 한 장으로 접자",
+    "폰트만 바꿔도 느낌이 달라져",
+    "카드 세 장이면 다 읽히더라",
+    "여백이 곧 고급이지"
+  ],
+  sotong: [
+    "첫 1시간이 승부처야",
+    "대댓글 스무 개 남았다",
+    "프로필 링크 다시 점검할게",
+    "질문 주신 분들한테 다 답했어",
+    "전환은 결국 말투에서 갈려"
+  ]
+};
+const CHAT_WORK = {
+  "대기": ["「{t}」 아직 대기 중이야", "「{t}」 이건 오늘 안에 손댈게"],
+  "진행중": ["「{t}」 하는 중이야, 거의 다 왔어", "「{t}」 마무리 중!"]
+};
+
+let chatTimer = null;
+let chatSeed = null;
+let chatOrder = [];
+const chatLive = [];   // { key, el, rect, until, t1, t2, text }
+const chatRecent = [];
+
+function chatClip(s, n) {
+  s = String(s || "").replace(/\s+/g, " ").trim();
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+function todayKeyStr() {
+  const d = new Date();
+  return dayKey(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function officeVisible() {
+  const v = document.getElementById("tab-office");
+  return !v || v.classList.contains("active");
+}
+/* 역할·상태에 맞는 기본 대사 + 시트에서 불러온 실제 업무·오늘 발행글·지표를 섞어 만든 풀 */
+function chatterPool(key) {
+  const pool = (CHAT_LINES[key] || []).map(t => ({ text: t }));
+  const tasks = (state.remote || []).filter(t => t.part === key && t.status !== "완료");
+  tasks.slice(0, 2).forEach(t => {
+    const tpls = CHAT_WORK[t.status] || CHAT_WORK["대기"];
+    pool.push({ text: tpls[Math.floor(Math.random() * tpls.length)].replace("{t}", chatClip(t.title, 14)), src: "watch" });
+  });
+  const tk = todayKeyStr();
+  (state.postLogs || []).filter(p => p.date === tk && p.account === key).slice(0, 1).forEach(p => {
+    pool.push({ text: "「" + chatClip(p.title, 13) + "」 오늘 발행 완료 ✓", src: "post" });
+  });
+  const m = (state.metrics || []).filter(x => x.account === key)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
+  if (m && typeof m.delta === "number" && m.delta !== 0) {
+    pool.push({ text: m.delta > 0 ? "팔로워 +" + m.delta + "! 이 기세로 가자" : "팔로워 " + m.delta + "… 오늘은 조금 쉬어가자" });
+  }
+  const fresh = pool.filter(p => chatRecent.indexOf(p.text) < 0);
+  return fresh.length ? fresh : pool;
+}
+function chatHeadScreen(c) {
+  const wx = c.x * W;
+  const wy = c.y * H - CH_H * depthScale(c.y) * (c.seated ? 0.80 : 0.98) - 6;
+  return worldToScreen(wx, wy);
+}
+function rectHit(a, b, gap) {
+  gap = gap || 3;
+  return !(a.right + gap < b.left || a.left > b.right + gap || a.bottom + gap < b.top || a.top > b.bottom + gap);
+}
+function liveRects(exceptEl) {
+  return chatLive.filter(x => x.el !== exceptEl).map(x => x.rect);
+}
+function placeAllChatter() {
+  chatLive.forEach(item => placeChatItem(item));
+}
+/* 말풍선 자리 — 머리 위 가운데/좌/우/더 높이, 발 아래 순서로 겹치지 않는 자리를 찾습니다 */
+const CHAT_VARIANTS = [
+  { dx: 0, dy: 0, below: false },
+  { dx: -0.5, dy: 0, below: false },
+  { dx: 0.5, dy: 0, below: false },
+  { dx: 0, dy: -0.62, below: false },
+  { dx: 0.85, dy: 0, below: false },
+  { dx: -0.85, dy: 0, below: false },
+  { dx: 0, dy: 0, below: true }
+];
+function placeChatItem(item, variant) {
+  const c = chars[item.key];
+  if (!c) return null;
+  if (typeof variant === "number") item.variant = variant;
+  const v = CHAT_VARIANTS[item.variant || 0];
+  const el = item.el;
+  const bw = el.offsetWidth, bh = el.offsetHeight;
+  const head = chatHeadScreen(c);
+  const feet = worldToScreen(c.x * W, c.y * H + 2);
+  let cx = head.x + v.dx * bw;
+  cx = Math.min(Math.max(cx, bw / 2 + 3), Math.max(bw / 2 + 3, W - bw / 2 - 3));
+  let top;
+  if (v.below) {
+    top = feet.y + 2;
+  } else {
+    top = head.y - bh - 2 + v.dy * bh;
+  }
+  top = Math.min(Math.max(top, 3), Math.max(3, H - bh - 3));
+  el.style.left = cx + "px";
+  el.style.top = (v.below ? top : top + bh) + "px";
+  el.classList.toggle("below", v.below);
+  el.style.setProperty("--ax", Math.min(Math.max(head.x - (cx - bw / 2), 13), Math.max(13, bw - 13)) + "px");
+  item.rect = { left: cx - bw / 2, top: top, right: cx + bw / 2, bottom: top + bh };
+  return item.rect;
+}
+function dropChat(item) {
+  clearTimeout(item.t1); clearTimeout(item.t2);
+  const idx = chatLive.indexOf(item);
+  if (idx >= 0) chatLive.splice(idx, 1);
+  item.el.style.transition = "opacity 0.28s ease";
+  item.el.style.opacity = "0";
+  setTimeout(() => item.el.remove(), 320);
+}
+function clearChatter() {
+  clearTimeout(chatTimer);
+  chatLive.slice().forEach(dropChat);
+}
+function spawnChatter(force) {
+  if (!state.chatter || !W) return false;
+  const maxLive = W < 430 ? 2 : 3;
+  if (chatLive.length >= maxLive) return false;
+  if (!chatOrder.length) {
+    chatOrder = CHAR_KEYS.slice().sort(() => Math.random() - 0.5);
+  }
+  for (let attempt = 0; attempt < CHAR_KEYS.length; attempt++) {
+    const key = chatOrder.shift();
+    chatOrder.push(key);
+    if (key === selectedKey && !bubbleEl.hidden) continue;   // 업무 카드 말풍선이 떠 있을 땐 비켜 줌
+    if (chatLive.some(x => x.key === key)) continue;         // 한 사람이 두 번 말하진 않게
+    const c = chars[key];
+    if (!c) continue;
+    const p = chatHeadScreen(c);
+    if (p.x < -40 || p.x > W + 40 || p.y < -20 || p.y > H + 20) continue;   // 확대해서 화면 밖이면 건너뜀
+
+    const pool = chatterPool(key);
+    const line = pool[Math.floor(Math.random() * pool.length)].text;
+    const el = document.createElement("div");
+    el.className = "chat-b";
+    el.innerHTML = '<span class="cb-name"></span><span class="cb-text"></span><span class="cb-arrow"></span>';
+    el.querySelector(".cb-name").textContent = PARTS[key].name;
+    el.querySelector(".cb-text").textContent = line;
+    chatterLayer.appendChild(el);
+
+    const item = { key, el, rect: { left: 0, top: 0, right: 0, bottom: 0 }, t1: null, t2: null, text: line, variant: 0 };
+    chatLive.push(item);
+
+    /* 이미 떠 있는 말풍선·업무 카드 말풍선과 겹치지 않는 자리를 찾음 */
+    const others = liveRects(el);
+    const br = bubbleEl.hidden ? null : bubbleEl.getBoundingClientRect();
+    const sr = stage.getBoundingClientRect();
+    if (br) others.push({ left: br.left - sr.left, top: br.top - sr.top, right: br.right - sr.left, bottom: br.bottom - sr.top });
+    let placed = false;
+    for (let v = 0; v < CHAT_VARIANTS.length; v++) {
+      const rect = placeChatItem(item, v);
+      if (!rect) break;
+      if (!others.some(r => rectHit(rect, r, 3))) { placed = true; break; }
+    }
+    if (!placed) {
+      const idx = chatLive.indexOf(item);
+      if (idx >= 0) chatLive.splice(idx, 1);
+      el.remove();
+      continue;
+    }
+
+    requestAnimationFrame(() => el.classList.add("in"));
+    chatRecent.push(line);
+    while (chatRecent.length > 12) chatRecent.shift();
+    const life = 4600 + Math.random() * 1500;
+    item.t1 = setTimeout(() => dropChat(item), life);
+    return true;
+  }
+  return false;
+}
+function chatterLoop() {
+  clearTimeout(chatTimer);
+  chatTimer = setTimeout(() => {
+    if (state.chatter && !document.hidden && officeVisible()) spawnChatter();
+    chatterLoop();
+  }, 3000 + Math.random() * 2000);
+}
+function renderChatter(seed) {
+  chatterBtn.textContent = state.chatter ? "수다모드 ON" : "수다모드 OFF";
+  chatterBtn.classList.toggle("dark", state.chatter);
+  stage.classList.toggle("chatter-on", state.chatter);
+  if (state.chatter) {
+    if (seed || !chatSeed) {
+      chatSeed = true;
+      setTimeout(() => { if (state.chatter && officeVisible()) spawnChatter(); }, 900);
+    }
+    chatterLoop();
+  } else {
+    clearChatter();
+  }
+}
+chatterBtn.addEventListener("click", () => {
+  state.chatter = !state.chatter;
+  saveState();
+  renderChatter(true);
+  toast(state.chatter ? "수다모드 켜짐 — 애들이 수다 떨기 시작해요" : "수다모드 꺼짐 — 조용히 일만 해요");
+});
 
 bubbleEl.addEventListener("click", e => {
   e.stopPropagation();
@@ -1676,10 +2125,10 @@ function callChar(key) {
 /* ---------------- 소집 ---------------- */
 function startRally(type) {
   const plan = type === "meeting"
-    ? [["visual", "s_vis"], ["rani", "m1"], ["mongsil", "m2"], ["coa", "m3"],
-       ["bohumpass", "m4"], ["insight", "m5"], ["sotong", "m6"]]
-    : [["coa", "l2"], ["mongsil", "l1"], ["rani", "l3"]];   // 라운지는 3명씩 번갈아 쉼
-  rally = { type, until: performance.now() + 26000 };
+    ? [["rani", "m1"], ["visual", "m3"], ["bohumpass", "m4"], ["mongsil", "m6"],
+       ["coa", "ms"], ["insight", "a15"], ["sotong", "a14"]]
+    : [["rani", "s_rani"], ["sotong", "s_soc"], ["coa", "l1"], ["mongsil", "a7"]];   // 라운지는 3~4명씩 번갈아 쉼
+  rally = { type, until: performance.now() + 32000 };
   CHAR_KEYS.forEach(k => { const c = chars[k]; if (c) c.rallySeat = false; });
   select(type, false);
   showBubble(type);
@@ -3000,6 +3449,7 @@ chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
 updateChipFade();
 requestAnimationFrame(() => ensureChipVisible(chipsEl.querySelector(".chip.active")));
 renderMotion();
+renderChatter(true);
 renderDetail(selectedKey);
 renderWorkshop();
 updateStats();
@@ -3030,7 +3480,8 @@ document.querySelectorAll(".room-hit").forEach(el => {
 
 /* 무대 빈 곳을 누르면 말풍선 닫기 */
 stage.addEventListener("click", e => {
-  if (e.target === stage || e.target.id === "officeImg" || e.target.classList.contains("office")) hideBubble();
+  if (e.target === stage || e.target.id === "stageInner" || e.target.id === "officeImg" ||
+      e.target.classList.contains("office") || e.target.classList.contains("stage-vignette")) hideBubble();
 });
 </script>
 </body>
