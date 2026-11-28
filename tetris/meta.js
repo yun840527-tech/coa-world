@@ -406,7 +406,7 @@
       inp.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
         else if (e.key === 'Escape') { inp.value = ''; Players.set(''); inp.blur(); }
-        e.stopPropagation();
+        else if (e.key !== 'Tab') e.stopPropagation();
       });
     });
   }
