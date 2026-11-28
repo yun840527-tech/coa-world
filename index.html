@@ -11,17 +11,17 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon-180-v3.png?v=3" />
 <meta name="apple-mobile-web-app-title" content="코아월드" />
 <link rel="preload" as="image" href="./office-clay.webp?v=wide1" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/coa-stand.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/coa-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/mongsil-stand.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/mongsil-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/bohumpass-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/insight-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/rani-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/visual-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/visual-stand.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/sotong-sit.webp?v=clay2" type="image/webp" />
-<link rel="preload" as="image" href="./sprites/clay/sotong-stand.webp?v=clay2" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/coa-stand.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/coa-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/mongsil-stand.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/mongsil-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/bohumpass-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/insight-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/rani-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/visual-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/visual-stand.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/sotong-sit.webp?v=clay3" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/sotong-stand.webp?v=clay3" type="image/webp" />
 <style>
   :root {
     --ink: #1e2430;
@@ -491,9 +491,15 @@
     filter: drop-shadow(0 1.5px 2px rgba(48, 38, 30, 0.20));
     transition: opacity 0.18s ease;
   }
-  .ch-art.sit { opacity: 0; }
-  .ch.is-sit .ch-art.stand { opacity: 0; }
-  .ch.is-sit .ch-art.sit { opacity: 1; }
+  /* 포즈 7종 — 지금 고른 포즈 한 장만 보이고 나머지는 겹쳐 둡니다(교체 시 깜빡임 없음) */
+  .ch-art { opacity: 0; }
+  .ch.pose-stand .ch-art.stand,
+  .ch.pose-sit .ch-art.sit,
+  .ch.pose-wave .ch-art.wave,
+  .ch.pose-happy .ch-art.happy,
+  .ch.pose-think .ch-art.think,
+  .ch.pose-read .ch-art.read,
+  .ch.pose-rest .ch-art.rest { opacity: 1; }
   .ch-hit {
     position: absolute; left: -6%; top: -4%; width: 112%; height: 108%; border: 0; background: transparent;
     border-radius: 46%; pointer-events: auto; cursor: pointer;
@@ -520,9 +526,38 @@
   .ch.twitch .ch-art { animation: twitch 0.56s ease-in-out; }
 
   /* 앉아서 일하는 중: 끄덕임 + 타자 치는 손놀림 느낌 */
-  .ch.is-sit .ch-move { animation: deskBob 3.2s ease-in-out infinite; }
-  .ch.is-sit .ch-art.sit { animation: nod 4.6s ease-in-out infinite; }
+  .ch.pose-sit .ch-move { animation: deskBob 3.2s ease-in-out infinite; }
+  .ch.pose-sit .ch-art.sit { animation: nod 4.6s ease-in-out infinite; }
   .ch.is-sit .ch-hit { cursor: pointer; }
+
+  /* 포즈별 잔동작 — 인사는 손 흔들 듯 살랑, 신남은 통통, 생각은 갸웃, 독서는 끄덕, 휴식은 느린 숨쉬기 */
+  .ch.pose-wave .ch-art.wave { animation: waveNudge 2.6s ease-in-out infinite; }
+  .ch.pose-happy .ch-move { animation: happyBounce 1.5s ease-in-out infinite; }
+  .ch.pose-think .ch-art.think { animation: thinkTilt 4.2s ease-in-out infinite; }
+  .ch.pose-read .ch-art.read { animation: readNod 5.2s ease-in-out infinite; }
+  .ch.pose-rest .ch-move { animation: restBreath 5.8s ease-in-out infinite; }
+  @keyframes waveNudge {
+    0%, 100% { transform: rotate(-1.4deg); }
+    45% { transform: rotate(1.6deg); }
+  }
+  @keyframes happyBounce {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    38% { transform: translateY(-3.2%) scale(0.985, 1.015); }
+    62% { transform: translateY(0) scale(1.012, 0.99); }
+  }
+  @keyframes thinkTilt {
+    0%, 100% { transform: rotate(-1.6deg); }
+    50% { transform: rotate(1.4deg); }
+  }
+  @keyframes readNod {
+    0%, 70%, 100% { transform: translateY(0) rotate(0); }
+    78% { transform: translateY(0.8%) rotate(-1deg); }
+    86% { transform: translateY(0) rotate(0.4deg); }
+  }
+  @keyframes restBreath {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.022); }
+  }
   @keyframes deskBob {
     0%, 100% { transform: translateY(0) scale(1, 1); }
     50% { transform: translateY(-0.6%) scale(1.004, 1.006); }
@@ -615,6 +650,7 @@
   }
   .motion-off .ch:not(.jump) .ch-move, .motion-off .ch .ch-art { animation: none; }
   .motion-off .ch.is-sit .ch-move, .motion-off .ch.is-sit .ch-art.sit { animation: none; }
+  .motion-off .ch.pose-happy .ch-move, .motion-off .ch.pose-rest .ch-move { animation: none; }
   /* sparkles */
   #fx { position: absolute; inset: 0; pointer-events: none; z-index: 700; overflow: hidden; }
   .spark {
@@ -701,6 +737,27 @@
     border: 1px solid #eef2f7; border-radius: 12px; padding: 10px 11px;
   }
   .dc-live b { color: var(--ink); }
+
+  /* 상세 카드 — 지금 모습 · 포즈 미리보기(7종) */
+  .pose-box { margin-top: 9px; padding: 9px 10px 8px; border-radius: 13px; background: #f8fafc; border: 1px solid #eef2f7; }
+  .pose-hd { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+  .pose-hd b { color: var(--ink); font-size: 12px; font-weight: 700; }
+  .pose-auto {
+    flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 999px;
+    font: inherit; font-size: 10.5px; padding: 3px 9px; cursor: pointer; transition: color .16s, border-color .16s, background .16s;
+  }
+  .pose-auto.on { color: var(--mint-deep); border-color: rgba(79, 191, 159, 0.45); background: var(--mint-soft); }
+  .pose-row { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 1px; }
+  .pose-row::-webkit-scrollbar { display: none; }
+  .pose-btn {
+    flex: 0 0 auto; width: 40px; padding: 3px 2px 2px; border-radius: 11px; cursor: pointer; font: inherit;
+    border: 1px solid var(--line); background: #fff; display: flex; flex-direction: column; align-items: center; gap: 1px;
+    transition: border-color .16s, background .16s, transform .16s;
+  }
+  .pose-btn img { width: 30px; height: 35px; object-fit: contain; }
+  .pose-btn span { font-size: 9px; color: var(--muted); line-height: 1.1; }
+  .pose-btn.active { border-color: rgba(79, 191, 159, 0.7); background: var(--mint-soft); transform: translateY(-1px); }
+  .pose-btn.active span { color: var(--mint-deep); font-weight: 700; }
 
   .tasks { list-style: none; margin: 8px 0 0; padding: 0; }
   .task-row {
@@ -1106,20 +1163,24 @@
    ======================================================================= */
 
 /* ---------------- 캐릭터 스프라이트 (클레이 3D 미니어처 · 투명 배경) ----------------
-   두 자세를 한 캐릭터에 쌓아 두고, 앉으면 sit / 걸으면 stand 로 바꿉니다.
-   두 장 모두 512x640 같은 캔버스에 발밑 기준으로 맞춰져 있어 교체해도 크기가 튀지 않아요. */
-const SPRITE_VER = "clay2";
+   한 캐릭터에 포즈 7장을 쌓아 두고, 자리·상태·수다·탭 반응에 따라 한 장만 보여 줍니다.
+   일곱 장 모두 512x640 같은 캔버스에 발밑 기준으로 맞춰져 있어 교체해도 크기가 튀지 않아요.
+   stand 서기 · sit 노트북 작업 · wave 인사 · happy 신남 · think 생각 · read 독서 · rest 휴식 */
+const SPRITE_VER = "clay3";
 const SPRITE_KEYS = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong"];
+const POSES = ["stand", "sit", "wave", "happy", "think", "read", "rest"];
+const POSE_LABEL = { stand: "서기", sit: "작업", wave: "인사", happy: "신남", think: "생각", read: "독서", rest: "휴식" };
+const POSE_EMOJI = { stand: "🧍", sit: "💻", wave: "👋", happy: "✨", think: "💭", read: "📖", rest: "💤" };
+const POSE_STATUS = { stand: "서 있는 중", sit: "작업 중", wave: "인사하는 중", happy: "신나 하는 중", think: "생각 중", read: "책 읽는 중", rest: "쉬는 중" };
 function spriteSrc(key, pose) {
   return "./sprites/clay/" + key + "-" + (pose || "stand") + ".webp?v=" + SPRITE_VER;
 }
 const ART = {};
 SPRITE_KEYS.forEach(key => {
-  ART[key] =
-    '<img class="ch-art stand" src="' + spriteSrc(key, "stand") +
-      '" alt="" draggable="false" decoding="async" width="512" height="640" />' +
-    '<img class="ch-art sit" src="' + spriteSrc(key, "sit") +
-      '" alt="" draggable="false" decoding="async" width="512" height="640" />';
+  ART[key] = POSES.map(pose =>
+    '<img class="ch-art ' + pose + '" data-pose="' + pose + '" src="' + spriteSrc(key, pose) +
+      '" alt="" draggable="false" decoding="async" width="512" height="640" />'
+  ).join("");
 });
 
 /* ---------------- 데이터 ---------------- */
@@ -1484,7 +1545,7 @@ function buildChars() {
   CHAR_KEYS.forEach(key => {
     const p = PARTS[key];
     const el = document.createElement("div");
-    el.className = "ch is-sit";
+    el.className = "ch pose-sit is-sit";
     el.dataset.key = key;
     el.dataset.status = "focus";
     el.style.zIndex = 100;
@@ -1500,12 +1561,14 @@ function buildChars() {
     chars[key] = {
       key, el, x: start.x, y: start.y, node: homeId,
       path: [], target: null, state: "work", seated: true,
+      pose: "sit", manualPose: null, reactPose: null, poseAlt: false,
       nextAt: performance.now() + 8000 + Math.random() * 12000,
       facing: 1, speed: 0.115, status: "focus"
     };
     el.querySelector(".ch-hit").addEventListener("click", e => { e.stopPropagation(); if (stage.dataset.panGuard) return; select(key, true); });
     place(chars[key]);
     scheduleLife(key);
+    scheduleDrift(key);
   });
 }
 
@@ -1533,6 +1596,25 @@ function scheduleLife(key) {
     }
     scheduleLife(key);
   }, wait);
+}
+
+/* 가만히 있을 때도 표정·자세를 조금씩 바꿔 살아 있는 느낌을 줍니다 */
+function scheduleDrift(key) {
+  const c = chars[key];
+  if (!c) return;
+  setTimeout(() => {
+    if (state.motion && c.state !== "walk" && !c.reactPose && !c.manualPose && !c.rallySeat && !document.hidden) {
+      const zone = zoneOf(c.node);
+      if (zone === "desk") {
+        if (Math.random() < 0.34) reactPose(c, pickOne(["think", "happy"]), 3200);
+      } else {
+        setPose(c, poseForZone(c, zone));
+        c.el.dataset.status = c.pose === "sit" ? "focus" : "rest";
+        refreshDetailStatus();
+      }
+    }
+    scheduleDrift(key);
+  }, 7000 + Math.random() * 8000);
 }
 
 /* ---------------- 경로 탐색 ---------------- */
@@ -1580,10 +1662,75 @@ function nearestNode(c) {
   return bestId;
 }
 
-function setPose(c, seated) {
-  if (c.seated === seated) return;
+function setPose(c, pose) {
+  if (!c) return;
+  if (POSES.indexOf(pose) < 0) pose = "stand";
+  const seated = pose === "sit";
   c.seated = seated;
+  if (c.pose === pose) { c.el.classList.toggle("is-sit", seated); return; }
+  c.pose = pose;
+  POSES.forEach(p => c.el.classList.toggle("pose-" + p, p === pose));
   c.el.classList.toggle("is-sit", seated);
+  refreshPoseUI(c.key);
+}
+
+/* ---------------- 포즈 연출 (구역 · 업무 · 수다 · 탭 반응) ---------------- */
+const WORK_NODES = ["s_coa", "s_mong", "s_pass", "s_ins"];
+const MEET_SEATS = ["m1", "m2", "m3", "m4", "m5", "m6"];
+const CHAT_POSE = { coa: "think", mongsil: "happy", bohumpass: "think", insight: "think", rani: "happy", visual: "happy", sotong: "wave" };
+/* 처음 몇 초는 각자 책상에서 일하는 모습으로 두고, 그 뒤부터 표정이 바뀝니다 */
+const bootPoseAt = performance.now() + 6500;
+
+function pickOne(list) { return list[Math.floor(Math.random() * list.length)]; }
+function chatterPoseFor(key, text) {
+  const t = String(text || "");
+  if (/[?？]|할까|볼까|정리|점검|고민|어렵|고쳐/.test(t)) return "think";
+  if (/완료|좋|신나|축|반응|붙|간다|성공|!/.test(t)) return "happy";
+  if (/다녀|돌아|모여|불러|안녕/.test(t)) return "wave";
+  return CHAT_POSE[key] || "think";
+}
+function zoneOf(nodeId) {
+  if (WORK_NODES.indexOf(nodeId) >= 0) return "desk";
+  if (LOUNGE_NODES.indexOf(nodeId) >= 0) return "lounge";
+  if (MEET_NODES.indexOf(nodeId) >= 0) return "meet";
+  return "aisle";
+}
+/* 진행중인 업무가 있으면 책상에서는 노트북 작업(sit) */
+function hasOpenWork(key) {
+  const list = state.parts[key] || [];
+  if (list.some(t => !t.done)) return true;
+  return (state.remote || []).some(t => t.part === key && t.status === "진행중");
+}
+/* 구역별 기본 포즈 — 책상:작업, 라운지:독서/휴식 번갈아, 회의실:생각/인사/신남, 통로:서기/인사 */
+function poseForZone(c, zone) {
+  zone = zone || zoneOf(c.node);
+  if (zone === "desk") return hasOpenWork(c.key) ? "sit" : pickOne(["sit", "think"]);
+  if (zone === "lounge") {
+    c.poseAlt = !c.poseAlt;
+    return c.poseAlt ? "rest" : "read";
+  }
+  if (zone === "meet") {
+    if (rally && rally.type === "meeting" && MEET_SEATS.indexOf(c.node) >= 0) return "sit";
+    return pickOne(["think", "wave", "happy"]);
+  }
+  return pickOne(["stand", "wave", "think", "happy"]);
+}
+/* 짧은 반응 포즈(탭·수다) — 끝나면 다시 제 구역 포즈로 돌아갑니다 */
+function chairSeated(c) {
+  return !!(rally && rally.type === "meeting" && MEET_SEATS.indexOf(c.node) >= 0);
+}
+function reactPose(c, pose, ms, force) {
+  if (!c) return;
+  if (c.manualPose && !force) return;
+  if (chairSeated(c) && !force) return;   // 회의 중 테이블에 앉은 사람은 앉은 자세 유지
+  c.reactPose = pose;
+  c.reactUntil = performance.now() + (ms || 2600);
+  setPose(c, pose);
+}
+function settlePose(c) {
+  if (!c || c.state === "walk") return;
+  c.reactPose = null;
+  setPose(c, c.manualPose || poseForZone(c, zoneOf(c.node)));
 }
 
 function goToNode(c, nodeId, opts) {
@@ -1594,7 +1741,8 @@ function goToNode(c, nodeId, opts) {
   c.path = path.map(id => ({ id, node: NODES[id] }));
   if (!c.path.length) { c.node = nodeId; c.x = NODES[nodeId].x; c.y = NODES[nodeId].y; place(c); arrive(c); return; }
   c.state = "walk";
-  setPose(c, false);
+  setPose(c, "stand");
+  c.reactPose = null;
   c.el.classList.add("walking");
   c.el.dataset.status = "walk";
   if (opts.noWait) c.rush = true;
@@ -1619,13 +1767,17 @@ function goHome(c) {
 }
 
 function arrive(c) {
-  const seated = SEAT_NODES.indexOf(c.node) >= 0;
   c.el.classList.remove("walking");
-  setPose(c, seated);
-  c.state = seated ? "work" : "rest";
+  const zone = zoneOf(c.node);
+  const reacting = c.reactPose && performance.now() < c.reactUntil;
+  const pose = reacting ? c.reactPose : (c.manualPose || poseForZone(c, zone));
+  if (!reacting) c.reactPose = null;
+  setPose(c, pose);
+  const seated = pose === "sit";
+  c.state = (zone === "desk" || seated) ? "work" : "rest";
   c.status = seated ? "focus" : "rest";
   c.el.dataset.status = c.status;
-  c.nextAt = performance.now() + (seated ? 22000 + Math.random() * 20000 : 4000 + Math.random() * 5000);
+  c.nextAt = performance.now() + (c.state === "work" ? 22000 + Math.random() * 20000 : 5000 + Math.random() * 6000);
   refreshDetailStatus();
 }
 
@@ -1644,6 +1796,7 @@ function tick(now) {
       if (!c) return;
 
       if (c.state === "walk" && c.path.length) {
+        if (c.pose !== "stand") setPose(c, "stand");   // 걷는 중에는 서 있는 모습으로
         const tgt = c.path[0];
         const tx = tgt.node.x, ty = tgt.node.y;
         const dpx = (tx - c.x) * W, dpy = (ty - c.y) * H;
@@ -1663,6 +1816,7 @@ function tick(now) {
         if (c.node === HOME[key]) startOuting(c);
         else goHome(c);
       }
+      if (c.reactPose && now > c.reactUntil && c.state !== "walk") settlePose(c);
     });
 
     if (!rally) separate();
@@ -1958,6 +2112,7 @@ function spawnChatter(force) {
     chatRecent.push(line);
     while (chatRecent.length > 12) chatRecent.shift();
     const life = 4600 + Math.random() * 1500;
+    if (performance.now() > bootPoseAt) reactPose(c, chatterPoseFor(key, line), life + 400);
     item.t1 = setTimeout(() => dropChat(item), life);
     return true;
   }
@@ -2010,7 +2165,10 @@ function select(key, doJump) {
 
   renderDetail(key);
   showBubble(key);
-  if (doJump && chars[key]) celebrate(chars[key]);
+  if (doJump && chars[key]) {
+    celebrate(chars[key]);
+    reactPose(chars[key], pickOne(["wave", "happy"]), 2800, true);
+  }
   if (key !== "meeting" && key !== "lounge") refreshDetailStatus();
 }
 
@@ -2056,6 +2214,7 @@ function renderDetail(key) {
       : '<button class="dc-call" data-call="' + key + '">불러오기</button>') +
   '</div>' +
   '<p class="dc-live">' + p.summary + '</p>' +
+  (isRoom ? "" : poseBlockHtml(key)) +
   (key === "rani" ? raniBenchBlock() : "") +
   '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:10px;">' +
     '<span>이번 주 업무</span><span><b style="color:var(--ink)">' + done + '</b> / ' + tasks.length + '</span>' +
@@ -2088,13 +2247,85 @@ function renderDetail(key) {
   updateStats();
 }
 
+/* 상세 카드의 지금 모본 · 7포즈 미리보기 */
+function poseBlockHtml(key) {
+  const c = chars[key];
+  const pose = (c && c.pose) || "sit";
+  const manual = !!(c && c.manualPose);
+  let html = '<div class="pose-box">' +
+    '<div class="pose-hd"><span>' + (manual ? "고른 포즈" : "지금 모본") + ' <b id="dcPose">' + POSE_EMOJI[pose] + ' ' + POSE_LABEL[pose] + '</b></span>' +
+    '<button type="button" class="pose-auto' + (manual ? "" : " on") + '" data-poseauto="' + key + '">' +
+      (manual ? "자동으로" : "자동 연출 중") + '</button></div>' +
+    '<div class="pose-row">';
+  POSES.forEach(p => {
+    const on = p === pose;
+    html += '<button type="button" class="pose-btn' + (on ? " active" : "") + '" data-posepick="' + p +
+      '" aria-pressed="' + (on ? "true" : "false") + '" title="' + POSE_LABEL[p] + ' 포즈">' +
+      '<img src="' + spriteSrc(key, p) + '" alt="" draggable="false" loading="lazy" /><span>' + POSE_LABEL[p] + '</span></button>';
+  });
+  return html + '</div></div>';
+}
+
+function refreshPoseUI(key) {
+  if (key === undefined) key = selectedKey;
+  if (key !== selectedKey) return;
+  const c = chars[key];
+  const now = document.getElementById("dcPose");
+  if (!c || !now) return;
+  now.textContent = POSE_EMOJI[c.pose] + " " + POSE_LABEL[c.pose];
+  document.querySelectorAll("#detail .pose-btn").forEach(b => {
+    const on = b.dataset.posepick === c.pose;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  const ab = document.querySelector("#detail [data-poseauto]");
+  if (ab) {
+    ab.classList.toggle("on", !c.manualPose);
+    ab.textContent = c.manualPose ? "자동으로" : "자동 연출 중";
+  }
+  const hd = document.querySelector("#detail .pose-hd > span");
+  if (hd) hd.firstChild.textContent = c.manualPose ? "고른 포즈 " : "지금 모본 ";
+}
+
+/* 포즈 직접 고르기 / 다시 자동으로 */
+function pickPoseManual(key, pose) {
+  const c = chars[key];
+  if (!c || POSES.indexOf(pose) < 0) return;
+  // 걷는 중에 골랐으면 그 자리에 서서 고른 포즈를 보여 줍니다
+  if (c.state === "walk") {
+    c.path = [];
+    c.el.classList.remove("walking");
+    c.state = "rest";
+    c.nextAt = performance.now() + 14000;
+  }
+  c.manualPose = pose;
+  c.reactPose = null;
+  setPose(c, pose);
+  c.el.dataset.status = pose === "sit" ? "focus" : "rest";
+  refreshDetailStatus();
+  refreshPoseUI(key);
+  toast(PARTS[key].name + " · " + POSE_LABEL[pose] + " 포즈");
+}
+function autoPose(key) {
+  const c = chars[key];
+  if (!c) return;
+  c.manualPose = null;
+  c.reactPose = null;
+  setPose(c, c.state === "walk" ? "stand" : poseForZone(c, zoneOf(c.node)));
+  refreshDetailStatus();
+  refreshPoseUI(key);
+  toast("다시 상황에 맞춰 스스로 움직여요");
+}
+
 function statusText(key) {
   if (key === "meeting") return rally && rally.type === "meeting" ? "회의 중 · 7인방 모였어요" : "회의 준비";
   if (key === "lounge") return rally && rally.type === "lounge" ? "커피 타임 중" : "충전 중";
   const c = chars[key];
   if (!c) return PARTS[key].status;
   if (c.state === "walk") return "이동 중";
-  if (!c.seated) return "잠깐 쉬는 중";
+  if (c.pose === "wave" || c.pose === "happy" || c.pose === "think" || c.pose === "read" || c.pose === "rest")
+    return POSE_STATUS[c.pose] || PARTS[key].status;
+  if (c.pose === "stand") return "잠깐 서 있는 중";
   if (rally && rally.type === "meeting" && MEET_NODES.indexOf(c.node) >= 0) return "회의 중";
   if (c.node !== HOME[key]) return "다른 자리에서 작업 중";
   return PARTS[key].status;
@@ -2112,10 +2343,15 @@ function escapeHtml(s) {
 /* 캐릭터는 스프라이트 섬네일, 회의실·라운지는 이모지 */
 function avatarHtml(key) {
   if (SPRITE_KEYS.indexOf(key) < 0) return (PARTS[key] || {}).emoji || "";
-  return '<img src="' + spriteSrc(key, "stand") + '" alt="" draggable="false" />';
+  const c = chars[key];
+  return '<img src="' + spriteSrc(key, (c && c.pose) || "stand") + '" alt="" draggable="false" />';
 }
 
 detailEl.addEventListener("click", e => {
+  const poseBtn = e.target.closest("[data-posepick]");
+  if (poseBtn) { pickPoseManual(selectedKey, poseBtn.dataset.posepick); return; }
+  const autoBtn = e.target.closest("[data-poseauto]");
+  if (autoBtn) { autoPose(autoBtn.dataset.poseauto); return; }
   const stBtn = e.target.closest("[data-rtstatus]");
   if (stBtn) { cycleRemoteStatus(stBtn.dataset.rtstatus); return; }
   const delBtn = e.target.closest("[data-rtdel]");
@@ -2241,7 +2477,7 @@ function buildChips() {
 }
 
 /* ---------------- 모션 토글 ---------------- */
-function renderMotion() {
+function renderMotion(first) {
   motionBtn.textContent = state.motion ? "모션 ON" : "모션 OFF";
   motionBtn.classList.toggle("dark", state.motion);
   stage.classList.toggle("motion-off", !state.motion);
@@ -2254,12 +2490,13 @@ function renderMotion() {
       c.el.classList.remove("walking");
       const seat = NODES[HOME[k]];
       if (seat) { c.x = seat.x; c.y = seat.y; c.node = HOME[k]; place(c); }
-      setPose(c, true);
+      setPose(c, "sit");
       c.state = "work";
       c.el.dataset.status = "focus";
     } else {
       c.el.dataset.status = c.seated ? "focus" : "rest";
-      c.nextAt = performance.now() + 2500 + Math.random() * 4000;
+      // 첫 화면은 조금 더 오래 책상에 앉아 일하는 모습으로 둡니다
+      if (!first) c.nextAt = performance.now() + 2500 + Math.random() * 4000;
     }
   });
 }
@@ -3618,7 +3855,7 @@ buildChips();
 chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
 updateChipFade();
 requestAnimationFrame(() => ensureChipVisible(chipsEl.querySelector(".chip.active")));
-renderMotion();
+renderMotion(true);
 renderChatter(true);
 renderDetail(selectedKey);
 renderWorkshop();
