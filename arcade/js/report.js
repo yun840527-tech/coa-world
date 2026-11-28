@@ -57,7 +57,9 @@
           '최고 <b>' + num(today.match.bestScore) + '점</b> · 클리어 ' + num(today.match.clears) + '라운드') +
         '<div class="rep-card wide">' +
           '<div class="rep-title">📚 오늘 푼 문제</div>' +
-          '<div class="rep-main"><b>' + num(today.quiz.correct) + '</b><span> / ' + num(today.quiz.asked) + '문제 정답</span>' +
+          '<div class="rep-main">' + (today.quiz.asked
+            ? '<b>' + num(today.quiz.correct) + '</b><span> / ' + num(today.quiz.asked) + '문제 정답</span>'
+            : '<b>—</b><span> 아직 푼 문제가 없어요</span>') +
             '<span style="margin-left:auto">정답률 <b style="font-family:var(--font-body);font-size:13px">' + (today.quiz.asked ? today.quiz.accuracy + '%' : '—') + '</b></span></div>' +
           '<div class="rep-sub">영어 <b>' + today.quiz.english.correct + '/' + today.quiz.english.asked + '</b>' +
             ' · 수학 <b>' + today.quiz.math.correct + '/' + today.quiz.math.asked + '</b>' +
