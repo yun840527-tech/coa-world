@@ -10,7 +10,7 @@
 <link rel="icon" href="./icon-192-v3.png?v=3" sizes="192x192" type="image/png" />
 <link rel="apple-touch-icon" href="./apple-touch-icon-180-v3.png?v=3" />
 <meta name="apple-mobile-web-app-title" content="코아월드" />
-<link rel="preload" as="image" href="./office-clay.webp?v=wide1" type="image/webp" />
+<link rel="preload" as="image" href="./sprites/clay/office-rooms-clay.webp?v=rooms1" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/coa-stand.webp?v=clay3" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/coa-sit.webp?v=clay3" type="image/webp" />
 <link rel="preload" as="image" href="./sprites/clay/mongsil-stand.webp?v=clay3" type="image/webp" />
@@ -75,6 +75,7 @@
   }
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); animation: pulse 1.8s infinite; }
   @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.45; } }
+  @keyframes livePulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.72); opacity: 0.5; } }
 
   /* ---------- 구글 시트 연동 ---------- */
   .sync-bar {
@@ -562,11 +563,139 @@
   }
   .room-hit {
     position: absolute; z-index: 20; border: 0; background: transparent; padding: 0;
-    border-radius: 16px;
+    border-radius: 18px; transition: background 0.18s, box-shadow 0.18s;
   }
-  .room-hit.meeting { left: 3%; top: 41%; width: 39%; height: 45%; }
-  .room-hit.lounge { left: 64%; top: 43%; width: 35%; height: 45%; }
-  .room-hit:active { background: rgba(79, 191, 159, 0.10); }
+  .room-hit:active { background: rgba(79, 191, 159, 0.12); }
+  .room-hit:focus-visible { outline: 2px solid var(--mint); outline-offset: -2px; }
+  .stage.room-focus .room-hit { pointer-events: none; }
+
+  /* ---------- 6방: 상단 정보 · 방 이름표 · 문 · 방 상단바 ---------- */
+  .stage-head { display: flex; align-items: center; gap: 6px; margin: 2px 2px 8px; }
+  .stage-head .sh-title { font-size: 12px; font-weight: 800; color: var(--ink); letter-spacing: -0.2px; margin-right: auto; }
+  .stage-head .sh-pill {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 800; color: #5c6474;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 9px; letter-spacing: -0.2px;
+  }
+  .stage-head .sh-pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+  .stage-head .sh-pill.live i { box-shadow: 0 0 0 2px rgba(79, 191, 159, 0.2); animation: livePulse 1.9s ease-in-out infinite; }
+
+  .room-badges { position: absolute; inset: 0; z-index: 650; pointer-events: none; }
+  .room-badges.hide { display: none; }
+  .rb {
+    position: absolute; transform: translate(-50%, -50%); pointer-events: auto; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.9); background: rgba(255, 253, 250, 0.95);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    color: #3f4655; border-radius: 999px; padding: 4px 7px 4px 6px;
+    font-size: 10px; font-weight: 800; letter-spacing: -0.3px;
+    box-shadow: 0 4px 10px rgba(48, 38, 30, 0.18);
+    transition: transform 0.14s, box-shadow 0.14s, background 0.14s;
+  }
+  .rb .rb-e { font-size: 11px; }
+  .rb em {
+    font-style: normal; font-size: 9px; font-weight: 800; color: #fff; background: var(--rc, #b3a08a);
+    border-radius: 999px; padding: 2px 5px; min-width: 15px; text-align: center; transition: background 0.2s;
+  }
+  .rb em.zero { background: #cfc6ba; }
+  .rb:active { transform: translate(-50%, -50%) scale(0.94); }
+  .rb.here { background: #fff; box-shadow: 0 6px 16px rgba(48, 38, 30, 0.26), 0 0 0 2px rgba(79, 191, 159, 0.5); }
+  .stage.room-focus .room-badges { display: none; }
+
+  .doors { position: absolute; inset: 0; z-index: 18; pointer-events: none; }
+  .door {
+    position: absolute; transform: translate(-50%, -100%); width: 3.6%; height: 3.6%;
+    border-radius: 50% 50% 5% 5% / 62% 62% 3% 3%;
+    background: linear-gradient(180deg, #7a5640 0%, #5b3f2d 55%, #3c2a1e 100%);
+    box-shadow:
+      inset 0 0 0 1.2px rgba(255, 249, 238, 0.85),
+      0 0 0 1.2px rgba(176, 138, 96, 0.55),
+      0 2px 4px rgba(70, 45, 20, 0.2);
+  }
+  .door::after {
+    content: ""; position: absolute; left: 18%; right: 18%; bottom: -6%; height: 22%;
+    border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255, 226, 180, 0.55), rgba(255, 226, 180, 0) 70%);
+  }
+
+  .room-bar {
+    position: absolute; left: 0; right: 0; top: 0; z-index: 720; display: none; align-items: center; gap: 6px;
+    padding: 7px 48px 12px 8px;
+    background: linear-gradient(180deg, rgba(255, 252, 247, 0.97) 42%, rgba(255, 252, 247, 0));
+  }
+  .stage.room-focus .room-bar { display: flex; }
+  .rb-back {
+    flex: none; border: 1px solid rgba(255, 255, 255, 0.9); background: #fff; color: #3f4655;
+    font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 7px 10px; white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(48, 38, 30, 0.18); letter-spacing: -0.3px;
+  }
+  .rb-back:active { transform: scale(0.95); }
+  .rb-chips { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 3px; }
+  .rb-chips::-webkit-scrollbar { display: none; }
+  .rb-chip {
+    flex: none; border: 1px solid rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.88); color: #4d5666;
+    font-size: 10px; font-weight: 800; border-radius: 999px; padding: 6px 9px; letter-spacing: -0.3px;
+    box-shadow: 0 3px 8px rgba(48, 38, 30, 0.12);
+  }
+  .rb-chip.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* ---------- 방 상세 패널 ---------- */
+  #roomPanel { display: none; }
+  #roomPanel.on { display: block; }
+  #detail.rp-hide { display: none; }
+  .rp-head { display: flex; align-items: center; gap: 8px; }
+  .rp-emoji { font-size: 22px; line-height: 1; }
+  .rp-title { font-size: 15px; font-weight: 800; letter-spacing: -0.35px; color: var(--ink); }
+  .rp-title em {
+    font-style: normal; font-size: 10px; font-weight: 800; color: var(--mint-deep); background: var(--mint-soft);
+    border-radius: 999px; padding: 2px 7px; margin-left: 6px; vertical-align: 2px;
+  }
+  .rp-exit {
+    margin-left: auto; flex: none; border: 1px solid var(--line); background: #fff; color: #6b7486;
+    font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 6px 9px; letter-spacing: -0.3px;
+  }
+  .rp-desc { font-size: 11.5px; color: #6b7486; line-height: 1.55; margin-top: 6px; }
+  .rp-row { border: 1px solid var(--line); border-radius: 13px; padding: 8px 9px; margin-top: 8px; background: #fcfdff; }
+  .rp-row.on { border-color: var(--mint); background: #f5fcfa; }
+  .rp-top { display: flex; align-items: center; gap: 8px; }
+  .rp-av {
+    width: 36px; height: 38px; flex: none; border-radius: 10px; border: 1px solid var(--line); background: #fff;
+    display: flex; align-items: flex-end; justify-content: center; overflow: hidden; cursor: pointer;
+  }
+  .rp-av img { width: 100%; height: 100%; object-fit: contain; }
+  .rp-id { min-width: 0; flex: 1; cursor: pointer; }
+  .rp-name { font-size: 12.5px; font-weight: 800; letter-spacing: -0.25px; }
+  .rp-role { font-size: 9.5px; font-weight: 800; color: var(--mint-deep); background: var(--mint-soft); border-radius: 999px; padding: 1px 6px; margin-left: 4px; vertical-align: 1px; }
+  .rp-st { display: block; font-size: 10.5px; color: #8a93a3; margin-top: 2px; }
+  .rp-more {
+    flex: none; border: 1px dashed #dde4ee; background: #fff; color: #7b8494; font-size: 10px; font-weight: 800;
+    border-radius: 8px; padding: 6px 7px; letter-spacing: -0.2px;
+  }
+  .rp-poses { display: flex; gap: 4px; margin-top: 7px; }
+  .rp-pose {
+    flex: 1; min-width: 0; border: 1px solid #eceff5; background: #fff; border-radius: 8px; padding: 6px 0 5px;
+    font-size: 13px; line-height: 1; color: #6b7486;
+  }
+  .rp-pose.on { border-color: var(--mint); background: var(--mint-soft); }
+  .rp-pose:active { transform: scale(0.94); }
+  .rp-empty { font-size: 11.5px; color: #a6aebc; padding: 10px 0 4px; line-height: 1.5; }
+  .rp-actions { display: flex; gap: 6px; margin-top: 11px; }
+  .rp-act {
+    flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 11px;
+    font-size: 11.5px; font-weight: 800; color: #4b5464; padding: 10px 6px; letter-spacing: -0.3px;
+  }
+  .rp-act.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .rp-act:active { transform: scale(0.97); }
+  .rp-callwrap { margin-top: 8px; }
+  .rp-callhd { font-size: 10.5px; color: #8a93a3; font-weight: 700; }
+  .rp-calllist { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .rp-callchip {
+    border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 10px;
+    font-size: 11px; font-weight: 800; color: #4b5464; letter-spacing: -0.2px;
+  }
+  .rp-callchip:active { transform: scale(0.95); }
+  .detail-back {
+    display: flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 0 0 8px;
+    color: var(--mint-deep); font-size: 11px; font-weight: 800; letter-spacing: -0.2px;
+  }
 
   /* character */
   .ch {
@@ -598,7 +727,7 @@
   .ch.pose-read .ch-art.read,
   .ch.pose-rest .ch-art.rest { opacity: 1; }
   .ch-hit {
-    position: absolute; left: -6%; top: -4%; width: 112%; height: 108%; border: 0; background: transparent;
+    position: absolute; left: -22%; top: -14%; width: 144%; height: 130%; border: 0; background: transparent;
     border-radius: 46%; pointer-events: auto; cursor: pointer;
   }
   .ch-hit:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
@@ -1018,8 +1147,8 @@
   <div id="tab-office" class="section-view active">
     <div class="card">
       <span class="ws-pill">Workspace</span>
-      <h2 class="status-title">일곱 식구가 클레이 오피스에서 움직이고 있어요</h2>
-      <p class="status-desc">각자 책상에 앉아 타자 치듯 일하다가, 이따금 자리에서 일어나 회의실·라운지·지휘실을 걸어 다닙니다. 캐릭터나 공간을 탭하면 머리 위 말풍선과 아래 업무 카드가 바로 바뀌어요. 오른쪽 위 <b>+ / − / ⤢</b> 로 확대·전체화면도 됩니다.</p>
+      <h2 class="status-title">여섯 방 클레이 오피스에서 일곱 식구가 오가고 있어요</h2>
+      <p class="status-desc">각자 맡은 방에서 일하다가 이따금 문을 열고 <b>종합 회의실</b>·<b>휴식 라운지</b>·다른 파트 방으로 걸어 갑니다. 방 이름표나 방 바닥을 누르면 그 방으로 들어가고, 아래 카드가 그 방 안 사람들로 바뀌어요. 오른쪽 위 <b>+ / − / ⤢</b> 로 확대·전체화면도 됩니다.</p>
     </div>
 
     <div class="pills-row">
@@ -1029,19 +1158,30 @@
       <button class="pill-btn" data-rally="meeting">회의 소집</button>
     </div>
 
+    <div class="stage-head">
+      <span class="sh-title">🏠 오피스</span>
+      <span class="sh-pill">6개 방</span>
+      <span class="sh-pill live"><i></i>7명 ON</span>
+    </div>
+
     <div class="stage-wrap" id="stageWrap">
-      <div id="stage" class="stage" aria-label="움직이는 클레이 3D 오피스">
+      <div id="stage" class="stage" aria-label="방 여섯 개로 나뉜 움직이는 클레이 3D 오피스">
         <div id="stageInner" class="stage-inner">
           <picture>
-            <source srcset="./office-clay.webp?v=wide1" type="image/webp" />
-            <img class="office" id="officeImg" src="./office-clay.jpg?v=wide1" width="1254" height="1254"
-                 alt="따뜻한 클레이 3D 아이소메트릭 오피스 — 지휘실 듀얼 모니터 책상, 작업실 책상 3개, 회의실 원형 테이블, 라운지 소파" decoding="async" fetchpriority="high" />
+            <source srcset="./sprites/clay/office-rooms-clay.webp?v=rooms1" type="image/webp" />
+            <img class="office" id="officeImg" src="./sprites/clay/office-rooms-clay.jpg?v=rooms1" width="1203" height="1203"
+                 alt="따뜻한 클레이 3D 아이소메트릭 오피스 — 종합 회의실·코아 지휘실·몽실 소통방·보험패스실·인사이트 비주얼실·휴식 라운지 여섯 방" decoding="async" fetchpriority="high" />
           </picture>
-          <button class="room-hit meeting" data-room="meeting" aria-label="대회의실 보기"></button>
-          <button class="room-hit lounge" data-room="lounge" aria-label="라운지 보기"></button>
+          <div id="doors" class="doors" aria-hidden="true"></div>
+          <div id="roomHits" class="room-hits"></div>
           <div id="chars"></div>
           <div id="fx"></div>
           <div class="stage-vignette"></div>
+        </div>
+        <div id="roomBadges" class="room-badges"></div>
+        <div id="roomBar" class="room-bar">
+          <button id="roomBack" class="rb-back" type="button">← 전체 오피스</button>
+          <div id="roomChips" class="rb-chips"></div>
         </div>
         <div id="chatter" aria-hidden="true"></div>
         <button id="bubble" class="bubble" type="button" hidden aria-live="polite">
@@ -1066,6 +1206,7 @@
 
     <div id="chips" class="chips" aria-label="캐릭터와 장소"></div>
 
+    <div id="roomPanel" class="card"></div>
     <div id="detail" class="card"></div>
   </div>
 
@@ -1370,7 +1511,7 @@ const PARTS = {
     ]
   },
   meeting: {
-    name: "대회의실", emoji: "🤝", role: "전략 회의", tint: "#eaf2fb", color: "#6aa8ef",
+    name: "종합 회의실", emoji: "🏛️", role: "전략 회의", tint: "#eaf2fb", color: "#6aa8ef",
     status: "회의 준비", live: "이번 주 콘텐츠 순서를 맞추고 있어요",
     summary: "일곱 파트가 같은 채널에서 겹치지 않게 역할과 순서를 나누는 자리입니다.",
     tasks: [
@@ -1379,92 +1520,209 @@ const PARTS = {
     ]
   },
   lounge: {
-    name: "라운지", emoji: "☕", role: "휴식/리서치", tint: "#fdf6e8", color: "#f0b45c",
+    name: "휴식 라운지", emoji: "☕", role: "휴식/리서치", tint: "#fdf6e8", color: "#f0b45c",
     status: "충전 중", live: "커피 한 잔에 다음 소재를 정리해요",
     summary: "잠깐 쉬면서 다음 소재를 모으는 곳이에요. 세 명씩 번갈아 쉬고, 나머지는 일을 이어갑니다.",
     tasks: [
       { t: "파트 간 실행 간격 지키기", done: true },
       { t: "다음 소재 아이디어 1개 적기", done: false }
     ]
+  },
+  hqroom: {
+    name: "코아 지휘실", emoji: "👑", role: "총괄 지휘", tint: "#e6f7f1", color: "#4fbf9f",
+    status: "지휘 중", live: "일정과 우선순위를 여기서 정리해요",
+    summary: "일곱 파트의 순서와 간격을 정하는 대장 책상입니다. 급한 일은 여기서 먼저 불러 모아요.",
+    tasks: [
+      { t: "오늘 우선순위 3건 지휘실에서 확정", done: true },
+      { t: "파트별 보고 한 줄 받기", done: false }
+    ]
+  },
+  mongsilroom: {
+    name: "몽실·소통방", emoji: "🧵", role: "일상/댓글", tint: "#fdf0f4", color: "#f0a5bd",
+    status: "글감 수집", live: "공감 글과 첫 1시간 대댓글을 같이 챙겨요",
+    summary: "몽실의 일상 글과 소통의 대댓글 작업이 함께 일어나는 방입니다. 링라이트와 소파가 있어요.",
+    tasks: [
+      { t: "공감 글 1편 · 첫 댓글 3건", done: true },
+      { t: "저녁 글 소재 2개 적기", done: false }
+    ]
+  },
+  passroom: {
+    name: "보험패스실", emoji: "🏥", role: "보험/자문", tint: "#f7efe7", color: "#c08a5e",
+    status: "사례 정리", live: "보장 사례와 상담 동선을 정리해요",
+    summary: "현장 사례와 증권·서류를 펼쳐 놓고 상담 동선을 만드는 조용한 방입니다.",
+    tasks: [
+      { t: "한방 비급여 사례 정리", done: false },
+      { t: "상담 문의 동선 점검", done: true }
+    ]
+  },
+  visualroom: {
+    name: "인사이트·비주얼실", emoji: "🤖", role: "AI/카드뉴스", tint: "#eef1f8", color: "#8b93ab",
+    status: "작업대 가동", live: "AI 팁과 카드뉴스를 작업대에서 뽑아요",
+    summary: "듀얼 모니터 작업대에서 AI 실무 팁을 다듬고, 정보 글을 카드뉴스·도표로 다시 그립니다.",
+    tasks: [
+      { t: "AI 실무 팁 1편 발행", done: false },
+      { t: "정보 글 카드뉴스 1장", done: false }
+    ]
   }
 };
-const ORDER = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong", "meeting", "lounge"];
+const ORDER = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong",
+  "meeting", "hqroom", "mongsilroom", "passroom", "visualroom", "lounge"];
 const CHAR_KEYS = ["coa", "mongsil", "bohumpass", "insight", "rani", "visual", "sotong"];
-/* 지정 좌석 — 코아는 지휘실 듀얼 모니터 책상, 세 파트는 작업실 책상 3개,
-   란이는 라운지 소파, 비주얼은 회의실 원형 테이블, 소통은 라운지 커피테이블 옆 */
-const HOME = {
-  coa: "s_coa", mongsil: "s_mong", bohumpass: "s_pass", insight: "s_ins",
-  rani: "s_rani", visual: "m2", sotong: "s_soc"
-};
 
-/* ---------------- 무대 노드 그래프 (비율 좌표 · 배경 1254×1254 기준) ---------------- */
-const NODES = {
-  /* 지정 좌석 */
-  s_coa:  { x: 0.583, y: 0.462 },   // 지휘실 듀얼 모니터 책상
-  s_mong: { x: 0.523, y: 0.727 },   // 작업실 책상 1 (가운데)
-  s_pass: { x: 0.395, y: 0.800 },   // 작업실 책상 2 (앞쪽)
-  s_ins:  { x: 0.637, y: 0.655 },   // 작업실 책상 3 (라운지 쪽)
-  s_rani: { x: 0.815, y: 0.650 },   // 라운지 소파
-  s_soc:  { x: 0.722, y: 0.760 },   // 라운지 커피테이블 왼편
-
-  /* 회의실 원형 테이블 — 의자 여섯 개 + 진행 자리(서서) */
-  m1: { x: 0.222, y: 0.565 },   // 왼쪽 의자
-  m2: { x: 0.295, y: 0.545 },   // 뒤 가운데 의자 (비주얼 자리)
-  m3: { x: 0.358, y: 0.568 },   // 뒤 오른쪽 의자
-  m4: { x: 0.372, y: 0.635 },   // 오른쪽 의자
-  m5: { x: 0.300, y: 0.685 },   // 앞 가운데 의자
-  m6: { x: 0.225, y: 0.640 },   // 앞 왼쪽 의자
-  ms: { x: 0.345, y: 0.478 },   // 회의 진행 자리 (코아가 서서 진행)
-
-  /* 라운지 추가 좌석 */
-  l1: { x: 0.858, y: 0.722 },   // 커피테이블 오른편 러그
-
-  /* 통로 */
-  a1:  { x: 0.400, y: 0.487 },
-  a2:  { x: 0.470, y: 0.505 },
-  a3:  { x: 0.650, y: 0.487 },
-  a4:  { x: 0.735, y: 0.520 },
-  a5:  { x: 0.690, y: 0.600 },
-  a6:  { x: 0.760, y: 0.600 },
-  a7:  { x: 0.700, y: 0.680 },
-  a8:  { x: 0.620, y: 0.760 },
-  a9:  { x: 0.500, y: 0.800 },
-  a10: { x: 0.330, y: 0.820 },
-  a11: { x: 0.270, y: 0.792 },
-  a12: { x: 0.180, y: 0.700 },
-  a13: { x: 0.135, y: 0.600 },
-  a14: { x: 0.163, y: 0.540 },
-  a15: { x: 0.245, y: 0.480 }
-};
-/* 여기 앉으면 앉은 자세(타자) 모드 */
-const SEAT_NODES = ["s_coa", "s_mong", "s_pass", "s_ins", "s_rani", "s_soc",
-  "m1", "m2", "m3", "m4", "m5", "m6", "l1"];
-const MEET_NODES = ["ms", "m1", "m2", "m3", "m4", "m5", "m6", "a14", "a15"];
-const LOUNGE_NODES = ["s_rani", "s_soc", "l1", "a7"];
-const EDGES = [
-  /* 지정 좌석 */
-  ["s_coa", "a3"], ["s_coa", "a2"],
-  ["s_mong", "a9"], ["s_pass", "a10"], ["s_ins", "a5"],
-  ["s_rani", "a6"], ["s_rani", "l1"], ["s_soc", "a7"], ["l1", "a6"], ["l1", "a7"],
-  /* 회의실 */
-  ["m1", "a15"], ["m2", "a15"], ["m2", "a1"], ["m3", "a1"], ["m3", "ms"], ["m4", "a1"],
-  ["m5", "a11"], ["m5", "a12"], ["m6", "a11"], ["m6", "a12"], ["ms", "a15"], ["ms", "a1"],
-  /* 통로 */
-  ["a1", "a2"], ["a2", "a3"], ["a3", "a4"], ["a4", "a5"], ["a5", "a6"],
-  ["a6", "a7"], ["a7", "a8"], ["a8", "a9"], ["a9", "a10"], ["a10", "a11"],
-  ["a11", "a12"], ["a12", "a13"], ["a13", "a14"], ["a14", "a15"], ["a15", "a1"],
-  ["a5", "a8"]
+/* ---------------- 여섯 방 오피스 (배경 1203×1203 기준 비율 좌표) ----------------
+   방마다 이름표·클릭 영역·문이 있고, 캐릭터는 방 ↔ 종합 회의실 ↔ 휴식 라운지를
+   문으로 오갑니다. 각 방 좌석(seats)은 실제 가구가 놓이지 않은 바닥에 맞춰 두었습니다. */
+const STAGE_ROOMS = [
+  { key: "meeting", emoji: "🏛️", label: "종합 회의실", short: "종합 회의실", kind: "meet", chat: "hall", color: "#6aa8ef",
+    rect: { x0: 0.058, y0: 0.112, x1: 0.338, y1: 0.448 },
+    hub: "rM", seats: ["mt1", "mt2", "mt3", "mt4", "mt5", "mt6", "mtS"],
+    desc: "일곱 파트가 한자리에 모이는 원형 테이블 · 화이트보드" },
+  { key: "hqroom", emoji: "👑", label: "코아 지휘실", short: "지휘실", kind: "work", chat: "hq", color: "#4fbf9f",
+    rect: { x0: 0.362, y0: 0.108, x1: 0.648, y1: 0.448 },
+    hub: "rH", seats: ["hq1", "hq2"],
+    desc: "일정·우선순위를 총괄하는 대장 책상 · 듀얼 모니터" },
+  { key: "mongsilroom", emoji: "🧵", label: "몽실·소통방", short: "몽실방", kind: "work", chat: "hall", color: "#f0a5bd",
+    rect: { x0: 0.662, y0: 0.112, x1: 0.938, y1: 0.448 },
+    hub: "rS", seats: ["mn1", "mn2", "mn3"],
+    desc: "일상 글과 첫 1시간 대댓글을 다는 크리에이터 책상 · 링라이트" },
+  { key: "passroom", emoji: "🏥", label: "보험패스실", short: "보험패스실", kind: "work", chat: "hall", color: "#c08a5e",
+    rect: { x0: 0.058, y0: 0.472, x1: 0.338, y1: 0.848 },
+    hub: "rP", seats: ["ps1", "ps2", "ps3"],
+    desc: "보장 사례와 상담 동선을 정리하는 조용한 상담 책상 · 서류장" },
+  { key: "visualroom", emoji: "🤖", label: "인사이트·비주얼실", short: "인사이트실", kind: "work", chat: "hall", color: "#8b93ab",
+    rect: { x0: 0.362, y0: 0.472, x1: 0.648, y1: 0.848 },
+    hub: "rV", seats: ["vs1", "vs2", "vs3"],
+    desc: "AI 실무 팁과 카드뉴스·도표를 만드는 듀얼 모니터 작업대" },
+  { key: "lounge", emoji: "☕", label: "휴식 라운지", short: "라운지", kind: "lounge", chat: "lounge", color: "#f0b45c",
+    rect: { x0: 0.662, y0: 0.472, x1: 0.938, y1: 0.848 },
+    hub: "rL", seats: ["lo1", "lo2", "lo3", "lo4"],
+    desc: "소파·커피바·화분이 있는 충전 자리" }
 ];
-
-const ROUTES = {
-  coa:       ["s_coa", "a3", "a4", "a6", "ms", "s_soc"],
-  mongsil:   ["s_mong", "a9", "a10", "a2", "m5", "a6"],
-  bohumpass: ["s_pass", "a10", "a11", "a1", "m6", "a4"],
-  insight:   ["s_ins", "a5", "a4", "a8", "m3", "a12"],
-  rani:      ["s_rani", "a6", "a5", "a7", "m1", "a11"],
-  visual:    ["m2", "a15", "a1", "a2", "m4", "a7"],
-  sotong:    ["s_soc", "a7", "a8", "a3", "m5", "a13"]
+/* 회의 소집 · 쉬러 가기 때 앉는 자리 */
+const RALLY_PLAN = {
+  meeting: [["coa", "mtS"], ["rani", "mt1"], ["mongsil", "mt2"], ["bohumpass", "mt3"],
+            ["insight", "mt4"], ["visual", "mt5"], ["sotong", "mt6"]],
+  lounge: [["rani", "lo1"], ["sotong", "lo2"], ["coa", "lo3"], ["mongsil", "lo4"]]
 };
+/* 캐릭터가 사는 방과 지정 좌석 — 코아 지휘실 / 몽실·소통방 / 보험패스실 / 인사이트·비주얼실 / 종합 회의실 */
+const HOME_ROOM = {
+  coa: "hqroom", mongsil: "mongsilroom", sotong: "mongsilroom", bohumpass: "passroom",
+  insight: "visualroom", visual: "visualroom", rani: "meeting"
+};
+const HOME = {
+  coa: "hq1", mongsil: "mn1", sotong: "mn3", bohumpass: "ps1",
+  insight: "vs1", visual: "vs3", rani: "mt3"
+};
+
+const NODES = {
+  /* 종합 회의실 — 원형 테이블 의자 여섯 + 진행 자리 */
+  mt1: { x: 0.135, y: 0.335 },
+  mt2: { x: 0.190, y: 0.285 },
+  mt3: { x: 0.250, y: 0.290 },
+  mt4: { x: 0.280, y: 0.360 },
+  mt5: { x: 0.235, y: 0.400 },
+  mt6: { x: 0.160, y: 0.397 },
+  mtS: { x: 0.195, y: 0.252 },
+  rM:  { x: 0.195, y: 0.425 },
+
+  /* 코아 지휘실 — 대장 책상 뒤 의자 + 앞손님 자리 */
+  hq1: { x: 0.515, y: 0.272 },
+  hq2: { x: 0.430, y: 0.418 },
+  rH:  { x: 0.492, y: 0.425 },
+
+  /* 몽실·소통방 — 크리에이터 책상 의자 · 소파 · 러그 */
+  mn1: { x: 0.775, y: 0.322 },
+  mn2: { x: 0.886, y: 0.372 },
+  mn3: { x: 0.800, y: 0.400 },
+  rS:  { x: 0.795, y: 0.425 },
+
+  /* 보험패스실 — 상담 책상 의자 · 앞쪽 바닥 두 곳 */
+  ps1: { x: 0.210, y: 0.632 },
+  ps2: { x: 0.290, y: 0.805 },
+  ps3: { x: 0.100, y: 0.800 },
+  rP:  { x: 0.200, y: 0.805 },
+
+  /* 인사이트·비주얼실 — 작업대 의자 · 러그 · 왼쪽 바닥 */
+  vs1: { x: 0.475, y: 0.702 },
+  vs2: { x: 0.525, y: 0.795 },
+  vs3: { x: 0.410, y: 0.800 },
+  rV:  { x: 0.500, y: 0.805 },
+
+  /* 휴식 라운지 — 소파 · 스툴 · 러그 두 곳 */
+  lo1: { x: 0.885, y: 0.712 },
+  lo2: { x: 0.720, y: 0.642 },
+  lo3: { x: 0.795, y: 0.828 },
+  lo4: { x: 0.900, y: 0.820 },
+  rL:  { x: 0.725, y: 0.805 },
+
+  /* 방 사이 문 (통로) */
+  d_mh: { x: 0.352, y: 0.420 },
+  d_hm: { x: 0.658, y: 0.420 },
+  d_mp: { x: 0.195, y: 0.465 },
+  d_hv: { x: 0.500, y: 0.465 },
+  d_ml: { x: 0.815, y: 0.465 },
+  d_pv: { x: 0.352, y: 0.748 },
+  d_vl: { x: 0.657, y: 0.752 }
+};
+/* 무대에 그리는 문 표시 (배경의 아치문 3개 + 새로 낸 옆문 4개) */
+const DOORS = [
+  { id: "d_mh", x: 0.352, y: 0.428, kind: "side" },
+  { id: "d_hm", x: 0.658, y: 0.428, kind: "side" },
+  { id: "d_mp", x: 0.195, y: 0.470, kind: "arch" },
+  { id: "d_hv", x: 0.500, y: 0.470, kind: "arch" },
+  { id: "d_ml", x: 0.815, y: 0.470, kind: "arch" },
+  { id: "d_pv", x: 0.352, y: 0.756, kind: "side" },
+  { id: "d_vl", x: 0.657, y: 0.760, kind: "side" }
+];
+/* 좌석별 기본 자세 — 책상 의자는 작업, 소파는 휴식, 러그는 독서/생각 */
+const SEAT_POSE = {
+  mt1: "sit", mt2: "sit", mt3: "sit", mt4: "sit", mt5: "sit", mt6: "sit", mtS: "think",
+  hq1: "sit", hq2: "wave",
+  mn1: "sit", mn2: "rest", mn3: "read",
+  ps1: "sit", ps2: "think", ps3: "read",
+  vs1: "sit", vs2: "think", vs3: "read",
+  lo1: "rest", lo2: "read", lo3: "rest", lo4: "read"
+};
+/* 노드 → 방 */
+const NODE_ROOM = {};
+STAGE_ROOMS.forEach(r => r.seats.forEach(id => { NODE_ROOM[id] = r.key; }));
+
+function stageRoom(key) {
+  for (let i = 0; i < STAGE_ROOMS.length; i++) if (STAGE_ROOMS[i].key === key) return STAGE_ROOMS[i];
+  return null;
+}
+function roomOfNode(id) { return NODE_ROOM[id] || null; }
+function roomSeats(key) {
+  const r = stageRoom(key);
+  return r ? r.seats.slice() : [];
+}
+function freeSeatsIn(key, exceptKey) {
+  return roomSeats(key).filter(id => CHAR_KEYS.every(k => {
+    if (k === exceptKey) return true;
+    const o = chars[k];
+    return !o || o.node !== id;
+  }));
+}
+function charsInRoom(key) {
+  return CHAR_KEYS.filter(k => {
+    const c = chars[k];
+    return c && roomOfNode(c.node) === key;
+  });
+}
+
+const EDGES = [
+  /* 방 좌석 ↔ 방 통로 */
+  ["mt1", "rM"], ["mt2", "rM"], ["mt3", "rM"], ["mt4", "rM"], ["mt5", "rM"], ["mt6", "rM"], ["mtS", "rM"],
+  ["hq1", "rH"], ["hq2", "rH"],
+  ["mn1", "rS"], ["mn2", "rS"], ["mn3", "rS"],
+  ["ps1", "rP"], ["ps2", "rP"], ["ps3", "rP"],
+  ["vs1", "rV"], ["vs2", "rV"], ["vs3", "rV"],
+  ["lo1", "rL"], ["lo2", "rL"], ["lo3", "rL"], ["lo4", "rL"],
+  /* 문으로 이어진 두 방 */
+  ["rM", "d_mh"], ["rH", "d_mh"], ["rH", "d_hm"], ["rS", "d_hm"],
+  ["rM", "d_mp"], ["rP", "d_mp"], ["rH", "d_hv"], ["rV", "d_hv"], ["rS", "d_ml"], ["rL", "d_ml"],
+  ["rP", "d_pv"], ["rV", "d_pv"], ["rV", "d_vl"], ["rL", "d_vl"]
+];
 
 /* ---------------- 저장 ---------------- */
 const KEY = "coa_world_v2_state";
@@ -1561,6 +1819,7 @@ function applyZoom(animate) {
   zoomOutBtn.disabled = zoom <= ZOOM_MIN + 0.001;
   placeBubble();
   placeAllChatter();
+  placeRoomBadges();
 }
 
 function zoomBy(factor) {
@@ -1650,13 +1909,14 @@ document.addEventListener("webkitfullscreenchange", () => setFullUI(!!fsElement(
 function measure() {
   const r = stage.getBoundingClientRect();
   W = r.width; H = r.height;
-  CH_W = Math.max(36, Math.min(64, W * 0.118));
+  CH_W = Math.max(27, Math.min(44, W * 0.085));
   CH_H = CH_W * 1.25;
   stage.style.setProperty("--ch-w", CH_W + "px");
   stage.style.setProperty("--ch-h", CH_H + "px");
   Object.keys(chars).forEach(k => place(chars[k]));
   applyZoom(false);
   if (!bubbleEl.hidden) placeBubble();
+  placeRoomBadges();
 }
 
 function buildChars() {
@@ -1792,9 +2052,7 @@ function setPose(c, pose) {
   refreshPoseUI(c.key);
 }
 
-/* ---------------- 포즈 연출 (구역 · 업무 · 수다 · 탭 반응) ---------------- */
-const WORK_NODES = ["s_coa", "s_mong", "s_pass", "s_ins"];
-const MEET_SEATS = ["m1", "m2", "m3", "m4", "m5", "m6"];
+/* ---------------- 포즈 연출 (방 · 좌석 · 업무 · 수다 · 탭 반응) ---------------- */
 const CHAT_POSE = { coa: "think", mongsil: "happy", bohumpass: "think", insight: "think", rani: "happy", visual: "happy", sotong: "wave" };
 /* 처음 몇 초는 각자 책상에서 일하는 모습으로 두고, 그 뒤부터 표정이 바뀝니다 */
 const bootPoseAt = performance.now() + 6500;
@@ -1807,11 +2065,9 @@ function chatterPoseFor(key, text) {
   if (/다녀|돌아|모여|불러|안녕/.test(t)) return "wave";
   return CHAT_POSE[key] || "think";
 }
+/* 노드가 속한 방 키 (문 위면 "aisle") */
 function zoneOf(nodeId) {
-  if (WORK_NODES.indexOf(nodeId) >= 0) return "desk";
-  if (LOUNGE_NODES.indexOf(nodeId) >= 0) return "lounge";
-  if (MEET_NODES.indexOf(nodeId) >= 0) return "meet";
-  return "aisle";
+  return roomOfNode(nodeId) || "aisle";
 }
 /* 진행중인 업무가 있으면 책상에서는 노트북 작업(sit) */
 function hasOpenWork(key) {
@@ -1819,23 +2075,22 @@ function hasOpenWork(key) {
   if (list.some(t => !t.done)) return true;
   return (state.remote || []).some(t => t.part === key && t.status === "진행중");
 }
-/* 구역별 기본 포즈 — 책상:작업, 라운지:독서/휴식 번갈아, 회의실:생각/인사/신남, 통로:서기/인사 */
-function poseForZone(c, zone) {
-  zone = zone || zoneOf(c.node);
-  if (zone === "desk") return hasOpenWork(c.key) ? "sit" : pickOne(["sit", "think"]);
-  if (zone === "lounge") {
-    c.poseAlt = !c.poseAlt;
-    return c.poseAlt ? "rest" : "read";
-  }
-  if (zone === "meet") {
-    if (rally && rally.type === "meeting" && MEET_SEATS.indexOf(c.node) >= 0) return "sit";
-    return pickOne(["think", "wave", "happy"]);
-  }
-  return pickOne(["stand", "wave", "think", "happy"]);
+/* 좌석별 기본 자세 — 책상 의자:작업, 소파:휴식, 러그:독서/생각 */
+function seatPose(c) {
+  const p = SEAT_POSE[c.node];
+  if (p) return p;
+  const r = stageRoom(roomOfNode(c.node));
+  if (!r) return pickOne(["stand", "think"]);
+  if (r.kind === "lounge") { c.poseAlt = !c.poseAlt; return c.poseAlt ? "rest" : "read"; }
+  if (r.kind === "meet") return pickOne(["think", "wave", "happy"]);
+  return pickOne(["think", "read", "stand"]);
 }
-/* 짧은 반응 포즈(탭·수다) — 끝나면 다시 제 구역 포즈로 돌아갑니다 */
+function poseForZone(c, zone) {
+  return seatPose(c);
+}
+/* 짧은 반응 포즈(탭·수다) — 끝나면 다시 제자리 포즈로 돌아갑니다 */
 function chairSeated(c) {
-  return !!(rally && rally.type === "meeting" && MEET_SEATS.indexOf(c.node) >= 0);
+  return !!(rally && c.rallySeat && SEAT_POSE[c.node] === "sit");
 }
 function reactPose(c, pose, ms, force) {
   if (!c) return;
@@ -1848,7 +2103,7 @@ function reactPose(c, pose, ms, force) {
 function settlePose(c) {
   if (!c || c.state === "walk") return;
   c.reactPose = null;
-  setPose(c, c.manualPose || poseForZone(c, zoneOf(c.node)));
+  setPose(c, c.manualPose || seatPose(c));
 }
 
 function goToNode(c, nodeId, opts) {
@@ -1866,19 +2121,29 @@ function goToNode(c, nodeId, opts) {
   if (opts.noWait) c.rush = true;
 }
 
-/* 자리에서 일어나 회의실·라운지·다른 책상 쪽으로 거닐기 */
+/* 자리에서 일어나 다른 방 — 종합 회의실 · 휴식 라운지 · 다른 파트 방 — 으로 거닐기 */
 function startOuting(c) {
-  const list = (ROUTES[c.key] || []).filter(id => {
-    if (id === c.node) return false;
-    return CHAR_KEYS.every(k => {
-      if (k === c.key) return true;
-      const o = chars[k];
-      if (!o) return true;
-      return Math.hypot(NODES[id].x - o.x, NODES[id].y - o.y) > 0.06;
-    });
+  const cur = roomOfNode(c.node);
+  const home = HOME_ROOM[c.key];
+  const pool = [];
+  STAGE_ROOMS.forEach(r => {
+    if (r.key === cur) return;
+    const seats = freeSeatsIn(r.key, c.key);
+    if (!seats.length) return;
+    const w = r.key === home ? 3.1 : r.key === "meeting" ? 1.5 : r.key === "lounge" ? 1.8 : 0.7;
+    pool.push({ key: r.key, seats, w });
   });
-  if (!list.length) { c.nextAt = performance.now() + 6000; return; }
-  goToNode(c, list[Math.floor(Math.random() * list.length)]);
+  if (!pool.length) { c.nextAt = performance.now() + 7000; return; }
+  let total = 0;
+  pool.forEach(x => { total += x.w; });
+  let pick = Math.random() * total;
+  let chosen = pool[pool.length - 1];
+  for (let i = 0; i < pool.length; i++) {
+    pick -= pool[i].w;
+    if (pick <= 0) { chosen = pool[i]; break; }
+  }
+  const seat = chosen.seats[Math.floor(Math.random() * chosen.seats.length)];
+  goToNode(c, seat);
 }
 function goHome(c) {
   goToNode(c, HOME[c.key]);
@@ -1892,11 +2157,14 @@ function arrive(c) {
   if (!reacting) c.reactPose = null;
   setPose(c, pose);
   const seated = pose === "sit";
-  c.state = (zone === "desk" || seated) ? "work" : "rest";
+  const room = stageRoom(zone);
+  c.state = (seated || (room && room.kind === "work")) ? "work" : "rest";
   c.status = seated ? "focus" : "rest";
   c.el.dataset.status = c.status;
-  c.nextAt = performance.now() + (c.state === "work" ? 22000 + Math.random() * 20000 : 5000 + Math.random() * 6000);
+  c.nextAt = performance.now() + (c.state === "work" ? 22000 + Math.random() * 20000 : 12000 + Math.random() * 10000);
   refreshDetailStatus();
+  updateRoomBadges();
+  if (enteredRoom) renderRoomPanel();
 }
 
 /* ---------------- 루프 ---------------- */
@@ -1931,7 +2199,7 @@ function tick(now) {
         }
         place(c);
       } else if ((c.state === "work" || c.state === "rest") && now > c.nextAt && (!rally || !c.rallySeat)) {
-        if (c.node === HOME[key]) startOuting(c);
+        if (roomOfNode(c.node) === HOME_ROOM[key] || Math.random() > 0.4) startOuting(c);
         else goHome(c);
       }
       if (c.reactPose && now > c.reactUntil && c.state !== "walk") settlePose(c);
@@ -1986,11 +2254,13 @@ function showBubble(key) {
 
 function placeBubble() {
   if (bubbleEl.hidden || !W) return;
-  const key = selectedKey;
+  const key = bubbleEl.dataset.key || selectedKey;
   let wx, wy;
-  if (key === "meeting") { wx = 0.215 * W; wy = 0.432 * H; }
-  else if (key === "lounge") { wx = 0.800 * W; wy = 0.640 * H; }
-  else {
+  const roomB = stageRoom(key);
+  if (roomB) {
+    const a = roomAnchor(roomB);
+    wx = a.x * W; wy = a.y * H;
+  } else {
     const c = chars[key];
     if (!c) return;
     wx = c.x * W;
@@ -2002,7 +2272,9 @@ function placeBubble() {
   let left = ax - bw / 2;
   let top = ay - bh - 10;
   let side = "above";
-  if (top < 4) { top = ay + 12; side = "below"; }
+  const topLimit = stage.classList.contains("room-focus") ? 46 : 4;
+  if (top < topLimit) { top = ay + 12; side = "below"; }
+  if (top < topLimit) top = topLimit;
   left = Math.min(Math.max(left, 4), Math.max(4, W - bw - 4));
   top = Math.min(Math.max(top, 4), Math.max(4, H - bh - 4));
   bubbleEl.style.left = left + "px";
@@ -2175,9 +2447,13 @@ function dropChat(item) {
   item.el.style.opacity = "0";
   setTimeout(() => item.el.remove(), 320);
 }
+/* 말풍선만 지우기 — 수다 루프(chatTimer)는 살려 둡니다 */
+function clearChatBubbles() {
+  chatLive.slice().forEach(dropChat);
+}
 function clearChatter() {
   clearTimeout(chatTimer);
-  chatLive.slice().forEach(dropChat);
+  clearChatBubbles();
 }
 function spawnChatter(force) {
   if (!state.chatter || !W) return false;
@@ -2193,6 +2469,7 @@ function spawnChatter(force) {
     if (chatLive.some(x => x.key === key)) continue;         // 한 사람이 두 번 말하진 않게
     const c = chars[key];
     if (!c) continue;
+    if (enteredRoom && roomOfNode(c.node) !== enteredRoom) continue;   // 방에 들어가 있으면 그 방 사람만
     const p = chatHeadScreen(c);
     if (p.x < -40 || p.x > W + 40 || p.y < -20 || p.y > H + 20) continue;   // 확대해서 화면 밖이면 건너뜀
 
@@ -2208,16 +2485,28 @@ function spawnChatter(force) {
     const item = { key, el, rect: { left: 0, top: 0, right: 0, bottom: 0 }, t1: null, t2: null, text: line, variant: 0 };
     chatLive.push(item);
 
-    /* 이미 떠 있는 말풍선·업무 카드 말풍선과 겹치지 않는 자리를 찾음 */
+    /* 이미 떠 있는 말풍선·업무 카드 말풍선과 겹치지 않는 자리를 찾고,
+       방 이름표는 가능하면 피합니다(자리가 없으면 이름표와 겹쳐도 띄웁니다). */
     const others = liveRects(el);
-    const br = bubbleEl.hidden ? null : bubbleEl.getBoundingClientRect();
     const sr = stage.getBoundingClientRect();
-    if (br) others.push({ left: br.left - sr.left, top: br.top - sr.top, right: br.right - sr.left, bottom: br.bottom - sr.top });
+    if (!bubbleEl.hidden) {
+      const br = bubbleEl.getBoundingClientRect();
+      others.push({ left: br.left - sr.left, top: br.top - sr.top, right: br.right - sr.left, bottom: br.bottom - sr.top });
+    }
+    const soft = others.slice();
+    document.querySelectorAll(".rb").forEach(rb => {
+      const q = rb.getBoundingClientRect();
+      if (!q.width) return;
+      soft.push({ left: q.left - sr.left, top: q.top - sr.top, right: q.right - sr.left, bottom: q.bottom - sr.top });
+    });
     let placed = false;
-    for (let v = 0; v < CHAT_VARIANTS.length; v++) {
-      const rect = placeChatItem(item, v);
-      if (!rect) break;
-      if (!others.some(r => rectHit(rect, r, 3))) { placed = true; break; }
+    for (let pass = 0; pass < 2 && !placed; pass++) {
+      const avoid = pass === 0 ? soft : others;
+      for (let v = 0; v < CHAT_VARIANTS.length; v++) {
+        const rect = placeChatItem(item, v);
+        if (!rect) break;
+        if (!avoid.some(r => rectHit(rect, r, 3))) { placed = true; break; }
+      }
     }
     if (!placed) {
       const idx = chatLive.indexOf(item);
@@ -2277,12 +2566,19 @@ function select(key, doJump) {
   state.selected = key;
   saveState();
 
-  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.key === key));
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active",
+    c.dataset.key === key || (!!enteredRoom && c.dataset.roomkey === enteredRoom)));
   document.querySelectorAll(".ch").forEach(el => el.classList.toggle("selected", el.dataset.key === key));
   ensureChipVisible(chipsEl.querySelector('.chip[data-key="' + key + '"]'));
 
   renderDetail(key);
   showBubble(key);
+  /* 방에 들어가 있는 상태에서 캐릭터를 고르면 그 캐릭터 카드가 앞으로 나옵니다 */
+  if (enteredRoom && !stageRoom(key)) {
+    roomPanelEl.classList.remove("on");
+    detailEl.classList.remove("rp-hide");
+    renderDetail(key);
+  }
   if (doJump && chars[key]) {
     celebrate(chars[key]);
     reactPose(chars[key], pickOne(["wave", "happy"]), 2800, true);
@@ -2319,16 +2615,18 @@ function renderDetail(key) {
   const tasks = state.parts[key] || [];
   const done = tasks.filter(t => t.done).length;
   const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
-  const isRoom = key === "meeting" || key === "lounge";
+  const isRoom = !!stageRoom(key);
 
-  let html = '<div class="dc-head">' +
+  let html = (enteredRoom
+    ? '<button type="button" class="detail-back" data-backroom="1">← ' + stageRoom(enteredRoom).label + '으로 돌아가기</button>'
+    : "") + '<div class="dc-head">' +
     '<div class="dc-avatar" style="background:' + p.tint + '">' + avatarHtml(key) + '</div>' +
     '<div class="dc-id">' +
       '<div class="dc-name">' + p.name + '<span class="dc-role">' + p.role + '</span></div>' +
       '<div class="dc-state"><i style="background:' + p.color + '"></i><span id="dcState">' + statusText(key) + '</span></div>' +
     '</div>' +
     (isRoom
-      ? '<button class="dc-call" data-rally="' + key + '">' + (key === "meeting" ? "회의 소집" : "쉬러 가기") + '</button>'
+      ? '<button class="dc-call" data-rally="' + key + '">' + (key === "lounge" ? "쉬러 가기" : "회의 소집") + '</button>'
       : '<button class="dc-call" data-call="' + key + '">불러오기</button>') +
   '</div>' +
   '<p class="dc-live">' + p.summary + '</p>' +
@@ -2436,16 +2734,28 @@ function autoPose(key) {
 }
 
 function statusText(key) {
-  if (key === "meeting") return rally && rally.type === "meeting" ? "회의 중 · 7인방 모였어요" : "회의 준비";
-  if (key === "lounge") return rally && rally.type === "lounge" ? "커피 타임 중" : "충전 중";
+  if (stageRoom(key)) {
+    const n = charsInRoom(key).length;
+    if (rally && rally.type === key) {
+      return (key === "lounge" ? "커피 타임 중 · " : "회의 중 · ") + n + "명 모였어요";
+    }
+    return n ? n + "명이 이 방에 있어요" : "아직 비어 있어요";
+  }
   const c = chars[key];
   if (!c) return PARTS[key].status;
-  if (c.state === "walk") return "이동 중";
+  if (c.state === "walk") {
+    const to = stageRoom(roomOfNode(c.node));
+    return "이동 중" + (to ? " · " + to.short : "");
+  }
+  if (rally && rally.type === roomOfNode(c.node)) return rally.type === "lounge" ? "쉬는 중" : "회의 중";
   if (c.pose === "wave" || c.pose === "happy" || c.pose === "think" || c.pose === "read" || c.pose === "rest")
     return POSE_STATUS[c.pose] || PARTS[key].status;
   if (c.pose === "stand") return "잠깐 서 있는 중";
-  if (rally && rally.type === "meeting" && MEET_NODES.indexOf(c.node) >= 0) return "회의 중";
-  if (c.node !== HOME[key]) return "다른 자리에서 작업 중";
+  const cur = roomOfNode(c.node);
+  if (cur && cur !== HOME_ROOM[key]) {
+    const r = stageRoom(cur);
+    return r ? r.short + "에서 " + (c.pose === "sit" ? "작업 중" : "머무는 중") : PARTS[key].status;
+  }
   return PARTS[key].status;
 }
 
@@ -2466,6 +2776,7 @@ function avatarHtml(key) {
 }
 
 detailEl.addEventListener("click", e => {
+  if (e.target.closest("[data-backroom]")) { backToRoomPanel(); return; }
   const poseBtn = e.target.closest("[data-posepick]");
   if (poseBtn) { pickPoseManual(selectedKey, poseBtn.dataset.posepick); return; }
   const autoBtn = e.target.closest("[data-poseauto]");
@@ -2517,15 +2828,277 @@ function callChar(key) {
   showBubble(key);
 }
 
+/* ---------------- 여섯 방: 이름표 · 입장 · 방 패널 ---------------- */
+let enteredRoom = null;
+let callListOpen = false;
+const roomPanelEl = document.getElementById("roomPanel");
+const roomBadgesEl = document.getElementById("roomBadges");
+
+function roomAnchor(r) {
+  return { x: (r.rect.x0 + r.rect.x1) / 2, y: r.rect.y0 + 0.016 };
+}
+
+/* 방 클릭 영역 · 이름표 배지 · 문 표시를 무대에 깐다 */
+function buildStageRooms() {
+  const hits = document.getElementById("roomHits");
+  const doors = document.getElementById("doors");
+  STAGE_ROOMS.forEach(r => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "room-hit";
+    b.dataset.room = r.key;
+    b.setAttribute("aria-label", r.label + " 들어가기");
+    b.style.left = (r.rect.x0 * 100) + "%";
+    b.style.top = (r.rect.y0 * 100) + "%";
+    b.style.width = ((r.rect.x1 - r.rect.x0) * 100) + "%";
+    b.style.height = ((r.rect.y1 - r.rect.y0) * 100) + "%";
+    b.addEventListener("click", e => {
+      e.stopPropagation();
+      if (stage.dataset.panGuard) return;
+      enterRoom(r.key);
+    });
+    hits.appendChild(b);
+
+    const rb = document.createElement("button");
+    rb.type = "button";
+    rb.className = "rb";
+    rb.dataset.roombadge = r.key;
+    rb.style.setProperty("--rc", r.color);
+    rb.title = r.label + ' 들어가기';
+    rb.setAttribute("aria-label", r.label + " 들어가기");
+    rb.innerHTML = '<span class="rb-e">' + r.emoji + '</span><span class="rb-n">' + r.short + '</span><em class="zero">0명</em>';
+    rb.addEventListener("click", e => { e.stopPropagation(); enterRoom(r.key); });
+    roomBadgesEl.appendChild(rb);
+  });
+  DOORS.forEach(d => {
+    const el = document.createElement("div");
+    el.className = "door " + d.kind;
+    el.dataset.door = d.id;
+    el.style.left = (d.x * 100) + "%";
+    el.style.top = (d.y * 100) + "%";
+    doors.appendChild(el);
+  });
+  updateRoomBadges();
+}
+
+function placeRoomBadges() {
+  if (!W) return;
+  document.querySelectorAll(".rb").forEach(el => {
+    const r = stageRoom(el.dataset.roombadge);
+    if (!r) return;
+    const a = roomAnchor(r);
+    const sp = worldToScreen(a.x * W, a.y * H);
+    el.style.left = sp.x + "px";
+    el.style.top = sp.y + "px";
+  });
+}
+
+function updateRoomBadges() {
+  document.querySelectorAll(".rb").forEach(el => {
+    const r = stageRoom(el.dataset.roombadge);
+    if (!r) return;
+    const n = charsInRoom(r.key).length;
+    const em = el.querySelector("em");
+    if (em) {
+      em.textContent = n + "명";
+      em.classList.toggle("zero", n === 0);
+    }
+  });
+}
+
+/* 방으로 입장 — 무대가 그 방으로 확대되고 아래 카드가 방 패널로 바뀐다 */
+function zoomToRoom(r) {
+  const cx = (r.rect.x0 + r.rect.x1) / 2;
+  const cy = (r.rect.y0 + r.rect.y1) / 2;
+  const wSpan = r.rect.x1 - r.rect.x0;
+  const hSpan = r.rect.y1 - r.rect.y0;
+  const fit = Math.min(0.94 / wSpan, 0.78 / hSpan);
+  zoom = Math.max(1.85, Math.min(ZOOM_MAX, fit));
+  panX = -(cx - 0.5) * W * zoom;
+  panY = -(cy - 0.5) * H * zoom;
+  applyZoom(true);
+}
+
+function enterRoom(key, opts) {
+  opts = opts || {};
+  const r = stageRoom(key);
+  if (!r || !W) return;
+  enteredRoom = key;
+  callListOpen = false;
+  stage.classList.add("room-focus");
+  zoomToRoom(r);
+  renderRoomBar();
+  renderRoomPanel();
+  roomPanelEl.classList.add("on");
+  detailEl.classList.add("rp-hide");
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.roomkey === key));
+  hideBubble();
+  clearChatBubbles();
+  updateRoomBadges();
+  if (opts.rally) {
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(hideBubble, 9000);
+  }
+}
+
+function exitRoom() {
+  enteredRoom = null;
+  callListOpen = false;
+  stage.classList.remove("room-focus");
+  zoom = ZOOM_MIN; panX = 0; panY = 0;
+  applyZoom(true);
+  roomPanelEl.classList.remove("on");
+  detailEl.classList.remove("rp-hide");
+  hideBubble();
+  renderDetail(selectedKey);
+  document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.key === selectedKey));
+  clearChatBubbles();
+  updateRoomBadges();
+}
+
+function renderRoomBar() {
+  const el = document.getElementById("roomChips");
+  if (!el) return;
+  el.innerHTML = STAGE_ROOMS.map(r =>
+    '<button type="button" class="rb-chip' + (r.key === enteredRoom ? " on" : "") + '" data-roomchip="' +
+    r.key + '">' + r.emoji + " " + r.short + '</button>'
+  ).join("");
+}
+
+function roomChatDef(r) {
+  return ROOMS.find(x => x.key === r.chat) || ROOMS[0];
+}
+
+function renderRoomPanel() {
+  if (!enteredRoom) return;
+  const r = stageRoom(enteredRoom);
+  if (!r) return;
+  const here = charsInRoom(enteredRoom);
+  const others = CHAR_KEYS.filter(k => here.indexOf(k) < 0);
+  let html = '<div class="rp-head"><span class="rp-emoji">' + r.emoji + '</span>' +
+    '<span class="rp-title">' + r.label + '<em>' + here.length + '명</em></span>' +
+    '<button type="button" class="rp-exit" data-exitroom="1">← 전체 오피스</button></div>' +
+    '<p class="rp-desc">' + r.desc + '</p>';
+  if (!here.length) {
+    html += '<p class="rp-empty">지금은 아무도 없어요. 아래에서 한 사람을 불러 보세요.</p>';
+  }
+  here.forEach(k => {
+    const p = PARTS[k];
+    const c = chars[k];
+    const poses = POSES.map(ps =>
+      '<button type="button" class="rp-pose' + (c.pose === ps ? " on" : "") + '" data-rppose="' + k +
+      '" data-pose="' + ps + '" aria-label="' + p.name + " " + POSE_LABEL[ps] + '" title="' + POSE_LABEL[ps] + '">' +
+      POSE_EMOJI[ps] + '</button>'
+    ).join("");
+    html += '<div class="rp-row' + (k === selectedKey ? " on" : "") + '" data-rprow="' + k + '">' +
+      '<div class="rp-top">' +
+        '<div class="rp-av" data-rpopen="' + k + '">' + avatarHtml(k) + '</div>' +
+        '<div class="rp-id" data-rpopen="' + k + '"><div class="rp-name">' + p.name +
+          '<span class="rp-role">' + p.role + '</span></div>' +
+          '<span class="rp-st">' + statusText(k) + '</span></div>' +
+        '<button type="button" class="rp-more" data-rpopen="' + k + '">자세히 ›</button>' +
+      '</div><div class="rp-poses">' + poses + '</div></div>';
+  });
+  const chat = roomChatDef(r);
+  html += '<div class="rp-actions">' +
+    '<button type="button" class="rp-act" data-callto="1">이 방으로 캐릭터 부르기</button>' +
+    '<button type="button" class="rp-act primary" data-openchat="' + r.key + '">' + chat.emoji + ' ' + chat.label + ' 대화</button>' +
+    '</div>';
+  if (callListOpen) {
+    html += '<div class="rp-callwrap"><span class="rp-callhd">누구를 이 방으로 부를까요?</span><div class="rp-calllist">' +
+      (others.length
+        ? others.map(k => '<button type="button" class="rp-callchip" data-callhere="' + k + '">' +
+            PARTS[k].emoji + ' ' + PARTS[k].name + '</button>').join("")
+        : '<span class="rp-empty" style="padding:0">일곱 명이 모두 이 방에 있어요.</span>') +
+      '</div></div>';
+  }
+  roomPanelEl.innerHTML = html;
+}
+
+/* 방 패널에서 캐릭터 카드로 — 카드 위에 '← 방으로' 가 붙는다 */
+function openCharFromRoom(k) {
+  select(k, false);
+  roomPanelEl.classList.remove("on");
+  detailEl.classList.remove("rp-hide");
+  renderDetail(k);
+  detailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function backToRoomPanel() {
+  if (!enteredRoom) return;
+  renderRoomPanel();
+  roomPanelEl.classList.add("on");
+  detailEl.classList.add("rp-hide");
+  roomPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* 이 방으로 캐릭터 부르기 */
+function callToRoom(roomKey, charKey) {
+  const c = chars[charKey];
+  const r = stageRoom(roomKey);
+  if (!c || !r) return;
+  const seats = freeSeatsIn(roomKey, charKey).filter(id => id !== c.node);
+  if (!seats.length) { toast("이 방에 빈자리가 없어요"); return; }
+  c.rallySeat = false;
+  c.manualPose = null;
+  goToNode(c, seats[0]);
+  c.nextAt = performance.now() + 65000;
+  celebrate(c);
+  renderRoomPanel();
+  updateRoomBadges();
+  toast(PARTS[charKey].name + " → " + r.label);
+}
+
+function openRoomChat(roomKey) {
+  const r = stageRoom(roomKey);
+  if (!r) return;
+  const chat = roomChatDef(r);
+  switchTab("meeting");
+  selectRoom(chat.key);
+  renderRoomChat();
+  renderThread({ stick: true });
+  toast(chat.label + " 대화로 왔어요");
+}
+
+if (roomPanelEl) {
+  roomPanelEl.addEventListener("click", e => {
+    if (e.target.closest("[data-exitroom]")) { exitRoom(); return; }
+    const pose = e.target.closest("[data-rppose]");
+    if (pose) { pickPoseManual(pose.dataset.rppose, pose.dataset.pose); renderRoomPanel(); return; }
+    const open = e.target.closest("[data-rpopen]");
+    if (open) { openCharFromRoom(open.dataset.rpopen); return; }
+    const here = e.target.closest("[data-callhere]");
+    if (here) {
+      callToRoom(enteredRoom, here.dataset.callhere);
+      callListOpen = false;
+      renderRoomPanel();
+      return;
+    }
+    if (e.target.closest("[data-callto]")) { callListOpen = !callListOpen; renderRoomPanel(); return; }
+    const chat = e.target.closest("[data-openchat]");
+    if (chat) { openRoomChat(chat.dataset.openchat); return; }
+  });
+}
+
+const roomBackBtn = document.getElementById("roomBack");
+if (roomBackBtn) roomBackBtn.addEventListener("click", e => { e.stopPropagation(); exitRoom(); });
+const roomChipsEl = document.getElementById("roomChips");
+if (roomChipsEl) {
+  roomChipsEl.addEventListener("click", e => {
+    const chip = e.target.closest("[data-roomchip]");
+    if (!chip) return;
+    e.stopPropagation();
+    enterRoom(chip.dataset.roomchip);
+  });
+}
+
 /* ---------------- 소집 ---------------- */
 function startRally(type) {
-  const plan = type === "meeting"
-    ? [["rani", "m1"], ["visual", "m3"], ["bohumpass", "m4"], ["mongsil", "m6"],
-       ["coa", "ms"], ["insight", "a15"], ["sotong", "a14"]]
-    : [["rani", "s_rani"], ["sotong", "s_soc"], ["coa", "l1"], ["mongsil", "a7"]];   // 라운지는 3~4명씩 번갈아 쉼
-  rally = { type, until: performance.now() + 32000 };
+  const plan = RALLY_PLAN[type] || RALLY_PLAN.meeting;
+  if (!RALLY_PLAN[type]) type = "meeting";
+  rally = { type, until: performance.now() + 34000 };
   CHAR_KEYS.forEach(k => { const c = chars[k]; if (c) c.rallySeat = false; });
-  select(type, false);
+  enterRoom(type, { rally: true });
   showBubble(type);
   clearTimeout(bubbleTimer);
   bubbleTimer = setTimeout(hideBubble, 9000);
@@ -2551,8 +3124,9 @@ function endRally() {
     if (!c) return;
     setTimeout(() => goToNode(c, HOME[key]), 500 + i * 180);
   });
-  if (prev && (selectedKey === "meeting" || selectedKey === "lounge")) {
+  if (prev && stageRoom(selectedKey)) {
     refreshDetailStatus();
+    if (enteredRoom) renderRoomPanel();
   }
 }
 
@@ -2577,19 +3151,26 @@ function ensureChipVisible(chip) {
   updateChipFade();
 }
 function buildChips() {
-  ORDER.forEach(key => {
+  CHAR_KEYS.forEach(key => {
     const p = PARTS[key];
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "chip" + (key === "meeting" || key === "lounge" ? " room" : "");
+    b.className = "chip";
     b.dataset.key = key;
     b.style.setProperty("--c", p.color);
-    b.innerHTML = '<span class="c-dot"></span>' + (key === "meeting" ? "회의실" : key === "lounge" ? "라운지" : p.name);
+    b.innerHTML = '<span class="c-dot"></span>' + p.name;
     if (key === selectedKey) b.classList.add("active");
-    b.addEventListener("click", () => {
-      if (key === "meeting" || key === "lounge") startRally(key);
-      else select(key, true);
-    });
+    b.addEventListener("click", () => select(key, true));
+    chipsEl.appendChild(b);
+  });
+  STAGE_ROOMS.forEach(r => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip room";
+    b.dataset.roomkey = r.key;
+    b.style.setProperty("--c", r.color);
+    b.innerHTML = '<span class="c-dot"></span>' + r.emoji + " " + r.short;
+    b.addEventListener("click", () => enterRoom(r.key));
     chipsEl.appendChild(b);
   });
 }
@@ -4254,8 +4835,10 @@ state.coupang = (state.coupang || []).map(normCoupang).filter(Boolean);
 state.memos = (state.memos || []).map(normMemo).filter(Boolean);
 state.postLogs = (state.postLogs || []).map(normPost).filter(Boolean);
 state.roomMessages = (state.roomMessages || []).map(normRoomMsg).filter(Boolean);
+buildStageRooms();
 buildChars();
 buildChips();
+updateRoomBadges();
 chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
 updateChipFade();
 requestAnimationFrame(() => ensureChipVisible(chipsEl.querySelector(".chip.active")));
@@ -4287,10 +4870,12 @@ if (hasSync()) {
 }
 startAutoSync();
 
-/* 칩 클릭 시 선택된 캐릭터가 화면 밖이면 살짝 불러오기 */
-document.querySelectorAll(".room-hit").forEach(el => {
-  el.addEventListener("click", e => { e.stopPropagation(); select(el.dataset.room, false); });
-});
+/* 방 안 인원 표시는 주기적으로 맞춰 둡니다 */
+setInterval(() => {
+  if (!officeVisible() || document.hidden) return;
+  if (!stage.classList.contains("room-focus")) updateRoomBadges();
+  if (enteredRoom) renderRoomPanel();
+}, 2600);
 
 /* 무대 빈 곳을 누르면 말풍선 닫기 */
 stage.addEventListener("click", e => {
