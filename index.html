@@ -208,6 +208,100 @@
   .rt-sum b { font-size: 18px; font-weight: 800; display: block; }
   .rt-sum span { font-size: 10.5px; color: var(--muted); }
 
+  /* ---------- 회의실 채팅 (카톡방 · 스레드 스타일) ---------- */
+  .chat-card { padding: 12px 12px 12px; }
+  .room-tabs { display: flex; gap: 4px; background: #f4f7fb; border-radius: 13px; padding: 4px; }
+  .room-tab {
+    flex: 1; min-width: 0; border: 0; background: transparent; color: #6d7583;
+    font-size: 12px; font-weight: 800; letter-spacing: -0.2px; padding: 8px 4px; border-radius: 10px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative;
+    transition: background 0.16s, color 0.16s, box-shadow 0.16s, transform 0.12s;
+  }
+  .room-tab.active { background: #fff; color: var(--navy); box-shadow: 0 2px 8px rgba(31, 42, 58, 0.12); }
+  .room-tab:active { transform: scale(0.97); }
+  .room-pend {
+    display: inline-flex; align-items: center; justify-content: center; margin-left: 3px;
+    min-width: 14px; height: 14px; padding: 0 4px; border-radius: 999px; background: var(--peach);
+    color: #fff; font-size: 9px; font-weight: 800; font-style: normal; vertical-align: 1px;
+  }
+  .room-head {
+    display: flex; align-items: center; gap: 6px; padding: 10px 3px 8px;
+    font-size: 11px; color: #8b93a3; border-bottom: 1px solid #eef2f7;
+  }
+  .room-head b { color: #465061; font-weight: 800; }
+  .room-refresh {
+    margin-left: auto; flex: 0 0 auto; width: 26px; height: 26px; border-radius: 9px;
+    border: 1px solid var(--line); background: #fff; color: #7c8496; font-size: 12px; line-height: 1;
+  }
+  .room-refresh:active { transform: scale(0.94); background: var(--mint-soft); color: var(--mint-deep); }
+
+  .thread {
+    height: min(400px, 54vh); min-height: 230px; overflow-y: auto; overscroll-behavior: contain;
+    padding: 12px 2px 6px; display: flex; flex-direction: column; gap: 13px;
+  }
+  .thread > .msg:first-child { margin-top: auto; }   /* 대화가 짧으면 아래부터 차곡차곡 */
+  .thread-empty { margin: auto 8px; text-align: center; font-size: 11.5px; line-height: 1.7; color: #a6aebc; }
+  .msg { display: flex; gap: 7px; align-items: flex-start; }
+  .msg.me { flex-direction: row-reverse; }
+  .msg-av {
+    flex: 0 0 auto; width: 32px; height: 32px; border-radius: 12px; overflow: hidden;
+    background: #f4f7fb; border: 1px solid #eef2f7; display: flex; align-items: flex-end; justify-content: center;
+  }
+  .msg-av img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; display: block; }
+  .msg-av.me { align-items: center; background: #fdeee6; border-color: #f6dccd; color: #b06a3f; font-size: 12px; font-weight: 800; }
+  .msg-body { display: flex; flex-direction: column; min-width: 0; max-width: 80%; }
+  .msg.me .msg-body { align-items: flex-end; }
+  .msg-meta { display: flex; align-items: center; gap: 5px; margin: 0 3px 4px; font-size: 9.5px; color: #aab2c0; }
+  .msg-who { font-size: 11.5px; font-weight: 800; color: #3a4557; letter-spacing: -0.2px; }
+  .msg-role {
+    font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 999px;
+    color: var(--c, #2b9579); background: var(--tint, #e6f7f1);
+  }
+  .msg-time { font-size: 9.5px; color: #aab2c0; }
+  .msg-status { font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 999px; }
+  .msg-status.wait { background: #fdf1e2; color: #ab6f24; }
+  .msg-status.done { background: var(--mint-soft); color: var(--mint-deep); }
+  .msg-status.err { background: #fdecea; color: #c0554f; }
+  .bubble {
+    background: #fff; border: 1px solid #e9eef5; border-radius: 4px 14px 14px 14px;
+    padding: 9px 11px; font-size: 12.5px; line-height: 1.6; color: #2a3342;
+    word-break: break-word; overflow-wrap: break-word; box-shadow: 0 2px 6px rgba(31, 42, 58, 0.04);
+  }
+  .msg.me .bubble { background: var(--navy); border-color: var(--navy); color: #fff; border-radius: 14px 4px 14px 14px; }
+  .quote {
+    display: flex; gap: 4px; align-items: baseline; font-size: 10.5px; line-height: 1.45;
+    color: #6f7989; background: #f6f8fb; border-left: 2px solid #cfd8e6; border-radius: 6px;
+    padding: 5px 7px; margin-bottom: 6px; overflow: hidden;
+  }
+  .quote b { font-weight: 800; white-space: nowrap; color: #4f5867; }
+  .quote span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg.me .quote { background: rgba(255, 255, 255, 0.12); border-left-color: rgba(255, 255, 255, 0.55); color: rgba(255, 255, 255, 0.88); }
+  .msg.me .quote b { color: #fff; }
+
+  .mention-row { display: flex; gap: 5px; overflow-x: auto; padding: 9px 0 7px; scrollbar-width: none; }
+  .mention-row::-webkit-scrollbar { display: none; }
+  .mention-chip {
+    flex: 0 0 auto; border: 1px solid #dfe7f1; background: #fff; color: #4d5a6d;
+    font-size: 11px; font-weight: 700; padding: 5px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .mention-chip:active { transform: scale(0.96); background: var(--mint-soft); border-color: #bfe8db; color: var(--mint-deep); }
+  .composer-box {
+    display: flex; gap: 6px; align-items: center; background: #f6f8fb;
+    border: 1px solid #e3eaf3; border-radius: 14px; padding: 5px 5px 5px 11px;
+  }
+  .composer-box:focus-within { border-color: var(--mint); background: #fff; box-shadow: 0 0 0 3px rgba(79, 191, 159, 0.12); }
+  .room-input {
+    flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink);
+    font-size: 12.5px; padding: 7px 0; outline: none;
+  }
+  .room-send {
+    flex: 0 0 auto; border: 0; background: var(--navy); color: #fff; font-size: 12px; font-weight: 800;
+    padding: 9px 14px; border-radius: 11px; transition: transform 0.12s, opacity 0.16s;
+  }
+  .room-send:active { transform: scale(0.96); }
+  .room-send[disabled] { opacity: 0.55; }
+  .room-hint { font-size: 10.5px; color: #a7afbd; line-height: 1.5; margin: 7px 1px 0; }
+
   /* 토스트 */
   #toast {
     position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 14px); z-index: 3000;
@@ -974,10 +1068,31 @@
 
   <!-- 2. 회의실 -->
   <div id="tab-meeting" class="section-view">
+    <div class="card chat-card">
+      <div id="roomTabs" class="room-tabs" role="tablist" aria-label="회의실 방 선택"></div>
+      <div class="room-head">
+        <span id="roomHeadText">🏛️ 대회의실 · 전략 회의 · ON 7명</span>
+        <button id="roomRefresh" class="room-refresh" type="button" title="시트에서 대화 새로고침" aria-label="대화 새로고침">⟳</button>
+      </div>
+      <div id="roomThread" class="thread" role="log" aria-live="polite" aria-label="회의실 대화"></div>
+      <div id="mentionRow" class="mention-row" aria-label="멘션 빠른 입력"></div>
+      <div class="composer-box">
+        <input id="roomInput" class="room-input" type="text" maxlength="2000" placeholder="대장님, 지시를 한 줄로..."
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" aria-label="회의실 메시지" />
+        <button id="roomSend" class="room-send" type="button">보내기</button>
+      </div>
+      <p id="roomHint" class="room-hint">한 줄로 지시하면 7인방이 방마다 따로 답해요. @로 이름을 부르면 그 친구가 먼저 달려옵니다.</p>
+    </div>
     <div class="card">
-      <span class="ws-pill">대회의실</span>
-      <h2 class="status-title">7개 파트 주간 전략 회의</h2>
+      <span class="ws-pill">7개 파트 주간 전략 회의</span>
+      <h2 class="status-title">오늘의 안건</h2>
       <p class="status-desc">각 파트가 같은 채널에서 겹치지 않게 동선을 나누고, 이번 주 콘텐츠 순서를 맞춥니다.</p>
+      <ul class="tasks" id="meetingAgenda"></ul>
+      <button class="btn-primary" style="width:100%;margin-top:14px;padding:12px;" data-rally="meeting">지금 회의 소집하기</button>
+    </div>
+    <div class="card">
+      <span class="ws-pill">파트 역할</span>
+      <h2 class="status-title">일곱 식구가 맡은 일</h2>
       <div style="margin-top:10px;">
         <div class="kv-row"><span class="kv-k">🐶 코아</span><span class="kv-v">일정·우선순위 총괄, 발행 순서 조율</span></div>
         <div class="kv-row"><span class="kv-k">🐰 몽실</span><span class="kv-v">일상 공감 글 → 제휴 링크 연결</span></div>
@@ -988,10 +1103,6 @@
         <div class="kv-row"><span class="kv-k">🐕 소통</span><span class="kv-v">첫 1시간 대댓글 · 전환 링크 관리</span></div>
       </div>
       <button class="btn-primary" style="width:100%;margin-top:14px;padding:12px;" data-rally="meeting">지금 회의 소집하기</button>
-    </div>
-    <div class="card">
-      <span class="ws-pill">오늘의 안건</span>
-      <ul class="tasks" id="meetingAgenda"></ul>
     </div>
   </div>
 
@@ -1359,6 +1470,7 @@ const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function loadState() {
   const base = {
     parts: {}, memos: [], postLogs: [],
+    room: "hall", roomMessages: [], roomAt: "",
     selected: "coa", motion: !reduced, chatter: true,
     remote: [], remoteAt: "",
     metrics: [], metricsAt: "",
@@ -1379,6 +1491,9 @@ function loadState() {
     }
     if (Array.isArray(saved.memos)) base.memos = saved.memos;
     if (Array.isArray(saved.postLogs)) base.postLogs = saved.postLogs;
+    if (Array.isArray(saved.roomMessages)) base.roomMessages = saved.roomMessages;
+    if (typeof saved.roomAt === "string") base.roomAt = saved.roomAt;
+    if (["hall", "hq", "lounge"].indexOf(saved.room) >= 0) base.room = saved.room;
     if (Array.isArray(saved.remote)) base.remote = saved.remote;
     if (typeof saved.remoteAt === "string") base.remoteAt = saved.remoteAt;
     if (Array.isArray(saved.metrics)) base.metrics = saved.metrics;
@@ -2522,6 +2637,7 @@ function switchTab(tab) {
   if (tab !== "office") hideBubble();
   if (tab === "workshop") renderWorkshop();
   if (tab === "status") updateStats();
+  if (tab === "meeting") { renderRoomChat(); renderThread({ stick: true }); }
 }
 document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
 
@@ -3166,6 +3282,288 @@ document.getElementById("memoList").addEventListener("click", e => {
 });
 
 /* =======================================================================
+   회의실 채팅 — 방(hall 대회의실 · hq 지휘실 · lounge 라운지)마다 대화 분리
+   사용자 한 줄 지시 → 시트 RoomMessages 에 status '대기' 로 저장
+   7인방 답글은 replyToId 인용 박스로 달리고, 원문은 '답변 완료' 로 바뀝니다.
+   ======================================================================= */
+const ROOMS = [
+  { key: "hall", label: "대회의실", emoji: "🏛️", accent: "#6aa8ef", desc: "전략 회의 · 자유 발언", talks: 7 },
+  { key: "hq", label: "지휘실", emoji: "💙", accent: "#4fbf9f", desc: "코아와 단둘이 · 지시와 보고", talks: 1 },
+  { key: "lounge", label: "라운지", emoji: "☕", accent: "#f0b45c", desc: "쉬어 가는 자리 · 잡담과 소재", talks: 7 }
+];
+const ROOM_HINT_SYNC = "시트에 쌓여요 — 폰·PC·코아가 같은 대화를 봅니다. 답글이 달리면 여기에 바로 보여요.";
+const ROOM_HINT_LOCAL = "지금은 이 브라우저에만 저장돼요. ⚙️ 연동하면 시트로 공유되고 7인방이 답해요.";
+
+function roomDef(key) {
+  return ROOMS.find(r => r.key === key) || ROOMS[0];
+}
+function roomStatusCls(s) {
+  if (s === "답변 완료") return "done";
+  if (s === "전송 실패") return "err";
+  return "wait";
+}
+function clockStamp() {
+  const d = new Date();
+  return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " +
+    pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+}
+function roomTime(s) {
+  const m = String(s || "").match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  if (!m) return String(s || "");
+  const h = Number(m[4]);
+  const ampm = h < 12 ? "오전" : "오후";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const now = new Date();
+  const today = now.getFullYear() + "-" + pad2(now.getMonth() + 1) + "-" + pad2(now.getDate());
+  const label = ampm + " " + h12 + ":" + m[5];
+  return (m[1] + "-" + m[2] + "-" + m[3]) === today ? label : Number(m[2]) + "/" + Number(m[3]) + " " + label;
+}
+function nl2br(s) { return escapeHtml(s).replace(/\n/g, "<br>"); }
+function scanMentions(text) {
+  const out = [];
+  const re = /@([가-힣A-Za-z0-9_]+)/g;
+  let m;
+  while ((m = re.exec(String(text || ""))) !== null) {
+    const tag = m[1].toLowerCase();
+    let key = tag === "all" || tag === "전체" ? "all" : "";
+    if (!key) {
+      const hit = CHAR_KEYS.find(k => k === tag || PARTS[k].name === m[1]);
+      key = hit || "";
+    }
+    if (key && out.indexOf(key) < 0) out.push(key);
+  }
+  return out;
+}
+
+function normRoomMsg(m) {
+  if (!m) return null;
+  const text = String(m.text || "").trim();
+  if (!text) return null;
+  const senderId = String(m.senderId || "user");
+  let mentions = m.mentions;
+  if (typeof mentions === "string") mentions = mentions.split(",");
+  if (!Array.isArray(mentions)) mentions = [];
+  return {
+    id: String(m.id || ""),
+    local: !!m.local,
+    room: roomDef(String(m.room || "hall")).key,
+    sender: String(m.sender || (senderId === "user" ? "윤영록" : (PARTS[senderId] ? PARTS[senderId].name : senderId))),
+    senderId: senderId,
+    role: String(m.role || ""),
+    replyToId: String(m.replyToId || ""),
+    replyToText: String(m.replyToText || ""),
+    text: text.slice(0, 2000),
+    mentions: mentions.map(x => String(x).trim()).filter(Boolean),
+    status: String(m.status || "대기"),
+    createdAt: String(m.createdAt || "")
+  };
+}
+
+/** 시트에서 받은 목록을 기준으로 하되, 아직 못 보낸 이 기기 메시지는 남김 */
+function setRoomMessages(list) {
+  const server = (Array.isArray(list) ? list : []).map(normRoomMsg).filter(Boolean);
+  const locals = (state.roomMessages || []).filter(m => m.local && !server.some(s => s.id && s.id === m.id));
+  state.roomMessages = server.concat(locals);
+  state.roomAt = nowClock();
+  saveState();
+  renderRoomChat();
+}
+
+function roomList(key) {
+  const k = roomDef(key || state.room).key;
+  return (state.roomMessages || []).filter(m => m.room === k);
+}
+function roomPending(key) {
+  return roomList(key).filter(m => m.senderId === "user" && m.status === "대기").length;
+}
+
+function renderRoomTabs() {
+  const el = document.getElementById("roomTabs");
+  if (!el) return;
+  el.innerHTML = ROOMS.map(r => {
+    const on = state.room === r.key;
+    const pend = roomPending(r.key);
+    return '<button type="button" class="room-tab' + (on ? " active" : "") + '" data-room="' + r.key +
+      '" role="tab" aria-selected="' + (on ? "true" : "false") + '">' +
+      r.emoji + " " + r.label + (pend ? '<em class="room-pend">' + pend + '</em>' : '') + '</button>';
+  }).join("");
+}
+
+function renderRoomHead() {
+  const el = document.getElementById("roomHeadText");
+  if (!el) return;
+  const r = roomDef(state.room);
+  const pend = roomPending(r.key);
+  el.innerHTML = r.emoji + " <b>" + escapeHtml(r.label) + '</b> · ' + escapeHtml(r.desc) +
+    " · ON " + r.talks + "명" + (pend ? " · <b>대기 " + pend + "</b>" : "");
+}
+
+function renderMentionChips() {
+  const el = document.getElementById("mentionRow");
+  if (!el) return;
+  const chips = [{ key: "all", label: "@all" }].concat(CHAR_KEYS.map(k => ({ key: k, label: "@" + PARTS[k].name })));
+  el.innerHTML = chips.map(c =>
+    '<button type="button" class="mention-chip" data-mention="' + c.key + '">' + escapeHtml(c.label) + '</button>'
+  ).join("");
+}
+
+function roomMsgHtml(m) {
+  const me = m.senderId === "user";
+  const p = PARTS[m.senderId] || {};
+  const tint = me ? "#fdeee6" : (p.tint || "#f4f7fb");
+  const accent = me ? "#b06a3f" : (p.color || "#8b93ab");
+  const av = me
+    ? '<div class="msg-av me" aria-hidden="true">' + escapeHtml(String(m.sender || "나").slice(0, 1)) + '</div>'
+    : '<div class="msg-av" style="background:' + tint + '" aria-hidden="true"><img src="' + spriteSrc(m.senderId, "stand") +
+      '" alt="" loading="lazy" decoding="async" /></div>';
+  const quote = m.replyToText
+    ? '<div class="quote"><b>↳ ' + escapeHtml(roomQuoteOwner(m)) + '</b><span>' + escapeHtml(m.replyToText) + '</span></div>'
+    : "";
+  const role = (!me && m.role)
+    ? '<span class="msg-role" style="--c:' + accent + ';--tint:' + tint + '">' + escapeHtml(m.role) + '</span>' : "";
+  const badge = me
+    ? '<span class="msg-status ' + roomStatusCls(m.status) + '">' + escapeHtml(m.status || "대기") + '</span>' : "";
+  const when = m.createdAt ? '<span class="msg-time">' + escapeHtml(roomTime(m.createdAt)) + '</span>' : "";
+  return '<div class="msg' + (me ? " me" : "") + '" data-mid="' + escapeHtml(m.id) + '">' + av +
+    '<div class="msg-body"><div class="msg-meta"><b class="msg-who">' +
+      escapeHtml(me ? "나" : (m.sender || "코아")) + '</b>' + role + when + badge +
+    '</div><div class="bubble">' + quote + '<div class="msg-text">' + nl2br(m.text) + '</div></div></div></div>';
+}
+
+function roomQuoteOwner(m) {
+  const parent = (state.roomMessages || []).find(x => x.id && x.id === m.replyToId);
+  if (parent) return parent.senderId === "user" ? (parent.sender || "윤영록") : (parent.sender || "원문");
+  return "윤영록";
+}
+
+function renderThread(opts) {
+  const el = document.getElementById("roomThread");
+  if (!el) return;
+  const list = roomList();
+  if (!list.length) {
+    el.innerHTML = '<div class="thread-empty">' +
+      (hasSync()
+        ? "아직 이 방에 대화가 없어요.<br>아래에 한 줄 지시를 남기면 7인방이 답해요. 🐶"
+        : "이 기기에만 남는 대화예요.<br>⚙️ 연동을 하면 시트에 쌓이고 7인방이 답해요.") + '</div>';
+    return;
+  }
+  el.innerHTML = list.map(roomMsgHtml).join("");
+  if (opts && opts.stick) el.scrollTop = el.scrollHeight;
+}
+
+function renderRoomChat() {
+  renderRoomTabs();
+  renderRoomHead();
+  renderThread();
+  const hint = document.getElementById("roomHint");
+  if (hint) {
+    hint.textContent = hasSync() ? ROOM_HINT_SYNC : ROOM_HINT_LOCAL;
+    hint.className = "room-hint" + (hasSync() ? " on" : "");
+  }
+}
+
+function selectRoom(key) {
+  const r = roomDef(key);
+  if (state.room === r.key) return;
+  state.room = r.key;
+  saveState();
+  renderRoomTabs();
+  renderRoomHead();
+  renderThread({ stick: true });
+}
+
+function insertMention(key) {
+  const inp = document.getElementById("roomInput");
+  if (!inp) return;
+  const tag = key === "all" ? "@all" : "@" + (PARTS[key] ? PARTS[key].name : key);
+  const v = inp.value;
+  const start = inp.selectionStart == null ? v.length : inp.selectionStart;
+  const end = inp.selectionEnd == null ? v.length : inp.selectionEnd;
+  const before = v.slice(0, start);
+  const add = (before && !/\s$/.test(before) ? " " : "") + tag + " ";
+  inp.value = before + add + v.slice(end);
+  inp.focus();
+  const pos = (before + add).length;
+  try { inp.setSelectionRange(pos, pos); } catch (e) {}
+}
+
+let roomBusy = false;
+async function sendRoomMessage() {
+  const inp = document.getElementById("roomInput");
+  if (!inp || roomBusy) return;
+  const text = inp.value.trim();
+  if (!text) { inp.focus(); return; }
+  const room = roomDef(state.room).key;
+  const localId = "L" + Date.now();
+  const localMsg = {
+    id: localId, local: true, room: room, sender: "윤영록", senderId: "user", role: "지시",
+    replyToId: "", replyToText: "", text: text, mentions: scanMentions(text),
+    status: "대기", createdAt: clockStamp()
+  };
+
+  if (!hasSync()) {
+    state.roomMessages = (state.roomMessages || []).concat(localMsg);
+    inp.value = "";
+    saveState();
+    renderRoomChat();
+    renderThread({ stick: true });
+    toast("이 기기에만 적어 뒀어요 · ⚙️ 연동하면 시트로 공유돼요");
+    return;
+  }
+
+  roomBusy = true;
+  const btn = document.getElementById("roomSend");
+  if (btn) { btn.disabled = true; btn.textContent = "전송 중"; }
+  state.roomMessages = (state.roomMessages || []).concat(localMsg);
+  inp.value = "";
+  renderRoomChat();
+  renderThread({ stick: true });
+
+  try {
+    const data = await postRemote({
+      action: "addRoomMessage", room: room, senderId: "user", sender: "윤영록",
+      role: "지시", status: "대기", text: text
+    });
+    const got = normRoomMsg(data.message);
+    state.roomMessages = (state.roomMessages || []).filter(m => m.id !== localId);
+    if (got && !state.roomMessages.some(m => m.id === got.id)) state.roomMessages.push(got);
+    saveState();
+    setConn("ok");
+    renderRoomChat();
+    renderThread({ stick: true });
+    toast("시트로 지시했어요 · 답변이 달리면 여기에 보여요");
+  } catch (err) {
+    state.roomMessages = (state.roomMessages || []).map(m =>
+      m.id === localId ? Object.assign({}, m, { status: "전송 실패" }) : m);
+    saveState();
+    setConn("err", errorText(err));
+    renderRoomChat();
+    renderThread({ stick: true });
+    toast("전송 실패 · " + errorText(err));
+  } finally {
+    roomBusy = false;
+    if (btn) { btn.disabled = false; btn.textContent = "보내기"; }
+  }
+}
+
+document.getElementById("roomTabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-room]");
+  if (b) selectRoom(b.dataset.room);
+});
+document.getElementById("mentionRow").addEventListener("click", e => {
+  const b = e.target.closest("[data-mention]");
+  if (b) insertMention(b.dataset.mention);
+});
+document.getElementById("roomSend").addEventListener("click", sendRoomMessage);
+document.getElementById("roomInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); sendRoomMessage(); }
+});
+document.getElementById("roomRefresh").addEventListener("click", () => {
+  if (!hasSync()) { toast("⚙️ 연동하면 시트의 대화를 불러와요"); return; }
+  pullRemote({ toast: true });
+});
+
+/* =======================================================================
    구글 시트 연동 (Google Apps Script 웹 앱)
    - 설정(URL·PIN)은 localStorage(coa_world_v2_sync)에만 저장합니다.
    - 공개 HTML 에는 어떤 주소·PIN 도 하드코딩하지 않습니다.
@@ -3345,6 +3743,7 @@ function remoteBlock(key, isRoom) {
 function renderAllRemote() {
   renderDetail(selectedKey);
   renderRemoteSummary();
+  renderRoomChat();
 }
 
 function renderRemoteSummary() {
@@ -3414,6 +3813,7 @@ async function pullRemote(opts) {
     if (Array.isArray(data.benchmarks)) setBenchmarks(data.benchmarks);
     if (Array.isArray(data.coupang)) setCoupang(data.coupang);
     if (Array.isArray(data.memos)) setMemos(data.memos);
+    if (Array.isArray(data.roomMessages)) setRoomMessages(data.roomMessages);
     if (Array.isArray(data.postLogs)) {
       state.postLogs = data.postLogs.map(normPost).filter(Boolean);
       saveState();
@@ -3850,6 +4250,7 @@ state.benchmarks = (state.benchmarks || []).map(normBench).filter(Boolean);
 state.coupang = (state.coupang || []).map(normCoupang).filter(Boolean);
 state.memos = (state.memos || []).map(normMemo).filter(Boolean);
 state.postLogs = (state.postLogs || []).map(normPost).filter(Boolean);
+state.roomMessages = (state.roomMessages || []).map(normRoomMsg).filter(Boolean);
 buildChars();
 buildChips();
 chipsEl.addEventListener("scroll", updateChipFade, { passive: true });
@@ -3861,6 +4262,9 @@ renderDetail(selectedKey);
 renderWorkshop();
 updateStats();
 renderMemos();
+renderRoomChat();
+renderMentionChips();
+renderThread({ stick: true });
 renderRemoteSummary();
 renderGrowth();
 renderCalendar();
