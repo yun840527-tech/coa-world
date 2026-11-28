@@ -247,7 +247,10 @@
     flex: 0 0 auto; width: 32px; height: 32px; border-radius: 12px; overflow: hidden;
     background: #f4f7fb; border: 1px solid #eef2f7; display: flex; align-items: flex-end; justify-content: center;
   }
-  .msg-av img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; display: block; }
+  .msg-av img {
+    width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 4%;
+    transform: scale(1.45); transform-origin: 50% 8%;
+  }
   .msg-av.me { align-items: center; background: #fdeee6; border-color: #f6dccd; color: #b06a3f; font-size: 12px; font-weight: 800; }
   .msg-body { display: flex; flex-direction: column; min-width: 0; max-width: 80%; }
   .msg.me .msg-body { align-items: flex-end; }
