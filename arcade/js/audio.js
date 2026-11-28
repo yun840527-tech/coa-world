@@ -11,6 +11,7 @@
   function ensure() {
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
+    if (ctx && ctx.state === 'closed') { ctx = null; master = null; }
     if (!ctx) {
       try {
         ctx = new AC();

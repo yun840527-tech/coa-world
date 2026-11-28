@@ -96,7 +96,7 @@
     canvas.style.width = W + 'px';
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    U = W / 280;
+    U = W / 265;
 
     // 진행 중이면 위치·크기를 비율로 맞춘다
     if (oldW !== W || oldH !== H) {
@@ -536,7 +536,7 @@
       ctx.save();
       ctx.setLineDash([4 * U, 8 * U]);
       ctx.lineWidth = 1.6 * U;
-      ctx.strokeStyle = 'rgba(160,120,80,.28)';
+      ctx.strokeStyle = 'rgba(160,120,80,.18)';
       ctx.beginPath();
       ctx.moveTo(pending.x, spawnY() + radius(pending.tier));
       ctx.lineTo(pending.x, H - 6 * U);
