@@ -262,12 +262,12 @@
   .msg-status.wait { background: #fdf1e2; color: #ab6f24; }
   .msg-status.done { background: var(--mint-soft); color: var(--mint-deep); }
   .msg-status.err { background: #fdecea; color: #c0554f; }
-  .bubble {
+  .msg-bubble {
     background: #fff; border: 1px solid #e9eef5; border-radius: 4px 14px 14px 14px;
     padding: 9px 11px; font-size: 12.5px; line-height: 1.6; color: #2a3342;
     word-break: break-word; overflow-wrap: break-word; box-shadow: 0 2px 6px rgba(31, 42, 58, 0.04);
   }
-  .msg.me .bubble { background: var(--navy); border-color: var(--navy); color: #fff; border-radius: 14px 4px 14px 14px; }
+  .msg.me .msg-bubble { background: var(--navy); border-color: var(--navy); color: #fff; border-radius: 14px 4px 14px 14px; }
   .quote {
     display: flex; gap: 4px; align-items: baseline; font-size: 10.5px; line-height: 1.45;
     color: #6f7989; background: #f6f8fb; border-left: 2px solid #cfd8e6; border-radius: 6px;
@@ -3427,7 +3427,7 @@ function roomMsgHtml(m) {
   return '<div class="msg' + (me ? " me" : "") + '" data-mid="' + escapeHtml(m.id) + '">' + av +
     '<div class="msg-body"><div class="msg-meta"><b class="msg-who">' +
       escapeHtml(me ? "나" : (m.sender || "코아")) + '</b>' + role + when + badge +
-    '</div><div class="bubble">' + quote + '<div class="msg-text">' + nl2br(m.text) + '</div></div></div></div>';
+    '</div><div class="msg-bubble">' + quote + '<div class="msg-text">' + nl2br(m.text) + '</div></div></div></div>';
 }
 
 function roomQuoteOwner(m) {
