@@ -156,7 +156,7 @@
         elFeedback.textContent = '정답이에요! 👏 ' + (q.explain || '');
         elFeedback.className = 'quiz-feedback';
       }
-      if (window.GameStats) GameStats.recordQuizCorrect(q.kind);
+      if (q._firstTry !== false && window.GameStats) GameStats.recordQuizCorrect(q.kind);
       correctCount += 1;
       renderDots();
       disableChoices();
@@ -166,6 +166,7 @@
         else { qi += 1; renderQuestion(); }
       }, 780);
     } else {
+      q._firstTry = false;
       btn.classList.add('is-wrong');
       if (window.Sfx) Sfx.wrong();
       if (window.Speech && q.speakText) Speech.say(q.speakText);
