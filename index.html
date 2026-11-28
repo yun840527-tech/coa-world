@@ -1589,7 +1589,10 @@ function renderDetail(key) {
       '<input type="text" maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" data-form-type="other" placeholder="' + escapeHtml(addPlaceholder(key, p.name, isRoom)) + '" data-add="' + key + '" />' +
       '<button class="btn-primary" data-addbtn="' + key + '">' + (toSheet ? "지시" : "추가") + '</button>' +
     '</div>' +
-    (toSheet ? '<p class="rt-hint">보내면 구글 시트에 기록되고 알림 메일이 가요. 상태·메모는 ⟳ 로 받아옵니다.</p>' : '');
+    (toSheet ? '<p class="rt-hint">보내면 구글 시트에 기록되고 알림 메일이 가요. 상태·메모는 ⟳ 로 받아옵니다.</p>' : '') +
+    (!isRoom && hasSync() && !sheetKnowsPart(key)
+      ? '<p class="rt-hint">시트 스크립트가 아직 이 파트를 몰라요. 지시·체크는 이 기기에만 저장되고, Apps Script를 새 버전으로 배포하면 시트로도 갑니다.</p>'
+      : '');
 
   detailEl.innerHTML = html;
   updateStats();
@@ -2315,6 +2318,14 @@ document.getElementById("memoList").addEventListener("click", e => {
    ======================================================================= */
 const SYNC_KEY = "coa_world_v2_sync";
 const REMOTE_PARTS = CHAR_KEYS.slice();          // 시트 업무는 파트 전부에 붙습니다
+/* 시트 스크립트가 어느 파트까지 아는지 (partTasks 키로 확인).
+   예전 버전 스크립트(v4)는 비주얼·소통을 모르므로, 그때는 그 두 파트를
+   시트로 보내지 않고 이 기기에만 저장해 잘못된 파트로 기록되는 것을 막습니다. */
+let serverParts = null;
+function sheetKnowsPart(key) {
+  if (!serverParts || !serverParts.length) return true;   // 아직 모르면 그대로 시도
+  return serverParts.indexOf(key) >= 0;
+}
 const STATUS_ORDER = { "진행중": 0, "대기": 1, "완료": 2 };
 const STATUS_NEXT = { "대기": "진행중", "진행중": "완료", "완료": "대기" };
 const STATUS_CLS = { "대기": "st-wait", "진행중": "st-doing", "완료": "st-done" };
@@ -2433,7 +2444,7 @@ function remoteFor(key) {
 }
 
 function syncAddsToSheet(key, isRoom) {
-  return !isRoom && hasSync() && REMOTE_PARTS.indexOf(key) >= 0;
+  return !isRoom && hasSync() && REMOTE_PARTS.indexOf(key) >= 0 && sheetKnowsPart(key);
 }
 
 function addPlaceholder(key, name, isRoom) {
@@ -2551,7 +2562,10 @@ async function pullRemote(opts) {
       state.postLogs = data.postLogs.map(normPost).filter(Boolean);
       saveState();
     }
-    if (data.partTasks && typeof data.partTasks === "object") applyPartTasks(data.partTasks, data.partTasksSeeded);
+    if (data.partTasks && typeof data.partTasks === "object") {
+      serverParts = Object.keys(data.partTasks);
+      applyPartTasks(data.partTasks, data.partTasksSeeded);
+    }
     setConn("ok");
     renderAllRemote();
     renderCalendar();
@@ -2608,7 +2622,9 @@ function applyPartTasks(map, seeded) {
 
 async function pushAllPartTasks() {
   try {
-    const data = await postRemote({ action: "savePartTasks", partTasks: state.parts });
+    const send = {};
+    Object.keys(state.parts).forEach(k => { if (sheetKnowsPart(k)) send[k] = state.parts[k]; });
+    const data = await postRemote({ action: "savePartTasks", partTasks: send });
     if (data.partTasks) applyPartTasks(data.partTasks, true);
     setConn("ok");
   } catch (err) {
@@ -2628,7 +2644,7 @@ function submitChecklistInput(key) {
 
 /** 체크리스트에 항목을 더했을 때 — 그 파트 목록 전체를 시트에 기록 */
 async function syncPartList(part) {
-  if (!hasSync() || ORDER.indexOf(part) < 0) return;
+  if (!hasSync() || ORDER.indexOf(part) < 0 || !sheetKnowsPart(part)) return;
   try {
     const data = await postRemote({ action: "savePartTasks", part: part, items: state.parts[part] || [] });
     const got = data.partTasks && data.partTasks[part];
@@ -2649,7 +2665,7 @@ async function syncPartList(part) {
 
 /** 체크만 토글했을 때 — 그 항목의 done 만 시트에서 바꿈 */
 async function syncPartTask(part, idx, done) {
-  if (!hasSync() || ORDER.indexOf(part) < 0) return;
+  if (!hasSync() || ORDER.indexOf(part) < 0 || !sheetKnowsPart(part)) return;
   try {
     const data = await postRemote({ action: "togglePartTask", part: part, idx: idx, done: !!done });
     const got = data.partTasks && data.partTasks[part];
