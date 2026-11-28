@@ -265,6 +265,190 @@
     return Math.max(min, Math.min(max, n));
   }
 
+  /* ───────────── 플레이어 · 가족 랭킹 (Top 10) ───────────── */
+  const KEY_RANK = 'coa-tetris-rankings';
+  const KEY_PLAYER = 'coa-tetris-player';
+  const RANK_MAX = 10;
+  const QUICK_PLAYERS = ['솜이', '쭈니', '엄마', '아빠'];
+  const DEFAULT_PLAYER = '플레이어';
+
+  function cleanName(raw) {
+    let s = String(raw == null ? '' : raw)
+      .replace(/[<>]/g, '')
+      .replace(/[\u0000-\u001f\u007f]/g, ' ')
+      .trim();
+    s = s.replace(/\s+/g, ' ');
+    return Array.from(s).slice(0, 10).join('');
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+  }
+
+  function shortDate(dateStr) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr || ''));
+    if (!m) return '–';
+    return `${Number(m[2])}.${Number(m[3])}`;
+  }
+
+  function rankSort(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.round !== a.round) return b.round - a.round;
+    return a.ts - b.ts;
+  }
+
+  function normRank(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const name = cleanName(raw.name);
+    const score = clampInt(raw.score, 0, 99999999, -1);
+    if (!name || score < 0) return null;
+    return {
+      id: typeof raw.id === 'string' && raw.id ? raw.id : 'r' + Math.random().toString(36).slice(2, 9),
+      name,
+      score,
+      round: clampInt(raw.round, 1, 999, 1),
+      date: /^\d{4}-\d{2}-\d{2}$/.test(String(raw.date || '')) ? String(raw.date) : todayStr(),
+      ts: Number.isFinite(raw.ts) ? Math.max(0, Math.round(raw.ts)) : 0,
+    };
+  }
+
+  const Players = {
+    cur: '',
+    load() {
+      try { this.cur = cleanName(localStorage.getItem(KEY_PLAYER) || ''); } catch (e) { this.cur = ''; }
+    },
+    save() {
+      try { localStorage.setItem(KEY_PLAYER, this.cur); } catch (e) {}
+    },
+    get() { return this.cur || DEFAULT_PLAYER; },
+    isQuick() { return QUICK_PLAYERS.indexOf(this.cur) >= 0; },
+    set(name) {
+      this.cur = cleanName(name);
+      this.save();
+      syncPickers();
+      const who = $('#over-who');
+      if (who) who.innerHTML = `<b>${escHtml(this.get())}</b> 기록`;
+      return this.get();
+    },
+  };
+
+  const Rank = {
+    entries: [],
+    load() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(KEY_RANK) || 'null');
+        const list = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.entries) ? raw.entries : []);
+        this.entries = list.map(normRank).filter(Boolean).slice(0, 200);
+      } catch (e) { this.entries = []; }
+      this.trim();
+      return this.entries;
+    },
+    save() {
+      try { localStorage.setItem(KEY_RANK, JSON.stringify({ version: 1, entries: this.entries })); } catch (e) {}
+    },
+    trim() {
+      this.entries = this.entries.slice().sort(rankSort).slice(0, RANK_MAX);
+    },
+    list() { return this.entries.slice().sort(rankSort); },
+    add(name, score, round) {
+      this.load();
+      const entry = {
+        id: 'r' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36),
+        name: cleanName(name) || DEFAULT_PLAYER,
+        score: clampInt(score, 0, 99999999, 0),
+        round: clampInt(round, 1, 999, 1),
+        date: todayStr(),
+        ts: Date.now(),
+      };
+      this.entries.push(entry);
+      this.trim();
+      this.save();
+      const idx = this.list().findIndex((e) => e.id === entry.id);
+      return { entry, rank: idx >= 0 ? idx + 1 : 0, list: this.list() };
+    },
+    clear() { this.entries = []; this.save(); },
+    replace(list) {
+      this.entries = (Array.isArray(list) ? list : []).map(normRank).filter(Boolean);
+      this.trim();
+      this.save();
+      return this.list();
+    },
+  };
+
+  function syncPickers() {
+    const cur = Players.cur;
+    $$('.who-picks button').forEach((b) => {
+      const on = b.dataset.player === cur;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    $$('.who-input').forEach((inp) => {
+      if (document.activeElement === inp) return;
+      inp.value = cur && !Players.isQuick() ? cur : '';
+    });
+    $$('[data-who-now]').forEach((el) => { el.textContent = Players.get(); });
+  }
+
+  function wirePlayerPickers() {
+    $$('.who').forEach((box) => {
+      const inp = box.querySelector('.who-input');
+      box.querySelectorAll('.who-picks button').forEach((b) => {
+        b.addEventListener('click', () => {
+          Players.set(b.dataset.player);
+          if (inp) { inp.value = ''; inp.blur(); }
+        });
+      });
+      if (!inp) return;
+      inp.addEventListener('input', () => { Players.set(inp.value); });
+      inp.addEventListener('blur', () => { syncPickers(); });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        else if (e.key === 'Escape') { inp.value = ''; Players.set(''); inp.blur(); }
+        e.stopPropagation();
+      });
+    });
+  }
+
+  function renderRanks(highlightId) {
+    const list = Rank.list();
+    const rows = list.map((e, i) => {
+      const pos = i + 1;
+      const me = highlightId && e.id === highlightId ? ' class="me"' : '';
+      return `<tr${me}>` +
+        `<td class="rk-pos">${pos <= 3 ? ['🥇', '🥈', '🥉'][pos - 1] : pos}</td>` +
+        `<td class="rk-name" title="${escHtml(e.name)}">${escHtml(e.name)}</td>` +
+        `<td>${fmtNum(e.score)}</td>` +
+        `<td>R${e.round}</td>` +
+        `<td title="${escHtml(e.date)}">${shortDate(e.date)}</td>` +
+        `</tr>`;
+    }).join('');
+    const html = list.length
+      ? `<table class="rk-table">` +
+        `<thead><tr><th>순위</th><th>이름</th><th>점수</th><th>라운드</th><th>날짜</th></tr></thead>` +
+        `<tbody>${rows}</tbody></table>`
+      : `<p class="rk-empty">아직 기록이 없어요 🐾<br>첫 판을 플레이해 보세요!</p>`;
+    $$('[data-rank-board]').forEach((el) => { el.innerHTML = html; });
+    return list;
+  }
+
+  function setOverRank(info) {
+    const el = $('#over-rank');
+    if (!el) return;
+    el.classList.remove('top', 'none');
+    const rank = info && info.rank ? info.rank : 0;
+    if (rank === 1) { el.textContent = '🥇 1위! 최고 기록'; el.classList.add('top'); }
+    else if (rank > 1) { el.textContent = `🏆 ${rank}위 등록`; el.classList.add('top'); }
+    else if (!info || info.skipped) { el.textContent = '점수를 내면 올라가요'; el.classList.add('none'); }
+    else { el.textContent = `아쉽게 ${RANK_MAX}위 밖`; el.classList.add('none'); }
+  }
+
+  function openRank() {
+    renderRanks(null);
+    openModal('modal-rank');
+  }
+
   /* ───────────── 나이 → 난이도 ───────────── */
   const AGE_BANDS = [
     { min: 5, max: 7, level: 1, label: '유치·초1 입문', desc: '한 자리 덧셈·뺄셈, 알파벳과 기초 동물·과일·색깔 영단어' },
@@ -788,6 +972,8 @@
   function wire() {
     Meta.load();
     Stats.load();
+    Players.load();
+    Rank.load();
     Meta.refresh();
 
     $('#btn-plays').addEventListener('click', () => {
@@ -795,7 +981,13 @@
       if (left > 0) toast(`오늘 ${left}회 남았어요 🎮`);
       else promptCharge();
     });
+    $('#btn-rank').addEventListener('click', () => openRank());
+    $('#btn-rank-more').addEventListener('click', () => openRank());
     $('#btn-admin').addEventListener('click', () => openPin());
+
+    wirePlayerPickers();
+    syncPickers();
+    renderRanks(null);
 
     $$('[data-close]').forEach((b) => b.addEventListener('click', () => closeModal('modal-' + b.dataset.close)));
     $$('.modal').forEach((m) => {
@@ -869,7 +1061,11 @@
       if (!played) toast('발음을 재생할 수 없어요');
     });
 
-    window.addEventListener('storage', (e) => { if (e.key === KEY_PLAYS || e.key === KEY_ADMIN) { Meta.load(); Meta.refresh(); } });
+    window.addEventListener('storage', (e) => {
+      if (e.key === KEY_PLAYS || e.key === KEY_ADMIN) { Meta.load(); Meta.refresh(); }
+      else if (e.key === KEY_RANK) { Rank.load(); renderRanks(null); }
+      else if (e.key === KEY_PLAYER) { Players.load(); syncPickers(); }
+    });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && $$('.modal').some((m) => !m.hidden)) {
         e.stopPropagation();
@@ -897,6 +1093,8 @@
         age: Meta.admin.age,
         level: Meta.level(),
         pin: Meta.admin.pin,
+        player: Players.get(),
+        rankCount: Rank.entries.length,
       };
     },
     remaining: () => Meta.remaining(),
@@ -907,6 +1105,29 @@
     refresh: () => Meta.refresh(),
     promptCharge,
     openQuiz: () => Quiz.open(),
+    player: () => Players.get(),
+    setPlayer: (name) => Players.set(name),
+    rankings: () => Rank.list(),
+    rankMax: () => RANK_MAX,
+    openRank,
+    /** 게임오버 때 호출 — 결과 화면과 🏆 보드에 랭킹을 기록/표시한다. */
+    recordRanking(score, round) {
+      const name = Players.get();
+      const who = $('#over-who');
+      if (who) who.innerHTML = `<b>${escHtml(name)}</b> 기록`;
+      const sc = Math.max(0, Math.round(Number(score) || 0));
+      if (sc <= 0) {
+        renderRanks(null);
+        setOverRank({ rank: 0, skipped: true });
+        return { rank: 0, skipped: true, name, list: Rank.list() };
+      }
+      const res = Rank.add(name, sc, round);
+      renderRanks(res.entry.id);
+      setOverRank(res);
+      if (res.rank === 1) toast('🥇 가족 랭킹 1위! 최고 기록이에요');
+      else if (res.rank) toast(`🏆 가족 랭킹 ${res.rank}위에 올랐어요`);
+      return { rank: res.rank, entry: res.entry, name, list: res.list };
+    },
     recordGame: (score, round) => { Stats.recordGame(score, round); if ($('#modal-admin') && !$('#modal-admin').hidden) renderStats(); },
     stats: () => window.CoaGameStats.get(),
     openAdmin: () => openAdmin(),
@@ -936,12 +1157,17 @@
     all: () => Stats.all(),
     totals: () => Stats.totals(),
     day: (dateStr) => Stats.view(dateStr || todayStr()),
+    rankings: () => Rank.list(),
+    player: () => Players.get(),
     get() {
       return {
         app: 'coa-tetris',
         version: 1,
         updatedAt: new Date().toISOString(),
         child: { age: Meta.admin.age, level: Meta.level() },
+        player: Players.get(),
+        rankings: this.rankings(),
+        rankingMax: RANK_MAX,
         today: this.today(),
         week: this.week(7),
         totals: this.totals(),
@@ -976,6 +1202,23 @@
       },
       makeQuestions: (subject, level) => makeQuestions(subject, level),
       quiz: () => window.CoaMeta.quiz(),
+      setPlayer: (name) => Players.set(name),
+      player: () => Players.get(),
+      setRankings(list) {
+        const out = Rank.replace(list);
+        renderRanks(null);
+        return out;
+      },
+      addRanking(entry) {
+        const res = Rank.add((entry || {}).name, (entry || {}).score, (entry || {}).round);
+        renderRanks(res.entry.id);
+        return res;
+      },
+      clearRankings() {
+        Rank.clear();
+        renderRanks(null);
+        return [];
+      },
     };
   }
 

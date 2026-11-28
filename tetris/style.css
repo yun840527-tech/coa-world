@@ -65,12 +65,13 @@ body::before{
 }
 .hud-top{display:flex;align-items:center;gap:6px;}
 .hud-right{display:flex;align-items:center;gap:5px;margin-left:auto;}
-.brand{display:flex;align-items:center;gap:5px;min-width:0;margin-right:auto;}
+.brand{display:flex;align-items:center;gap:5px;min-width:0;margin-right:auto;overflow:hidden;}
 .brand-dog{font-size:19px;line-height:1;}
 .brand-name{
   font-family:'Jua','Gowun Dodum',sans-serif;
   font-size:16px; letter-spacing:-.02em; white-space:nowrap;
   color:#6b4f3d;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .stats{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 2px 0;}
 .stat{display:flex;flex-direction:column;align-items:center;line-height:1.05;}
@@ -361,6 +362,12 @@ kbd{
   .stat .v{font-size:15px;}
   .pad{min-height:46px;}
 }
+/* 상단에 🏆 버튼이 더해져 좁은 화면에서는 횟수 라벨을 덜어 낸다 (🎮 3/3) */
+@media (max-width:440px){
+  .plays-label{display:none;}
+  .hud-right{gap:4px;}
+  .icon-btn{width:30px;height:30px;}
+}
 @media (max-height:700px){
   .strip .mini canvas{height:24px;}
   .pad{min-height:42px;font-size:17px;}
@@ -564,3 +571,97 @@ body.modal-open .pad{pointer-events:none;}
 .sr-table tr.today td{color:#c2663c;font-weight:700;}
 .sr-note{margin:6px 0 0;font-size:9.5px;color:#b09a88;text-align:right;}
 #adm-age-hint{text-align:left;margin:6px 2px 4px;}
+
+/* ───────────── 플레이어 선택 ───────────── */
+.who{margin:8px 0 6px;}
+.who-k{margin:0 0 5px;font-size:11px;color:var(--ink-soft);}
+.who-picks{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.who-picks button{
+  border:1.5px solid #edd8b8;background:#fffaf1;color:#7a5f49;
+  font-family:'Jua',sans-serif;font-size:12.5px;padding:7px 0;border-radius:11px;
+  cursor:pointer;box-shadow:0 2px 0 #f0e2cc;
+  transition:transform .08s ease, background .12s ease;
+}
+.who-picks button.on{
+  background:linear-gradient(180deg,#ffe8cf,#ffd9b3);
+  border-color:#f0a874;color:#b8602f;box-shadow:0 2px 0 #f0c08f;
+}
+.who-picks button:active{transform:translateY(1px);}
+.who-input{
+  width:100%;margin-top:5px;padding:7px 10px;border-radius:11px;
+  border:1.5px solid #e9d3b6;background:#fffaf1;color:#6b4a34;
+  font-family:'Gowun Dodum',sans-serif;font-size:12px;outline:none;text-align:center;
+}
+.who-input::placeholder{color:#c0ab97;}
+.who-input:focus{border-color:#f0b789;box-shadow:0 0 0 3px rgba(240,183,137,.22);}
+
+/* ───────────── 가족 랭킹 보드 ───────────── */
+.rk-mini{
+  margin:8px 0 4px;padding:7px 8px 6px;
+  border:1.5px solid #efe0c8;border-radius:14px;background:#fffaf1;
+  text-align:left;
+}
+.rk-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;}
+button.rk-head{
+  width:100%;padding:0;border:none;background:none;font:inherit;
+  color:inherit;cursor:pointer;
+}
+button.rk-head:active b{color:#b8602f;}
+.rk-head b{font-family:'Jua',sans-serif;font-size:12.5px;color:#6b4a34;}
+.rk-badge{
+  font-size:10px;font-weight:700;color:#3f8a6b;
+  background:#e9f7ef;border:1px solid #bfe6d3;border-radius:999px;
+  padding:2px 8px;white-space:nowrap;
+}
+.rk-badge.top{color:#b8602f;background:#ffe9cf;border-color:#f2c79a;}
+.rk-badge.none{color:#9a8474;background:#fff;border-color:#eee0c9;font-weight:400;}
+.rk-badge:empty{display:none;}
+.rk-board{overflow:auto;}
+#rk-board-over{max-height:172px;}
+.rk-table{width:100%;border-collapse:collapse;font-size:10.5px;color:#7b6250;}
+.rk-table th{
+  font-weight:400;font-size:9px;color:#a58a6c;
+  border-bottom:1px solid #f0e2cc;padding:2px 3px;text-align:center;
+}
+.rk-table td{
+  padding:3px;text-align:center;border-bottom:1px dashed #f5ebda;
+  font-variant-numeric:tabular-nums;
+}
+.rk-table tr:last-child td{border-bottom:none;}
+.rk-table tr.me td{color:#c2663c;font-weight:700;background:#fff5e8;}
+.rk-table .rk-name{
+  font-weight:700;color:#5c4436;max-width:78px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.rk-table .rk-pos{font-size:11px;}
+.rk-empty{margin:10px 0;font-size:11px;color:#a08b7b;text-align:center;line-height:1.5;}
+.over-who{margin:-4px 0 6px;font-size:11px;color:#9a8474;}
+.over-who b{font-family:'Jua',sans-serif;font-size:12.5px;color:#c2663c;}
+.rank-card{max-width:360px;}
+.rank-card .rk-board{
+  max-height:46vh;padding:2px 6px;
+  border:1.5px solid #f2e6d2;border-radius:12px;background:#fffaf1;
+}
+.rank-card .rk-table{font-size:12px;}
+.rank-card .rk-table th{font-size:9.5px;padding:6px 3px;}
+.rank-card .rk-table td{padding:5px 3px;}
+.rank-card .rk-empty{font-size:12px;padding:14px 0;}
+.g-p{margin:0;font-size:11.5px;line-height:1.55;color:#8b7566;}
+.g-p b{color:#8a6a52;}
+
+/* 짧은 화면(높이 700 이하)에서는 시작·결과 카드를 더 조밀하게 */
+@media (max-height:700px){
+  .ov-card{padding:12px 14px 10px;}
+  .ov-dog svg{width:56px;height:56px;}
+  .ov-card h1{font-size:20px;}
+  .ov-card h2{font-size:18px;}
+  .ov-items{gap:4px;margin-bottom:8px;}
+  .ov-items li{padding:3px 2px;font-size:9px;}
+  .ov-items span{font-size:13px;}
+  .ov-sub{font-size:11.5px;margin-bottom:7px;}
+  .ov-hint{display:none;}
+  .who{margin:6px 0 4px;}
+  .who-picks button{padding:6px 0;}
+  .rk-mini{margin:6px 0 3px;padding:6px 7px 5px;}
+  #rk-board-over{max-height:112px;}
+}

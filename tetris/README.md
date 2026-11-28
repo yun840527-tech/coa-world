@@ -51,15 +51,37 @@
 | 10~11세 | 구구단, 두 자리×한 자리, 나눗셈 | 동사·형용사, 문장 빈칸 |
 | 12~13세 | 혼합 계산, 두 자리 곱셈·나눗셈, 분수·비율 | 중등 기초 영단어·문법·반의어/유의어 |
 
+## 🏆 가족 랭킹
+
+- 시작 화면·결과 화면에서 플레이어를 고릅니다 — 빠른 선택 `솜이` `쭈니` `엄마` `아빠` + 직접 입력(최대 10자).
+- 고른 이름은 기기에 기억돼 다음에 열어도 그대로예요(`coa-tetris-player`).
+- 게임이 끝나면 점수가 **Top 10 랭킹 보드**에 자동 저장되고, 결과 화면에 바로 표시됩니다 (순위·이름·점수·라운드·날짜). 이번 판 기록은 강조되고 `🥇 1위`·`🏆 N위` 배지로 순위를 알려 줍니다.
+- 0점은 랭킹에 넣지 않고, 점수가 같으면 라운드가 높은 기록이 위로 옵니다.
+- 상단 `🏆` 버튼으로 언제든 랭킹을 열 수 있습니다(플레이 중이면 자동 일시정지). 결과 화면의 랭킹 제목을 눌러도 같은 보드가 열립니다.
+- 기록은 이 기기 브라우저(localStorage `coa-tetris-rankings`)에만 저장됩니다.
+
 ## 가족 앱 연동용 API
 
 ```js
 // 활동 기록 JSON (전체)
 CoaGameStats.get();
-// { app, version, updatedAt, child:{age,level}, today:{...}, week:[7일], totals:{...} }
+// { app, version, updatedAt, child:{age,level}, player, rankings:[Top10], rankingMax, today:{...}, week:[7일], totals:{...} }
 CoaGameStats.export();   // 위 객체를 보기 좋은 JSON 문자열로
 CoaGameStats.today();    // { date, plays, bestScore, bestRound, quiz:{solved,correct,accuracy}, charges }
 CoaGameStats.week(7);    // 오늘 포함 최근 7일 배열
+CoaGameStats.rankings(); // [{ id, name, score, round, date, ts }, ...] 점수 높은 순 Top 10
+
+// 플레이어
+CoaMeta.player();        // 현재 선택된 이름 (없으면 '플레이어')
+CoaMeta.setPlayer('솜이');
+CoaMeta.rankings();      // 랭킹 배열 (CoaGameStats.rankings() 와 같음)
+CoaMeta.recordRanking(score, round);  // 직접 기록 (게임오버 시 자동 호출)
+```
+
+랭킹 한 줄 구조:
+
+```json
+{ "id": "rmx0jsf4k5", "name": "솜이", "score": 3210, "round": 4, "date": "2026-11-29", "ts": 1795878772829 }
 ```
 
 하루치 구조:
@@ -75,14 +97,14 @@ CoaGameStats.week(7);    // 오늘 포함 최근 7일 배열
 }
 ```
 
-저장 위치(localStorage): `coa-tetris-plays`, `coa-tetris-admin`, `coa-tetris-stats`, `coa-tetris-best`, `coa-tetris-muted`
+저장 위치(localStorage): `coa-tetris-plays`, `coa-tetris-admin`, `coa-tetris-stats`, `coa-tetris-best`, `coa-tetris-muted`, `coa-tetris-rankings`, `coa-tetris-player`
 
 ## 개발 · 테스트
 
 ```bash
-python3 tests/test_game.py     # Playwright: 390×844 모바일 · 1280×900 데스크톱 · 메타 기능 · 리포트
+python3 tests/test_game.py     # Playwright: 390×844 모바일 · 1280×900 데스크톱 · 메타 기능 · 리포트 · 가족 랭킹
 ```
 
-`index.html?debug=1` 로 열면 `window.__coaTetris`, `CoaMeta._debug` 테스트 훅이 열립니다.
+`index.html?debug=1` 로 열면 `window.__coaTetris`, `CoaMeta._debug` 테스트 훅이 열립니다(`CoaMeta._debug.setRankings()/clearRankings()/setPlayer()` 포함).
 
-파일: `index.html` · `style.css` · `game.js`(게임) · `meta.js`(횟수·관리자·퀴즈·통계)
+파일: `index.html` · `style.css` · `game.js`(게임) · `meta.js`(횟수·관리자·퀴즈·통계·가족 랭킹)

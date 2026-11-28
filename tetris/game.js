@@ -953,6 +953,7 @@
     overlay.classList.add('show');
     btnPause.textContent = '⏸';
     if (window.CoaMeta) {
+      if (window.CoaMeta.recordRanking) window.CoaMeta.recordRanking(G.score, G.round);
       if (window.CoaMeta.recordGame) window.CoaMeta.recordGame(G.score, G.round);
       window.CoaMeta.refresh();
     }

@@ -26,6 +26,7 @@
             <span class="plays-ico" aria-hidden="true">🎮</span>
             <span class="plays-label">남은 횟수 </span><b id="plays-left">3</b><span class="slash">/</span><span id="plays-max">3</span>
           </button>
+          <button id="btn-rank" class="icon-btn" type="button" aria-label="가족 랭킹 보기" title="가족 랭킹 (🏆)">🏆</button>
           <button id="btn-admin" class="icon-btn" type="button" aria-label="관리자 설정" title="관리자 설정">⚙️</button>
           <button id="btn-sound" class="icon-btn" type="button" aria-label="소리 끄기" title="소리 (M)">🔊</button>
           <button id="btn-pause" class="icon-btn" type="button" aria-label="일시정지" title="일시정지 (P)">⏸</button>
@@ -92,6 +93,16 @@
             <li><span>🌟</span>2배</li>
             <li><span>🧹</span>청소</li>
           </ul>
+          <div class="who" data-who="start">
+            <p class="who-k">누가 할까요?</p>
+            <div class="who-picks">
+              <button type="button" data-player="솜이" aria-pressed="false">솜이</button>
+              <button type="button" data-player="쭈니" aria-pressed="false">쭈니</button>
+              <button type="button" data-player="엄마" aria-pressed="false">엄마</button>
+              <button type="button" data-player="아빠" aria-pressed="false">아빠</button>
+            </div>
+            <input class="who-input" type="text" maxlength="10" placeholder="직접 입력" aria-label="플레이어 이름 직접 입력" autocomplete="off" spellcheck="false">
+          </div>
           <button class="cta" id="btn-start" type="button">시작하기</button>
           <button class="cta quiz-cta" id="btn-quiz-start" type="button" hidden>📚 영어·수학 문제 풀고 +1회 받기</button>
           <p class="ov-plays">오늘 남은 횟수 <b id="start-plays">3</b> / <span id="start-plays-max">3</span></p>
@@ -112,7 +123,25 @@
             <div><span>ROUND</span><b id="over-round">1</b></div>
             <div><span>LINES</span><b id="over-lines">0</b></div>
           </div>
+          <p class="over-who" id="over-who"><b>플레이어</b> 기록</p>
           <p class="ov-sub" id="over-msg">수고했어요!</p>
+          <div class="rk-mini">
+            <button class="rk-head" id="btn-rank-more" type="button" aria-label="가족 랭킹 전체 보기">
+              <b>🏆 가족 랭킹</b>
+              <span class="rk-badge" id="over-rank"></span>
+            </button>
+            <div class="rk-board" id="rk-board-over" data-rank-board></div>
+          </div>
+          <div class="who" data-who="over">
+            <p class="who-k">다음은 누구?</p>
+            <div class="who-picks">
+              <button type="button" data-player="솜이" aria-pressed="false">솜이</button>
+              <button type="button" data-player="쭈니" aria-pressed="false">쭈니</button>
+              <button type="button" data-player="엄마" aria-pressed="false">엄마</button>
+              <button type="button" data-player="아빠" aria-pressed="false">아빠</button>
+            </div>
+            <input class="who-input" type="text" maxlength="10" placeholder="직접 입력" aria-label="플레이어 이름 직접 입력" autocomplete="off" spellcheck="false">
+          </div>
           <p class="ov-plays">오늘 남은 횟수 <b id="over-plays">3</b> / <span id="over-plays-max">3</span></p>
           <button class="cta" id="btn-restart" type="button">다시 도전</button>
           <button class="cta quiz-cta" id="btn-quiz-over" type="button" hidden>📚 영어·수학 문제 풀고 +1회 받기</button>
@@ -153,6 +182,10 @@
         <li><kbd>C</kbd><span>홀드</span></li>
         <li><kbd>P</kbd><span>일시정지</span></li>
       </ul>
+    </section>
+    <section class="g-card">
+      <h3>🏆 가족 랭킹</h3>
+      <p class="g-p">시작·결과 화면에서 이름(솜이 · 쭈니 · 엄마 · 아빠 또는 직접 입력)을 고르면, 게임이 끝날 때 <b>Top 10</b>에 자동으로 저장돼요. 상단 🏆 버튼으로 언제든 볼 수 있고, 기록은 이 기기 브라우저에만 남습니다.</p>
     </section>
     <section class="g-card tip">
       <h3>한 줄 팁</h3>
@@ -228,6 +261,17 @@
     <p class="m-err" id="adm-err"></p>
     <button class="cta" id="adm-save" type="button">저장하고 닫기</button>
     <button class="cta ghost" type="button" data-close="admin">닫기</button>
+  </div>
+</div>
+
+<!-- ── 가족 랭킹 ── -->
+<div class="modal" id="modal-rank" hidden>
+  <div class="m-card rank-card" role="dialog" aria-modal="true" aria-labelledby="rank-title">
+    <h2 id="rank-title">🏆 가족 랭킹</h2>
+    <p class="m-sub">Top 10 · 점수가 높은 순서예요</p>
+    <div class="rk-board" id="rk-board" data-rank-board></div>
+    <p class="m-hint">이 기기 브라우저에만 저장돼요 · 플레이어를 바꾸려면 시작·결과 화면에서 골라 주세요</p>
+    <button class="cta ghost" type="button" data-close="rank">닫기</button>
   </div>
 </div>
 
