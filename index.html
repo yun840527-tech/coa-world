@@ -1626,24 +1626,24 @@ const NODES = {
   rM:  { x: 0.195, y: 0.425 },
 
   /* 코아 지휘실 — 대장 책상 뒤 의자 + 앞손님 자리 */
-  hq1: { x: 0.515, y: 0.272 },
+  hq1: { x: 0.515, y: 0.292 },
   hq2: { x: 0.430, y: 0.418 },
   rH:  { x: 0.492, y: 0.425 },
 
   /* 몽실·소통방 — 크리에이터 책상 의자 · 소파 · 러그 */
-  mn1: { x: 0.775, y: 0.322 },
+  mn1: { x: 0.775, y: 0.338 },
   mn2: { x: 0.886, y: 0.372 },
   mn3: { x: 0.800, y: 0.400 },
   rS:  { x: 0.795, y: 0.425 },
 
   /* 보험패스실 — 상담 책상 의자 · 앞쪽 바닥 두 곳 */
-  ps1: { x: 0.210, y: 0.632 },
+  ps1: { x: 0.210, y: 0.648 },
   ps2: { x: 0.290, y: 0.805 },
   ps3: { x: 0.100, y: 0.800 },
   rP:  { x: 0.200, y: 0.805 },
 
   /* 인사이트·비주얼실 — 작업대 의자 · 러그 · 왼쪽 바닥 */
-  vs1: { x: 0.475, y: 0.702 },
+  vs1: { x: 0.475, y: 0.716 },
   vs2: { x: 0.525, y: 0.795 },
   vs3: { x: 0.410, y: 0.800 },
   rV:  { x: 0.500, y: 0.805 },
@@ -1944,6 +1944,10 @@ function buildChars() {
       facing: 1, speed: 0.115, status: "focus"
     };
     el.querySelector(".ch-hit").addEventListener("click", e => { e.stopPropagation(); if (stage.dataset.panGuard) return; select(key, true); });
+    /* 첫 화면부터 제 좌석에 맞는 자세(책상=작업, 소파=휴식, 러그=독서)로 */
+    setPose(chars[key], SEAT_POSE[homeId] || "sit");
+    chars[key].state = chars[key].pose === "sit" ? "work" : "rest";
+    chars[key].el.dataset.status = chars[key].pose === "sit" ? "focus" : "rest";
     place(chars[key]);
     scheduleLife(key);
     scheduleDrift(key);
@@ -4875,7 +4879,7 @@ setInterval(() => {
   if (!officeVisible() || document.hidden) return;
   if (!stage.classList.contains("room-focus")) updateRoomBadges();
   if (enteredRoom) renderRoomPanel();
-}, 2600);
+}, 1800);
 
 /* 무대 빈 곳을 누르면 말풍선 닫기 */
 stage.addEventListener("click", e => {
