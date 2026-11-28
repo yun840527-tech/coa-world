@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#FFF3E2" />
+<meta name="description" content="코아 아케이드 — 과일 합치기와 영단어 짝 맞추기로 놀면서 영어·수학을 익히는 우리 아이 미니게임" />
+<title>코아 아케이드 🕹️</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/icon-192.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app" class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">🍉</span>
+      <span class="brand-text">코아 아케이드</span>
+    </div>
+    <div class="top-actions">
+      <button id="btnRank" class="icon-btn" type="button" aria-label="가족 랭킹" title="가족 랭킹">🏆</button>
+      <button id="btnMute" class="icon-btn" type="button" aria-label="소리 켜기" aria-pressed="false" title="소리">🔇</button>
+      <button id="btnAdmin" class="icon-btn" type="button" aria-label="관리자 모드" title="관리자">⚙️</button>
+    </div>
+  </header>
+
+  <div class="stat-row">
+    <div class="plays-chip" id="playsChip" title="오늘 남은 놀이 횟수">
+      <span class="plays-label">남은 횟수</span>
+      <b id="playsLeft">3</b><span class="plays-unit">회</span>
+      <span class="plays-of" id="playsOf">/ 3</span>
+    </div>
+    <button id="btnQuiz" class="quiz-chip" type="button">
+      <span aria-hidden="true">📚</span> 문제 풀고 <b>+1회</b>
+    </button>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="게임 선택">
+    <button id="tabWatermelon" class="tab is-active" role="tab" aria-selected="true" aria-controls="view-watermelon" data-tab="watermelon" type="button">
+      <span aria-hidden="true">🍉</span> 과일 합치기
+    </button>
+    <button id="tabMatching" class="tab" role="tab" aria-selected="false" aria-controls="view-matching" data-tab="matching" type="button">
+      <span aria-hidden="true">🃏</span> 영단어 짝 맞추기
+    </button>
+  </nav>
+
+  <main class="stage" id="stage">
+
+    <!-- ======== 게임 1 : 과일 합치기 ======== -->
+    <section class="view is-active" id="view-watermelon" role="tabpanel" aria-labelledby="tabWatermelon">
+      <div class="hud hud-wm">
+        <div class="hud-cell">
+          <span class="hud-label">점수</span>
+          <b class="hud-value" id="wmScore">0</b>
+        </div>
+        <div class="hud-cell hud-next">
+          <span class="hud-label">다음</span>
+          <canvas id="wmNext" width="72" height="72" aria-label="다음 과일"></canvas>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">최고</span>
+          <b class="hud-value" id="wmBest">0</b>
+        </div>
+      </div>
+
+      <div class="board-wrap" id="wmWrap">
+        <canvas id="wmCanvas" aria-label="과일 합치기 놀이판"></canvas>
+        <div class="hint-layer" id="wmHint" aria-hidden="true">
+          <span class="hint-pill">손가락으로 옮기고 놓으면 떨어져요</span>
+        </div>
+
+        <div class="board-overlay" id="wmOverlay">
+          <div class="ov-card">
+            <div class="ov-emoji" aria-hidden="true">🍉</div>
+            <h2>과일 합치기</h2>
+            <p class="ov-desc">같은 과일끼리 붙이면<br />더 큰 과일로 합쳐져요!</p>
+            <div class="player-pick">
+              <span class="player-pick-label">누가 놀까요?</span>
+              <div class="player-chips" data-picker="wm"></div>
+            </div>
+            <button class="btn btn-primary" id="wmStartBtn" type="button">
+              놀이 시작 <span class="btn-cost">-1회</span>
+            </button>
+            <p class="ov-note" id="wmOverlayNote">오늘 남은 횟수 3회</p>
+          </div>
+        </div>
+
+        <div class="board-overlay gameover" id="wmGameover" hidden>
+          <div class="ov-card">
+            <div class="ov-emoji" aria-hidden="true">🍉</div>
+            <h2>과일이 가득 찼어요!</h2>
+            <div class="result-score">
+              <span>이번 점수</span>
+              <b id="wmFinalScore">0</b>
+            </div>
+            <p class="ov-note" id="wmBestNote">최고 기록 0점</p>
+            <p class="result-player">이번 판 <b id="wmResultPlayer">솜이</b>
+              <button class="link-btn" type="button" data-change-player="watermelon">바꾸기</button></p>
+            <div class="ov-buttons">
+              <button class="btn btn-primary" id="wmRetryBtn" type="button">한 번 더 <span class="btn-cost">-1회</span></button>
+              <button class="btn btn-ghost" id="wmHomeBtn" type="button">그만두기</button>
+            </div>
+            <button class="link-btn result-rank-link" type="button" data-open-rank="watermelon">🏆 가족 랭킹 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== 게임 2 : 영단어 짝 맞추기 ======== -->
+    <section class="view" id="view-matching" role="tabpanel" aria-labelledby="tabMatching" hidden>
+      <div class="hud hud-mt">
+        <div class="hud-cell">
+          <span class="hud-label">라운드</span>
+          <b class="hud-value" id="mtRound">1</b>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">점수</span>
+          <b class="hud-value" id="mtScore">0</b>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">콤보</span>
+          <b class="hud-value combo" id="mtCombo">x1</b>
+        </div>
+        <div class="hud-cell hud-time">
+          <span class="hud-label">남은 시간</span>
+          <b class="hud-value" id="mtTime">60</b>
+        </div>
+      </div>
+      <div class="timebar" aria-hidden="true"><i id="mtTimeFill"></i></div>
+
+      <div class="mt-stage">
+        <div class="mt-grid" id="mtGrid" aria-label="영단어 짝 맞추기 카드판"></div>
+
+        <div class="board-overlay" id="mtOverlay">
+          <div class="ov-card">
+            <div class="ov-emoji" aria-hidden="true">🃏</div>
+            <h2>영단어 짝 맞추기</h2>
+            <p class="ov-desc">그림 카드와 영단어 카드를<br />짝지어 뒤집어요!</p>
+            <div class="player-pick">
+              <span class="player-pick-label">누가 놀까요?</span>
+              <div class="player-chips" data-picker="mt"></div>
+            </div>
+            <button class="btn btn-primary" id="mtStartBtn" type="button">
+              놀이 시작 <span class="btn-cost">-1회</span>
+            </button>
+            <p class="ov-note" id="mtOverlayNote">오늘 남은 횟수 3회</p>
+          </div>
+        </div>
+
+        <div class="board-overlay" id="mtRoundClear" hidden>
+          <div class="ov-card">
+            <div class="ov-emoji" aria-hidden="true">🌟</div>
+            <h2 id="mtClearTitle">라운드 클리어!</h2>
+            <div class="star-row" id="mtStars" aria-label="별점">★★★</div>
+            <p class="ov-note" id="mtClearNote">다음 라운드로 가볼까요?</p>
+            <button class="btn btn-primary" id="mtNextBtn" type="button">다음 라운드</button>
+            <button class="btn btn-ghost" id="mtClearHomeBtn" type="button" hidden>그만두기</button>
+          </div>
+        </div>
+
+        <div class="board-overlay" id="mtGameover" hidden>
+          <div class="ov-card">
+            <div class="ov-emoji" aria-hidden="true">⏰</div>
+            <h2>시간이 다 됐어요!</h2>
+            <div class="result-score">
+              <span>이번 점수</span>
+              <b id="mtFinalScore">0</b>
+            </div>
+            <p class="ov-note" id="mtBestNote">최고 기록 0점</p>
+            <p class="result-player">이번 판 <b id="mtResultPlayer">솜이</b>
+              <button class="link-btn" type="button" data-change-player="match">바꾸기</button></p>
+            <div class="ov-buttons">
+              <button class="btn btn-primary" id="mtRetryBtn" type="button">한 번 더 <span class="btn-cost">-1회</span></button>
+              <button class="btn btn-ghost" id="mtHomeBtn" type="button">그만두기</button>
+            </div>
+            <button class="link-btn result-rank-link" type="button" data-open-rank="match">🏆 가족 랭킹 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======== 문제 풀기 (퀴즈) ======== -->
+  <div class="sheet" id="quizSheet" hidden>
+    <div class="sheet-backdrop" data-close="quiz"></div>
+    <div class="sheet-panel quiz-panel" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+      <div class="sheet-head">
+        <div>
+          <h2 id="quizTitle">📚 문제 풀고 +1회</h2>
+          <p class="sheet-sub">영어·수학 5문제를 맞히면 놀이 1회가 충전돼요</p>
+        </div>
+        <button class="icon-btn close-btn" type="button" data-close="quiz" aria-label="닫기">✕</button>
+      </div>
+
+      <div class="quiz-top">
+        <div class="quiz-progress" id="quizDots" aria-label="문제 진행"></div>
+        <div class="quiz-scorebox">
+          <span>정답</span><b id="quizCorrectCount">0</b><span>/ 5</span>
+        </div>
+      </div>
+
+      <div class="quiz-body" id="quizBody">
+        <div class="quiz-badge" id="quizBadge">영어</div>
+        <div class="quiz-prompt" id="quizPrompt"></div>
+        <button class="speak-btn" id="quizSpeakBtn" type="button">
+          <span aria-hidden="true">🔊</span> 발음 듣기
+        </button>
+        <div class="quiz-choices" id="quizChoices"></div>
+        <div class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="quiz-done" id="quizDone" hidden>
+        <div class="done-emoji" aria-hidden="true">🎉</div>
+        <h3>5문제 모두 맞혔어요!</h3>
+        <p>오늘 놀이 <b>+1회</b>가 충전됐어요</p>
+        <p class="ov-note" id="quizDoneNote">오늘 남은 횟수 4회</p>
+        <button class="btn btn-primary" id="quizDoneBtn" type="button">신나게 놀러 가기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 관리자 (PIN) ======== -->
+  <div class="sheet" id="adminSheet" hidden>
+    <div class="sheet-backdrop" data-close="admin"></div>
+    <div class="sheet-panel admin-panel" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="sheet-head">
+        <div>
+          <h2 id="adminTitle">⚙️ 관리자</h2>
+          <p class="sheet-sub">보호자만 열 수 있어요</p>
+        </div>
+        <button class="icon-btn close-btn" type="button" data-close="admin" aria-label="닫기">✕</button>
+      </div>
+
+      <div class="pin-pad" id="adminPinPad">
+        <div class="pin-dots" id="adminPinDots" aria-label="입력한 PIN"><i></i><i></i><i></i><i></i></div>
+        <p class="pin-msg" id="adminPinMsg">PIN 4자리를 눌러 주세요</p>
+        <div class="pin-keys" id="adminKeys">
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" data-key="clear" class="key-fn">지우기</button>
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key="back" class="key-fn" aria-label="한 글자 지우기">⌫</button>
+        </div>
+      </div>
+
+      <div class="admin-body" id="adminBody" hidden>
+        <div class="admin-grid">
+          <div class="setting-card">
+            <span class="setting-label">하루 기본 횟수</span>
+            <div class="stepper" data-stepper="daily">
+              <button type="button" data-step="-1" aria-label="줄이기">−</button>
+              <b id="setDaily">3</b><span class="stepper-unit">회</span>
+              <button type="button" data-step="1" aria-label="늘리기">+</button>
+            </div>
+            <span class="setting-hint">1 ~ 20회</span>
+          </div>
+
+          <div class="setting-card">
+            <span class="setting-label">아이 나이</span>
+            <div class="stepper" data-stepper="age">
+              <button type="button" data-step="-1" aria-label="줄이기">−</button>
+              <b id="setAge">8</b><span class="stepper-unit">세</span>
+              <button type="button" data-step="1" aria-label="늘리기">+</button>
+            </div>
+            <span class="setting-hint" id="ageHint">8~9세 · 영어·수학 난이도</span>
+          </div>
+        </div>
+
+        <div class="admin-actions">
+          <button class="btn btn-soft" id="adminResetBtn" type="button">오늘 횟수 초기화</button>
+          <button class="btn btn-soft" id="adminChargeBtn" type="button">+1회 충전</button>
+        </div>
+
+        <div class="today-card">
+          <div class="today-row">
+            <span>오늘 쓴 횟수</span><b id="statUsed">0회</b>
+          </div>
+          <div class="today-row">
+            <span>지금 남은 횟수</span><b id="statLeft">3회</b>
+          </div>
+        </div>
+
+        <!-- 📊 아이들 활동 리포트 -->
+        <section class="report" id="reportSection">
+          <div class="report-head">
+            <h3>📊 아이들 활동 리포트</h3>
+            <span class="report-age" id="reportAge">8~9세</span>
+          </div>
+
+          <div class="report-today" id="reportToday"></div>
+
+          <div class="report-days-head">
+            <span>최근 7일</span>
+            <button class="link-btn" id="reportToggle" type="button">자세히</button>
+          </div>
+          <div class="report-total" id="reportTotal"></div>
+          <ul class="report-list" id="reportList"></ul>
+
+          <div class="report-export">
+            <p class="report-export-note">가족 앱에서 읽어 갈 수 있는 기록이에요</p>
+            <div class="report-export-btns">
+              <button class="btn btn-soft" id="reportCopyBtn" type="button">JSON 복사</button>
+              <button class="btn btn-soft" id="reportDownloadBtn" type="button">JSON 저장</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="admin-foot">
+          <button class="link-btn" id="adminPinChangeBtn" type="button">PIN 변경</button>
+          <span class="dot">·</span>
+          <button class="link-btn" id="adminDoneBtn" type="button">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 횟수 소진 안내 ======== -->
+  <div class="sheet" id="limitSheet" hidden>
+    <div class="sheet-backdrop" data-close="limit"></div>
+    <div class="sheet-panel limit-panel" role="dialog" aria-modal="true" aria-labelledby="limitTitle">
+      <div class="ov-card">
+        <div class="ov-emoji" aria-hidden="true">🌙</div>
+        <h2 id="limitTitle">오늘 놀이를 다 했어요</h2>
+        <p class="ov-desc" id="limitDesc">문제를 풀면 한 번 더 놀 수 있어요!</p>
+        <div class="ov-buttons">
+          <button class="btn btn-primary" id="limitQuizBtn" type="button">📚 문제 풀고 +1회</button>
+          <button class="btn btn-ghost" id="limitAdminBtn" type="button">⚙️ 관리자</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== PIN 변경 ======== -->
+  <div class="sheet" id="pinSheet" hidden>
+    <div class="sheet-backdrop" data-close="pin"></div>
+    <div class="sheet-panel pin-panel" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+      <div class="sheet-head">
+        <h2 id="pinTitle">PIN 변경</h2>
+        <button class="icon-btn close-btn" type="button" data-close="pin" aria-label="닫기">✕</button>
+      </div>
+      <p class="sheet-sub">새 PIN 4자리를 입력해 주세요</p>
+      <div class="pin-dots" id="pinDots" aria-label="새 PIN"><i></i><i></i><i></i><i></i></div>
+      <p class="pin-msg" id="pinMsg"></p>
+      <div class="pin-keys" id="pinKeys">
+        <button type="button" data-key="1">1</button>
+        <button type="button" data-key="2">2</button>
+        <button type="button" data-key="3">3</button>
+        <button type="button" data-key="4">4</button>
+        <button type="button" data-key="5">5</button>
+        <button type="button" data-key="6">6</button>
+        <button type="button" data-key="7">7</button>
+        <button type="button" data-key="8">8</button>
+        <button type="button" data-key="9">9</button>
+        <button type="button" data-key="clear" class="key-fn">지우기</button>
+        <button type="button" data-key="0">0</button>
+        <button type="button" data-key="back" class="key-fn" aria-label="한 글자 지우기">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== 🏆 가족 랭킹 ======== -->
+  <div class="sheet" id="rankSheet" hidden>
+    <div class="sheet-backdrop" data-close="rank"></div>
+    <div class="sheet-panel rank-panel" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
+      <div class="sheet-head">
+        <div>
+          <h2 id="rankTitle">🏆 가족 랭킹</h2>
+          <p class="sheet-sub">게임별 Top 10 · 점수가 같으면 먼저 세운 기록이 앞서요</p>
+        </div>
+        <button class="icon-btn close-btn" type="button" data-close="rank" aria-label="닫기">✕</button>
+      </div>
+      <div class="rank-tabs" role="tablist" aria-label="게임 선택">
+        <button type="button" class="rank-tab is-on" data-rank="watermelon">🍉 과일 합치기</button>
+        <button type="button" class="rank-tab" data-rank="match">🃏 영단어 짝</button>
+      </div>
+      <ol class="rank-list" id="rankList"></ol>
+      <p class="rank-empty" id="rankEmpty" hidden>아직 기록이 없어요.<br />첫 기록을 세워 볼까요?</p>
+      <p class="rank-foot" id="rankFoot">놀이가 끝나면 내 기록이 자동으로 올라가요</p>
+    </div>
+  </div>
+
+  <!-- ======== 플레이어 정하기 ======== -->
+  <div class="sheet" id="playerSheet" hidden>
+    <div class="sheet-backdrop" data-close="player"></div>
+    <div class="sheet-panel player-panel" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+      <div class="sheet-head">
+        <div>
+          <h2 id="playerTitle">누가 놀까요?</h2>
+          <p class="sheet-sub">이름을 고르면 랭킹에 그 이름으로 올라가요</p>
+        </div>
+        <button class="icon-btn close-btn" type="button" data-close="player" aria-label="닫기">✕</button>
+      </div>
+      <div class="player-chips player-chips-lg" id="playerSheetChips"></div>
+      <div class="player-custom">
+        <input id="playerInput" type="text" maxlength="8" placeholder="직접 입력 (8자까지)" autocomplete="off" />
+        <button class="btn btn-primary" id="playerSaveBtn" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+</div>
+
+<script src="js/stats.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ranking.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/words.js"></script>
+<script src="js/quiz-data.js"></script>
+<script src="js/fruits.js"></script>
+<script src="js/watermelon.js"></script>
+<script src="js/matching.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/report.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
