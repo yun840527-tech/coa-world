@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fdf3e3">
+<meta name="description" content="아이템을 터뜨려 즐기는 코아 테트리스 — 라운드마다 빨라지는 낙하, 6종 아이템, 방해 줄까지.">
+<title>코아 테트리스 🐶</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <div class="cabinet">
+    <header class="hud">
+      <div class="hud-top">
+        <div class="brand">
+          <span class="brand-dog" aria-hidden="true">🐶</span>
+          <span class="brand-name">코아 테트리스</span>
+        </div>
+        <div class="hud-right">
+          <button class="plays" id="btn-plays" type="button" title="오늘 남은 플레이 횟수">
+            <span class="plays-ico" aria-hidden="true">🎮</span>
+            <span class="plays-label">남은 횟수 </span><b id="plays-left">3</b><span class="slash">/</span><span id="plays-max">3</span>
+          </button>
+          <button id="btn-admin" class="icon-btn" type="button" aria-label="관리자 설정" title="관리자 설정">⚙️</button>
+          <button id="btn-sound" class="icon-btn" type="button" aria-label="소리 끄기" title="소리 (M)">🔊</button>
+          <button id="btn-pause" class="icon-btn" type="button" aria-label="일시정지" title="일시정지 (P)">⏸</button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="k">ROUND</span>
+          <b id="round" class="v">1</b>
+        </div>
+        <div class="stat score">
+          <span class="k">SCORE</span>
+          <b id="score" class="v">0</b>
+        </div>
+        <div class="stat best">
+          <span class="k">BEST</span>
+          <b id="best" class="v">0</b>
+        </div>
+      </div>
+    </header>
+
+    <div class="strip">
+      <div class="mini">
+        <span class="mini-k">HOLD</span>
+        <canvas id="hold-canvas" width="100" height="90"></canvas>
+      </div>
+      <div class="effects" id="effects" aria-live="polite"></div>
+      <div class="mini next">
+        <span class="mini-k">NEXT</span>
+        <canvas id="next-canvas" width="180" height="90"></canvas>
+      </div>
+    </div>
+
+    <div class="board-wrap" id="board-wrap">
+      <div class="board-frame">
+        <canvas id="board" aria-label="테트리스 보드"></canvas>
+        <canvas id="fx" aria-hidden="true"></canvas>
+        <div class="banner" id="banner" aria-live="polite"></div>
+        <div class="flash" id="flash" aria-hidden="true"></div>
+      </div>
+
+      <div class="overlay" id="overlay" data-screen="start">
+        <div class="ov-card" data-screen="start">
+          <div class="ov-dog" aria-hidden="true">
+            <svg viewBox="0 0 120 120" width="86" height="86">
+              <ellipse cx="60" cy="66" rx="34" ry="31" fill="#f6d9b6"/>
+              <path d="M28 44c-8-16 2-26 12-22 6 2 8 10 6 18z" fill="#c98a5a"/>
+              <path d="M92 44c8-16-2-26-12-22-6 2-8 10-6 18z" fill="#c98a5a"/>
+              <ellipse cx="50" cy="62" rx="4.6" ry="5.4" fill="#4a3b30"/>
+              <ellipse cx="70" cy="62" rx="4.6" ry="5.4" fill="#4a3b30"/>
+              <ellipse cx="60" cy="74" rx="6" ry="4.6" fill="#4a3b30"/>
+              <path d="M60 79v4" stroke="#4a3b30" stroke-width="2.4" stroke-linecap="round"/>
+              <ellipse cx="52" cy="88" rx="7" ry="4" fill="#ffb3b3" opacity=".65"/>
+              <ellipse cx="68" cy="88" rx="7" ry="4" fill="#ffb3b3" opacity=".65"/>
+            </svg>
+          </div>
+          <h1>코아 테트리스</h1>
+          <p class="ov-sub">블록에 붙은 아이템을 터뜨려라!</p>
+          <ul class="ov-items">
+            <li><span>💣</span>폭탄</li>
+            <li><span>⚡</span>번개</li>
+            <li><span>🐢</span>슬로우</li>
+            <li><span>🧲</span>중력</li>
+            <li><span>🌟</span>2배</li>
+            <li><span>🧹</span>청소</li>
+          </ul>
+          <button class="cta" id="btn-start" type="button">시작하기</button>
+          <button class="cta quiz-cta" id="btn-quiz-start" type="button" hidden>📚 영어·수학 문제 풀고 +1회 받기</button>
+          <p class="ov-plays">오늘 남은 횟수 <b id="start-plays">3</b> / <span id="start-plays-max">3</span></p>
+          <p class="ov-hint">아이템이 있는 줄을 지우면 발동!<br>라운드가 오를수록 빨라지고, 3라운드부터 방해 줄이 올라와요.</p>
+        </div>
+
+        <div class="ov-card" data-screen="pause">
+          <h2>잠시 쉬는 중 🐾</h2>
+          <p class="ov-sub">숨 고르고 다시 할까요?</p>
+          <button class="cta" id="btn-resume" type="button">계속하기</button>
+          <button class="cta ghost" id="btn-restart-pause" type="button">처음부터</button>
+        </div>
+
+        <div class="ov-card" data-screen="over">
+          <h2>게임 끝!</h2>
+          <div class="ov-score">
+            <div><span>SCORE</span><b id="over-score">0</b></div>
+            <div><span>ROUND</span><b id="over-round">1</b></div>
+            <div><span>LINES</span><b id="over-lines">0</b></div>
+          </div>
+          <p class="ov-sub" id="over-msg">수고했어요!</p>
+          <p class="ov-plays">오늘 남은 횟수 <b id="over-plays">3</b> / <span id="over-plays-max">3</span></p>
+          <button class="cta" id="btn-restart" type="button">다시 도전</button>
+          <button class="cta quiz-cta" id="btn-quiz-over" type="button" hidden>📚 영어·수학 문제 풀고 +1회 받기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <button class="pad" data-act="left" type="button" aria-label="왼쪽으로">◀</button>
+      <button class="pad" data-act="down" type="button" aria-label="아래로">▼</button>
+      <button class="pad" data-act="right" type="button" aria-label="오른쪽으로">▶</button>
+      <button class="pad rotate" data-act="rotate" type="button" aria-label="회전">↻</button>
+      <button class="pad hold" data-act="hold" type="button" aria-label="홀드">HOLD</button>
+      <button class="pad hard" data-act="hard" type="button" aria-label="하드 드롭">⬇ 하드드롭</button>
+      <button class="pad pause" data-act="pause" type="button" aria-label="일시정지">⏸</button>
+    </div>
+  </div>
+
+  <aside class="guide">
+    <section class="g-card">
+      <h3>아이템 도감</h3>
+      <ul class="g-items">
+        <li><span class="g-ico">💣</span><div><b>폭탄</b><p>주변 3×3 블록을 통째로 날려요</p></div></li>
+        <li><span class="g-ico">⚡</span><div><b>번개</b><p>가장 아래에 쌓인 줄 하나를 지워요</p></div></li>
+        <li><span class="g-ico">🐢</span><div><b>슬로우</b><p>8초 동안 낙하 속도 절반</p></div></li>
+        <li><span class="g-ico">🧲</span><div><b>중력 압축</b><p>떠 있는 블록을 아래로 끌어내려요</p></div></li>
+        <li><span class="g-ico">🌟</span><div><b>2배 피버</b><p>10초 동안 점수 두 배</p></div></li>
+        <li><span class="g-ico">🧹</span><div><b>바닥 청소</b><p>맨 아래 두 줄을 한 번에 비워요</p></div></li>
+      </ul>
+    </section>
+    <section class="g-card">
+      <h3>조작법</h3>
+      <ul class="keys">
+        <li><kbd>←</kbd><kbd>→</kbd><span>이동</span></li>
+        <li><kbd>↑</kbd><span>회전</span></li>
+        <li><kbd>↓</kbd><span>소프트 드롭</span></li>
+        <li><kbd>Space</kbd><span>하드 드롭</span></li>
+        <li><kbd>C</kbd><span>홀드</span></li>
+        <li><kbd>P</kbd><span>일시정지</span></li>
+      </ul>
+    </section>
+    <section class="g-card tip">
+      <h3>한 줄 팁</h3>
+      <p>아이템이 박힌 블록을 한 줄에 모아 지우면, 그 줄이 터지면서 아이템이 발동해요. 3라운드부터 올라오는 회색 방해 줄은 구멍을 맞춰 지우세요.</p>
+    </section>
+  </aside>
+</div>
+
+<!-- ── 관리자 PIN ── -->
+<div class="modal" id="modal-pin" hidden>
+  <div class="m-card" role="dialog" aria-modal="true" aria-labelledby="pin-title">
+    <h2 id="pin-title">⚙️ 관리자</h2>
+    <p class="m-sub">관리자 PIN 4자리를 입력해 주세요</p>
+    <input class="pin-input" id="pin-input" type="tel" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" aria-label="관리자 PIN">
+    <p class="m-err" id="pin-err"></p>
+    <button class="cta" id="btn-pin-ok" type="button">확인</button>
+    <p class="m-hint">기본 PIN은 <b>5927</b>이에요. 확인 후 관리자 설정에서 바꿀 수 있어요.</p>
+    <button class="cta ghost" type="button" data-close="pin">닫기</button>
+  </div>
+</div>
+
+<!-- ── 관리자 설정 ── -->
+<div class="modal" id="modal-admin" hidden>
+  <div class="m-card" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+    <h2 id="admin-title">⚙️ 관리자 설정</h2>
+    <div class="m-row">
+      <span>하루 기본 횟수</span>
+      <div class="stepper">
+        <button type="button" data-step="-1" aria-label="줄이기">−</button>
+        <b id="adm-base">3</b>
+        <button type="button" data-step="1" aria-label="늘리기">+</button>
+      </div>
+    </div>
+    <div class="m-row">
+      <span>아이 나이</span>
+      <div class="stepper">
+        <button type="button" data-age="-1" aria-label="나이 줄이기">−</button>
+        <b id="adm-age">10세</b>
+        <button type="button" data-age="1" aria-label="나이 늘리기">+</button>
+      </div>
+    </div>
+    <div class="age-picks" id="adm-age-picks"></div>
+    <p class="m-hint" id="adm-age-hint">초3~4 수준 · 구구단 전체, 두 자리 곱셈·나눗셈</p>
+    <div class="m-row">
+      <span>오늘 현황</span>
+      <b class="m-val" id="adm-today">남은 3 / 전체 3</b>
+    </div>
+
+    <div class="sr">
+      <div class="sr-head">
+        <b>📊 아이들 활동 리포트</b>
+        <button type="button" id="adm-stats-export">JSON 복사</button>
+      </div>
+      <div class="sr-today" id="sr-today"></div>
+      <div class="sr-table-wrap">
+        <table class="sr-table">
+          <thead>
+            <tr><th>날짜</th><th>플레이</th><th>최고점</th><th>퀴즈</th><th>충전</th></tr>
+          </thead>
+          <tbody id="sr-rows"></tbody>
+        </table>
+      </div>
+      <p class="sr-note">최근 7일 기록 · 기기 안에만 저장돼요</p>
+    </div>
+    <div class="m-actions">
+      <button type="button" id="adm-reset">오늘 횟수 초기화</button>
+      <button type="button" id="adm-plus">+1회 추가</button>
+    </div>
+    <div class="m-row">
+      <span>PIN 변경</span>
+      <input class="pin-input small" id="adm-pin" type="tel" inputmode="numeric" maxlength="4" aria-label="새 PIN">
+    </div>
+    <p class="m-err" id="adm-err"></p>
+    <button class="cta" id="adm-save" type="button">저장하고 닫기</button>
+    <button class="cta ghost" type="button" data-close="admin">닫기</button>
+  </div>
+</div>
+
+<!-- ── 영어·수학 퀴즈 ── -->
+<div class="modal" id="modal-quiz" hidden>
+  <div class="m-card quiz-card" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+    <p class="quiz-age-badge">현재 설정: <b id="quiz-age">10세</b> 수준</p>
+    <div id="quiz-setup">
+      <h2 id="quiz-title">📚 문제 풀고 +1회</h2>
+      <p class="m-sub">5문제를 <b>모두</b> 맞히면 오늘 플레이 1회가 충전돼요.</p>
+      <div class="quiz-pick">
+        <button type="button" data-subject="english"><span>🔤</span>영어</button>
+        <button type="button" data-subject="math"><span>➗</span>수학</button>
+        <button type="button" data-subject="mixed"><span>🎲</span>랜덤</button>
+      </div>
+      <p class="m-hint">나이는 <b>관리자 설정(⚙️)</b>에서 바꿀 수 있어요</p>
+      <button class="cta ghost" type="button" data-close="quiz">닫기</button>
+    </div>
+
+    <div id="quiz-play" hidden>
+      <div class="quiz-head">
+        <span class="quiz-prog" id="quiz-prog">1 / 5</span>
+        <div class="dots" id="quiz-dots"></div>
+      </div>
+      <p class="quiz-q" id="quiz-q">문제</p>
+      <button class="quiz-speak" id="quiz-speak" type="button" hidden>🔊 발음 듣기</button>
+      <div class="choices" id="quiz-choices"></div>
+      <p class="quiz-fb" id="quiz-fb"></p>
+    </div>
+
+    <div id="quiz-result" hidden>
+      <div class="quiz-emoji" id="quiz-emoji">🎉</div>
+      <h2 id="quiz-result-title">정답!</h2>
+      <p class="m-sub" id="quiz-result-msg"></p>
+      <button class="cta" id="btn-quiz-done" type="button">게임 시작</button>
+      <button class="cta ghost" id="btn-quiz-retry" type="button">다시 풀기</button>
+      <button class="cta ghost" type="button" data-close="quiz">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="meta.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
